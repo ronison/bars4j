@@ -24,30 +24,8 @@ import java.awt.image.BufferedImage;
 import java.io.FileOutputStream;
 
 import org.bars4j.Barcode;
-import org.bars4j.encode.CodabarEncoder;
-import org.bars4j.encode.Code128Encoder;
-import org.bars4j.encode.Code39Encoder;
-import org.bars4j.encode.Code93Encoder;
-import org.bars4j.encode.Code93ExtEncoder;
-import org.bars4j.encode.Datalogic2of5Encoder;
-import org.bars4j.encode.EAN13Encoder;
-import org.bars4j.encode.EAN5Encoder;
-import org.bars4j.encode.EAN8Encoder;
-import org.bars4j.encode.IATA2of5Encoder;
-import org.bars4j.encode.Interleaved2of5Encoder;
-import org.bars4j.encode.Matrix2of5Encoder;
-import org.bars4j.encode.PostNetEncoder;
-import org.bars4j.encode.Standard2of5Encoder;
+import org.bars4j.BarcodeFactory;
 import org.bars4j.encode.UPCAEncoder;
-import org.bars4j.encode.UPCEEncoder;
-import org.bars4j.paint.BaseLineTextPainter;
-import org.bars4j.paint.EAN13TextPainter;
-import org.bars4j.paint.EAN8TextPainter;
-import org.bars4j.paint.HeightCodedPainter;
-import org.bars4j.paint.UPCATextPainter;
-import org.bars4j.paint.UPCETextPainter;
-import org.bars4j.paint.WideRatioCodedPainter;
-import org.bars4j.paint.WidthCodedPainter;
 import org.bars4j.util.ImageUtil;
 
 
@@ -69,144 +47,134 @@ public class SimpleDemo {
         
         try{
             //Creates a JBarcode with a EAN13Encoder and a WidthCodedPainter
-            Barcode jbcode = new Barcode(EAN13Encoder.getInstance(), WidthCodedPainter.getInstance(), EAN13TextPainter.getInstance());
+            Barcode jbcode = BarcodeFactory.getInstance().createEAN13();
             
             String code = "788515004012";
             BufferedImage img = jbcode.createBarcode(code);
             saveToGIF(img, "EAN13.gif");
             
             //EAN8 Code Example
-            jbcode.setEncoder(EAN8Encoder.getInstance());
-            jbcode.setTextPainter(EAN8TextPainter.getInstance());
+            jbcode = BarcodeFactory.getInstance().createEAN8();
+           
             code = "9788515";        
             img = jbcode.createBarcode(code);
             saveToPNG(img, "EAN8.png");
             
             //EAN5 Code Example
-            jbcode.setEncoder(EAN5Encoder.getInstance());
-            jbcode.setTextPainter(BaseLineTextPainter.getInstance());
-            jbcode.setCheckDigit(false);
+            jbcode = BarcodeFactory.getInstance().createEAN5();
+            
             code = "54495";
-            jbcode.toString();
             img = jbcode.createBarcode(code);
             saveToPNG(img, "EAN5.png");
             
             //UPCA Code Example
-            jbcode.setEncoder(UPCAEncoder.getInstance());
-            jbcode.setTextPainter(UPCATextPainter.getInstance());
-            jbcode.setCheckDigit(true);
+            jbcode = BarcodeFactory.getInstance().createUPCA();
+            
             code = "07567816415";        
             img = jbcode.createBarcode(code);
             saveToPNG(img, "UPCA.png");
             
             //UPCE Code Example
-            jbcode.setEncoder(UPCEEncoder.getInstance());
-            jbcode.setTextPainter(UPCETextPainter.getInstance());
+            jbcode = BarcodeFactory.getInstance().createUPCE();
+            
             code = UPCAEncoder.getInstance().convertUPCAtoUPCE("07567816415");        
             img = jbcode.createBarcode(code);
             saveToPNG(img, "UPCE.png");
             
             //Codabar Code Example
-            jbcode.setEncoder(CodabarEncoder.getInstance());
-            jbcode.setPainter(WideRatioCodedPainter.getInstance());
-            jbcode.setTextPainter(BaseLineTextPainter.getInstance());
+            jbcode = BarcodeFactory.getInstance().createCodabar();
+            
             code = "97885150040-85";
-            jbcode.setWideRatio(3.0);
             img = jbcode.createBarcode(code);
             saveToJPEG(img, "Codabar.jpg");
             
             //Code39 Code Example
-            jbcode.setEncoder(Code39Encoder.getInstance());
-            jbcode.setPainter(WideRatioCodedPainter.getInstance());
-            jbcode.setTextPainter(BaseLineTextPainter.getInstance());
-            jbcode.setShowCheckDigit(false);
-            code = "JBARCODE-39";
+            jbcode = BarcodeFactory.getInstance().createCode39();
+            
+            code = "BARS4J-39";
             img = jbcode.createBarcode(code);
             saveToPNG(img, "Code39.png");
             
+            //Code39 Code Example
+            jbcode = BarcodeFactory.getInstance().createCode39Extended();
+            
+            code = "Bars4J-39 Ext";
+            img = jbcode.createBarcode(code);
+            saveToPNG(img, "Code39Ext.png");
+            
             //Code93 Code Example
-            jbcode.setEncoder(Code93Encoder.getInstance());
-            jbcode.setPainter(WidthCodedPainter.getInstance());
-            jbcode.setTextPainter(BaseLineTextPainter.getInstance());
-            jbcode.setShowCheckDigit(false);
-            code = "JBARCODE-93";
+            jbcode = BarcodeFactory.getInstance().createCode93();
+            
+            code = "BARS4J-93";
             img = jbcode.createBarcode(code);
             saveToPNG(img, "Code93.png");
             
             //Code93Ex Code Example
-            jbcode.setEncoder(Code93ExtEncoder.getInstance());
-            jbcode.setPainter(WidthCodedPainter.getInstance());
-            jbcode.setTextPainter(BaseLineTextPainter.getInstance());
-            jbcode.setShowCheckDigit(false);
-            code = "JBARCODE-93Ext";
+            jbcode = BarcodeFactory.getInstance().createCode93Extended();
+            
+            code = "Bars4J-93 Ext";
             img = jbcode.createBarcode(code);
             saveToPNG(img, "Code93Ext.png");
             
             //Code128 Code Example
-            jbcode.setEncoder(Code128Encoder.getInstance());
-            jbcode.setPainter(WidthCodedPainter.getInstance());
-            jbcode.setTextPainter(BaseLineTextPainter.getInstance());
-            jbcode.setShowCheckDigit(false);
-            code = "JBarcode-128";
+            jbcode = BarcodeFactory.getInstance().createCode128();
+            
+            code = "Bars4J-128";
             img = jbcode.createBarcode(code);
             saveToPNG(img, "Code128.png");
             
+            //Code11 Code Example
+            jbcode = BarcodeFactory.getInstance().createCode11();
+            
+            code = "9788515004041";
+            img = jbcode.createBarcode(code);
+            saveToPNG(img, "Code128.png");
+            
+            //Code MSIPlessey Code Example
+            jbcode = BarcodeFactory.getInstance().createMSIPlessey();
+            
+            code = "9788515004041";
+            img = jbcode.createBarcode(code);
+            saveToPNG(img, "MSIPlessey.png");
+            
             //Standard 2 of 5 Code Example
-            jbcode.setEncoder(Standard2of5Encoder.getInstance());
-            jbcode.setPainter(WideRatioCodedPainter.getInstance());
-            jbcode.setTextPainter(BaseLineTextPainter.getInstance());
-            jbcode.setShowCheckDigit(true);
-            jbcode.setXDimension(0.5291666);
-            code = "978851500404";
+            jbcode = BarcodeFactory.getInstance().createStandard2of5();
+            
+            code = "9788515004041";
             img = jbcode.createBarcode(code);
             saveToJPEG(img, "Standard2of5.jpg");
             
             //IATA 2 of 5 Code Example
-            jbcode.setEncoder(IATA2of5Encoder.getInstance());
-            jbcode.setPainter(WideRatioCodedPainter.getInstance());
-            jbcode.setTextPainter(BaseLineTextPainter.getInstance());
-            jbcode.setShowCheckDigit(true);
-            jbcode.setXDimension(0.5291666);
+            jbcode = BarcodeFactory.getInstance().createIATA2of5();
+            
             code = "978851500404";
             img = jbcode.createBarcode(code);
             saveToPNG(img, "IATA2of5.png");
             
             //Matrix 2 of 5 Code Example
-            jbcode.setEncoder(Matrix2of5Encoder.getInstance());
-            jbcode.setPainter(WideRatioCodedPainter.getInstance());
-            jbcode.setTextPainter(BaseLineTextPainter.getInstance());
-            jbcode.setShowCheckDigit(true);
-            jbcode.setXDimension(0.5291666);
+            jbcode = BarcodeFactory.getInstance().createMatrix2of5();
+            
             code = "123456";
             img = jbcode.createBarcode(code);
             saveToPNG(img, "Matrix2of5.png");
             
             //Datalogic 2 of 5 Code Example
-            jbcode.setEncoder(Datalogic2of5Encoder.getInstance());
-            jbcode.setPainter(WideRatioCodedPainter.getInstance());
-            jbcode.setTextPainter(BaseLineTextPainter.getInstance());
-            jbcode.setShowCheckDigit(true);
-            jbcode.setXDimension(0.5291666);
+            jbcode = BarcodeFactory.getInstance().createDatalogic2of5();
+            
             code = "123456";
             img = jbcode.createBarcode(code);
             saveToPNG(img, "Datalogic2of5.png");
             
             //Interleaved 2 of 5 Code Example
-            jbcode.setEncoder(Interleaved2of5Encoder.getInstance());
-            jbcode.setPainter(WideRatioCodedPainter.getInstance());
-            jbcode.setTextPainter(BaseLineTextPainter.getInstance());
-            jbcode.setShowCheckDigit(true);
-            jbcode.setXDimension(0.5291666);
+            jbcode = BarcodeFactory.getInstance().createInterleaved2of5();
+            
             code = "9876543210921";        
             img = jbcode.createBarcode(code);
             saveToPNG(img, "Interleaved2of5.png");
             
             //PostNet Code Example
-            jbcode.setEncoder(PostNetEncoder.getInstance());
-            jbcode.setPainter(HeightCodedPainter.getInstance());
-            jbcode.setBarHeight(6);
-            jbcode.setXDimension(0.5291666);
-            jbcode.setShowText(false);
+            jbcode = BarcodeFactory.getInstance().createPostNet();
+            
             code = "805365961"; 
             img = jbcode.createBarcode(code);
             saveToJPEG(img, "PostNet.jpg");

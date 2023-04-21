@@ -90,7 +90,7 @@ public class ImageUtil {
 		} else if(GIF.equals(format)){
 			Gif89Encoder gifenc = new Gif89Encoder();
 			gifenc.addFrame(image);
-			gifenc.setComments("JBarcode (http://jbarcode.ronisons.com)");
+			gifenc.setComments("Bars4J 0.3.0");
 			gifenc.encode(out);
 		}else {
 			throw new IOException("Unsupported image type");

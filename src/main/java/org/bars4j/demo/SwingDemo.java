@@ -33,33 +33,13 @@ import javax.swing.border.BevelBorder;
 
 import org.bars4j.Barcode;
 import org.bars4j.BarcodeComponent;
+import org.bars4j.BarcodeFactory;
 import org.bars4j.encode.BarcodeEncoder;
-import org.bars4j.encode.CodabarEncoder;
-import org.bars4j.encode.Code11Encoder;
-import org.bars4j.encode.Code128Encoder;
-import org.bars4j.encode.Code39Encoder;
-import org.bars4j.encode.Code39ExtEncoder;
-import org.bars4j.encode.Code93Encoder;
-import org.bars4j.encode.Code93ExtEncoder;
 import org.bars4j.encode.EAN13Encoder;
-import org.bars4j.encode.EAN8Encoder;
-import org.bars4j.encode.IATA2of5Encoder;
-import org.bars4j.encode.Interleaved2of5Encoder;
 import org.bars4j.encode.InvalidAtributeException;
-import org.bars4j.encode.MSIPlesseyEncoder;
-import org.bars4j.encode.PostNetEncoder;
-import org.bars4j.encode.Standard2of5Encoder;
-import org.bars4j.encode.UPCAEncoder;
-import org.bars4j.encode.UPCEEncoder;
 import org.bars4j.paint.BarcodePainter;
-import org.bars4j.paint.BaseLineTextPainter;
 import org.bars4j.paint.EAN13TextPainter;
-import org.bars4j.paint.EAN8TextPainter;
-import org.bars4j.paint.HeightCodedPainter;
 import org.bars4j.paint.TextPainter;
-import org.bars4j.paint.UPCATextPainter;
-import org.bars4j.paint.UPCETextPainter;
-import org.bars4j.paint.WideRatioCodedPainter;
 import org.bars4j.paint.WidthCodedPainter;
 
 
@@ -90,7 +70,6 @@ public class SwingDemo extends javax.swing.JFrame {
     private JTextField jTextField2;
     private JButton jButton1;
     private JTextField jTextField1;
-    private Barcode jBarcode_IL;
     
     int index = 0;
 
@@ -109,20 +88,14 @@ public class SwingDemo extends javax.swing.JFrame {
     
     private void initGUI() {
         try {
-            {
-                BarcodePainter bp = WidthCodedPainter.getInstance();
-                BarcodeEncoder be = EAN13Encoder.getInstance();
-                TextPainter txtpainter = EAN13TextPainter.getInstance();
-                jBarcode_IL = new Barcode(be, bp, txtpainter);
-                jBarcode_IL.setBarHeight(17);
-            }
+ 
             setSize(400, 300);
             {
                 
                 {
                     getContentPane().setLayout(null);
                     this.setTitle("JBarcode - Swing Demo");
-                    jbc = new BarcodeComponent(jBarcode_IL);
+                    jbc = new BarcodeComponent(BarcodeFactory.getInstance().createEAN13());
                     getContentPane().add(jbc);
                     jbc.setBounds(21, 7, 357, 154);
                     jbc.setBorder(BorderFactory.createEtchedBorder(BevelBorder.LOWERED));
@@ -206,7 +179,7 @@ public class SwingDemo extends javax.swing.JFrame {
                     getContentPane().add(typeText);
                     typeText.setBounds(70, 224, 112, 28);
                     typeText.setEditable(false);
-                    typeText.setText(jBarcode_IL.toString());
+                    typeText.setText(jbc.getBarcode().toString());
                 }
                 {
                     jButton3 = new JButton();
@@ -255,141 +228,74 @@ public class SwingDemo extends javax.swing.JFrame {
         switch (val) {
         case 0:
             setTextToSize(12);
-            jbc.setEncoder(EAN13Encoder.getInstance());
-            jbc.setTextPainter(EAN13TextPainter.getInstance());
-            jbc.setShowText(true);
-            jbc.setCheckDigit(true);
-            jbc.setShowCheckDigit(true);
+            jbc.setBarcode(BarcodeFactory.getInstance().createEAN13());
             jButton3.setEnabled(false);
             break;
             
         case 1:
-            jbc.setEncoder(UPCAEncoder.getInstance());
-            jbc.setTextPainter(UPCATextPainter.getInstance());
-            jbc.setShowText(true);
-            jbc.setCheckDigit(true);
-            jbc.setShowCheckDigit(true);
+        	jbc.setBarcode(BarcodeFactory.getInstance().createUPCA());
             setTextToSize(11);
             jButton3.setEnabled(true);
             break;
             
         case 2:
-            jbc.setEncoder(EAN8Encoder.getInstance());
-            jbc.setTextPainter(EAN8TextPainter.getInstance());
-            jbc.setShowText(true);
-            jbc.setCheckDigit(true);
-            jbc.setShowCheckDigit(true);
+        	jbc.setBarcode(BarcodeFactory.getInstance().createEAN8());
             setTextToSize(7);
             break;
             
         case 3:
-            jbc.setEncoder(UPCEEncoder.getInstance());
-            jbc.setTextPainter(UPCETextPainter.getInstance());
-            jbc.setPainter(WidthCodedPainter.getInstance());
-            jbc.setShowText(true);
-            jbc.setCheckDigit(true);
-            jbc.setShowCheckDigit(true);
+        	jbc.setBarcode(BarcodeFactory.getInstance().createUPCE());
             setTextToSize(7);
             break;
             
         case 4:
-            jbc.setEncoder(CodabarEncoder.getInstance());
-            jbc.setPainter(WideRatioCodedPainter.getInstance());
-            jbc.setTextPainter(BaseLineTextPainter.getInstance());
-            jbc.setShowText(true);
+        	jbc.setBarcode(BarcodeFactory.getInstance().createCodabar());
             break;
         
         case 5:
-            jbc.setEncoder(Code11Encoder.getInstance());
-            jbc.setPainter(WidthCodedPainter.getInstance());
-            jbc.setTextPainter(BaseLineTextPainter.getInstance());
-            jbc.setShowText(true);
-            jbc.setCheckDigit(true);
-            jbc.setShowCheckDigit(true);
+        	jbc.setBarcode(BarcodeFactory.getInstance().createCode11());
             break;
             
         case 6:
-            jbc.setEncoder(Code39Encoder.getInstance());
-            jbc.setPainter(WideRatioCodedPainter.getInstance());
-            jbc.setShowText(true);
-            jbc.setCheckDigit(false);
-            jbc.setShowCheckDigit(false);
+        	jbc.setBarcode(BarcodeFactory.getInstance().createCode39());
             break;
             
         case 7:
-            jbc.setEncoder(Code39ExtEncoder.getInstance());
-            jbc.setPainter(WideRatioCodedPainter.getInstance());
-            jbc.setShowText(true);
-            jbc.setCheckDigit(false);
-            jbc.setShowCheckDigit(false);
+        	jbc.setBarcode(BarcodeFactory.getInstance().createCode39Extended());
             break;
             
         case 8:
-            jbc.setEncoder(Code93Encoder.getInstance());
-            jbc.setPainter(WidthCodedPainter.getInstance());
-            jbc.setShowText(true);
-            jbc.setCheckDigit(true);
-            jbc.setShowCheckDigit(false);
+        	jbc.setBarcode(BarcodeFactory.getInstance().createCode93());
             break;
             
         case 9:
-            jbc.setEncoder(Code93ExtEncoder.getInstance());
-            jbc.setPainter(WidthCodedPainter.getInstance());
-            jbc.setShowText(true);
-            jbc.setCheckDigit(true);
-            jbc.setShowCheckDigit(false);
+        	jbc.setBarcode(BarcodeFactory.getInstance().createCode93Extended());
             break;
             
         case 10:
-        	jbc.setEncoder(Code128Encoder.getInstance());
-            jbc.setPainter(WidthCodedPainter.getInstance());
-            jbc.setShowText(true);
-            jbc.setCheckDigit(true);
-            jbc.setShowCheckDigit(false);
+        	jbc.setBarcode(BarcodeFactory.getInstance().createCode128());
             break;
             
         case 11:
-        	jbc.setEncoder(MSIPlesseyEncoder.getInstance());
-            jbc.setPainter(WidthCodedPainter.getInstance());
-            jbc.setShowText(true);
-            jbc.setCheckDigit(true);
-            jbc.setShowCheckDigit(true);
+        	jbc.setBarcode(BarcodeFactory.getInstance().createMSIPlessey());
             break;
             
         case 12:
-        	jbc.setEncoder(Standard2of5Encoder.getInstance());
-            jbc.setPainter(WideRatioCodedPainter.getInstance());
-            jbc.setShowText(true);
-            jbc.setCheckDigit(true);
-            jbc.setShowCheckDigit(false);
+        	jbc.setBarcode(BarcodeFactory.getInstance().createStandard2of5());
             break;
             
         case 13:
-        	jbc.setEncoder(IATA2of5Encoder.getInstance());
-            jbc.setPainter(WideRatioCodedPainter.getInstance());
-            jbc.setShowText(true);
-            jbc.setCheckDigit(true);
-            jbc.setShowCheckDigit(false);
+        	jbc.setBarcode(BarcodeFactory.getInstance().createIATA2of5());
             break;
             
         case 14:
-            jbc.setEncoder(Interleaved2of5Encoder.getInstance());
-            jbc.setPainter(WideRatioCodedPainter.getInstance());
-            jbc.setBarHeight(17);
-            jbc.setShowText(true);
-            jbc.setCheckDigit(true);
-            jbc.setShowCheckDigit(true);
+        	jbc.setBarcode(BarcodeFactory.getInstance().createInterleaved2of5());
             jTextField2.setText("17");
             jButton4.setEnabled(true);
             break;
             
         case 15:
-            jbc.setEncoder(PostNetEncoder.getInstance());
-            jbc.setPainter(HeightCodedPainter.getInstance());
-            jbc.setBarHeight(6);
-            jbc.setShowText(false);
-            jbc.setCheckDigit(true);
-            jbc.setShowCheckDigit(false);
+        	jbc.setBarcode(BarcodeFactory.getInstance().createPostNet());
             jTextField2.setText("6");
             jButton4.setEnabled(false);
             break;
@@ -397,7 +303,7 @@ public class SwingDemo extends javax.swing.JFrame {
         default:
             break;
         }
-        typeText.setText(jBarcode_IL.toString());
+        typeText.setText(jbc.getBarcode().toString());
         jTextField1.setText(jbc.getText());
     }
     

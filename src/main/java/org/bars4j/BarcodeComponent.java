@@ -48,17 +48,18 @@ public class BarcodeComponent extends JComponent implements PropertyChangeListen
 
     private static final long serialVersionUID = 1L;
     
-    private Barcode jbarcode;
-    private BufferedImage img;
+    private Barcode barcode;
+
+	private BufferedImage img;
     private String text;
     private String checkSum;
     
-    public BarcodeComponent(Barcode jbarcode){
-        this(jbarcode, "");
+    public BarcodeComponent(Barcode barcode){
+        this(barcode, "");
     }
     
-    public BarcodeComponent(Barcode jbarcode, String text){
-        this.jbarcode = jbarcode;
+    public BarcodeComponent(Barcode barcode, String text){
+        this.barcode = barcode;
         addPropertyChangeListener(this);
         if(text != null){
             try {
@@ -98,7 +99,7 @@ public class BarcodeComponent extends JComponent implements PropertyChangeListen
         }
         String old = this.text;
         this.text = text;
-        this.checkSum = jbarcode.calcCheckSum(text);
+        this.checkSum = barcode.calcCheckSum(text);
         firePropertyChange("Text", old, text);
         invalidate();
         repaint();
@@ -107,59 +108,59 @@ public class BarcodeComponent extends JComponent implements PropertyChangeListen
 
 
     /* (non-Javadoc)
-     * @see org.jbarcode.JBarcode#getBarHeigth()
+     * @see org.barcode.barcode#getBarHeigth()
      */
     public double getBarHeight() {
-        return jbarcode.getBarHeight();
+        return barcode.getBarHeight();
     }
 
 
 
     /* (non-Javadoc)
-     * @see org.jbarcode.JBarcode#getEncoder()
+     * @see org.barcode.barcode#getEncoder()
      */
     public BarcodeEncoder getEncoder() {
-        return jbarcode.getEncoder();
+        return barcode.getEncoder();
     }
 
 
 
     /* (non-Javadoc)
-     * @see org.jbarcode.JBarcode#getNarrowWidth()
+     * @see org.barcode.barcode#getNarrowWidth()
      */
     public double getXDimension() {
-        return jbarcode.getXDimension();
+        return barcode.getXDimension();
     }
 
 
 
     /* (non-Javadoc)
-     * @see org.jbarcode.JBarcode#getPainter()
+     * @see org.barcode.barcode#getPainter()
      */
     public BarcodePainter getPainter() {
-        return jbarcode.getPainter();
+        return barcode.getPainter();
     }
 
 
 
     /* (non-Javadoc)
-     * @see org.jbarcode.JBarcode#getWideToNarrow()
+     * @see org.barcode.barcode#getWideToNarrow()
      */
     public double getWideRatio() {
-        return jbarcode.getWideRatio();
+        return barcode.getWideRatio();
     }
 
 
 
     /* (non-Javadoc)
-     * @see org.jbarcode.JBarcode#setBarHeigth(int)
+     * @see org.barcode.barcode#setBarHeigth(int)
      */
     public void setBarHeight(double barHeight) {
         if(getBarHeight() == barHeight){
             return;
         }
         double old = getBarHeight();
-        jbarcode.setBarHeight(barHeight);
+        barcode.setBarHeight(barHeight);
         firePropertyChange("BarHeigth", old, barHeight);
         invalidate();
         repaint();
@@ -168,14 +169,14 @@ public class BarcodeComponent extends JComponent implements PropertyChangeListen
 
 
     /* (non-Javadoc)
-     * @see org.jbarcode.JBarcode#setEncoder(org.jbarcode.encode.BarcodeEncoder)
+     * @see org.barcode.barcode#setEncoder(org.barcode.encode.BarcodeEncoder)
      */
     public void setEncoder(BarcodeEncoder bcencoder) {
         if(getEncoder().equals(bcencoder)){
             return;
         }
         Object old = getEncoder();
-        jbarcode.setEncoder(bcencoder);
+        barcode.setEncoder(bcencoder);
         firePropertyChange("Encoder", old, bcencoder);
         invalidate();
         repaint();
@@ -184,14 +185,14 @@ public class BarcodeComponent extends JComponent implements PropertyChangeListen
 
 
     /* (non-Javadoc)
-     * @see org.jbarcode.JBarcode#setNarrowWidth(int)
+     * @see org.barcode.barcode#setNarrowWidth(int)
      */
     public void setXDimension(double xdim) throws InvalidAtributeException {
         if(getXDimension() == xdim){
             return;
         }
         double old = getXDimension();
-        jbarcode.setXDimension(xdim);
+        barcode.setXDimension(xdim);
         firePropertyChange("xDimension", old, xdim);
         invalidate();
         repaint();
@@ -200,14 +201,14 @@ public class BarcodeComponent extends JComponent implements PropertyChangeListen
 
 
     /* (non-Javadoc)
-     * @see org.jbarcode.JBarcode#setPainter(org.jbarcode.paint.BarcodePainter)
+     * @see org.barcode.barcode#setPainter(org.barcode.paint.BarcodePainter)
      */
     public void setPainter(BarcodePainter bcpainter) {
         if(getPainter().equals(bcpainter)){
             return;
         }
         Object old = getPainter();
-        jbarcode.setPainter(bcpainter);
+        barcode.setPainter(bcpainter);
         firePropertyChange("Painter", old, bcpainter);
         invalidate();
         repaint();
@@ -216,14 +217,14 @@ public class BarcodeComponent extends JComponent implements PropertyChangeListen
 
 
     /* (non-Javadoc)
-     * @see org.jbarcode.JBarcode#setWideToNarrow(int)
+     * @see org.barcode.barcode#setWideToNarrow(int)
      */
     public void setWideRatio(double wideRatio) throws InvalidAtributeException {
         if(getWideRatio() == wideRatio){
             return;
         }
         double old = getWideRatio();
-        jbarcode.setWideRatio(wideRatio);
+        barcode.setWideRatio(wideRatio);
         firePropertyChange("wideRatio", old, wideRatio);
         invalidate();
         repaint();
@@ -231,10 +232,11 @@ public class BarcodeComponent extends JComponent implements PropertyChangeListen
 
     public void propertyChange(PropertyChangeEvent evt) {
         try {
-            if(text != null && !"".equals(text) && jbarcode != null){
-                img = jbarcode.createBarcode(text);
+            if(text != null && !"".equals(text) && barcode != null){
+                img = barcode.createBarcode(text);
             }
         } catch (InvalidAtributeException exc) {
+        	//throw new RuntimeException(exc);
         }
     }
 
@@ -255,88 +257,100 @@ public class BarcodeComponent extends JComponent implements PropertyChangeListen
     }
 
     /* (non-Javadoc)
-     * @see org.jbarcode.JBarcode#getTextPainter()
+     * @see org.barcode.barcode#getTextPainter()
      */
     public TextPainter getTextPainter() {
-        return jbarcode.getTextPainter();
+        return barcode.getTextPainter();
     }
 
     /* (non-Javadoc)
-     * @see org.jbarcode.JBarcode#isCheckDigit()
+     * @see org.barcode.barcode#isCheckDigit()
      */
     public boolean isCheckDigit() {
-        return jbarcode.isCheckDigit();
+        return barcode.isCheckDigit();
     }
 
     /* (non-Javadoc)
-     * @see org.jbarcode.JBarcode#isShowCheckDigit()
+     * @see org.barcode.barcode#isShowCheckDigit()
      */
     public boolean isShowCheckDigit() {
-        return jbarcode.isShowCheckDigit();
+        return barcode.isShowCheckDigit();
     }
 
     /* (non-Javadoc)
-     * @see org.jbarcode.JBarcode#isShowText()
+     * @see org.barcode.barcode#isShowText()
      */
     public boolean isShowText() {
-        return jbarcode.isShowText();
+        return barcode.isShowText();
     }
 
     /* (non-Javadoc)
-     * @see org.jbarcode.JBarcode#setCheckDigit(boolean)
+     * @see org.barcode.barcode#setCheckDigit(boolean)
      */
     public void setCheckDigit(boolean checkDigit) {
         if(checkDigit == isCheckDigit()){
             return;
         }
         boolean old = isCheckDigit();
-        jbarcode.setCheckDigit(checkDigit);
+        barcode.setCheckDigit(checkDigit);
         firePropertyChange("checkDigit", old, checkDigit);
         invalidate();
         repaint();
     }
 
     /* (non-Javadoc)
-     * @see org.jbarcode.JBarcode#setShowCheckDigit(boolean)
+     * @see org.barcode.barcode#setShowCheckDigit(boolean)
      */
     public void setShowCheckDigit(boolean showCheckDigit) {
         if(showCheckDigit == isShowCheckDigit()){
             return;
         }
         boolean old = isShowCheckDigit();
-        jbarcode.setShowCheckDigit(showCheckDigit);
+        barcode.setShowCheckDigit(showCheckDigit);
         firePropertyChange("showCheckDigit", old, showCheckDigit);
         invalidate();
         repaint();
     }
 
     /* (non-Javadoc)
-     * @see org.jbarcode.JBarcode#setShowText(boolean)
+     * @see org.barcode.barcode#setShowText(boolean)
      */
     public void setShowText(boolean showText) {
         if(showText == isShowText()){
             return;
         }
         boolean old = isShowText();
-        jbarcode.setShowText(showText);
+        barcode.setShowText(showText);
         firePropertyChange("showText", old, showText);
         invalidate();
         repaint();
     }
 
     /* (non-Javadoc)
-     * @see org.jbarcode.JBarcode#setTextPainter(org.jbarcode.paint.TextPainter)
+     * @see org.barcode.barcode#setTextPainter(org.barcode.paint.TextPainter)
      */
     public void setTextPainter(TextPainter textpainter) {
         if(getTextPainter().equals(textpainter)){
             return;
         }
         Object old = getTextPainter();
-        jbarcode.setTextPainter(textpainter);
+        barcode.setTextPainter(textpainter);
         firePropertyChange("textPainter", old, textpainter);
         invalidate();
         repaint();
-        jbarcode.setTextPainter(textpainter);
+        barcode.setTextPainter(textpainter);
     }
+    
+    public Barcode getBarcode() {
+		return barcode;
+	}
+
+	public void setBarcode(Barcode barcode) {
+		this.barcode = barcode;
+		Object old = getBarcode();
+        firePropertyChange("Barcode", old, barcode);
+        invalidate();
+        repaint();
+	}
     
 }
