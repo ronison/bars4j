@@ -31,16 +31,9 @@ import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.border.BevelBorder;
 
-import org.bars4j.Barcode;
 import org.bars4j.BarcodeComponent;
 import org.bars4j.BarcodeFactory;
-import org.bars4j.encode.BarcodeEncoder;
-import org.bars4j.encode.EAN13Encoder;
 import org.bars4j.encode.InvalidAtributeException;
-import org.bars4j.paint.BarcodePainter;
-import org.bars4j.paint.EAN13TextPainter;
-import org.bars4j.paint.TextPainter;
-import org.bars4j.paint.WidthCodedPainter;
 
 
 

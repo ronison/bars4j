@@ -106,13 +106,7 @@ public class SimpleDemo {
             
             //Code39 Extended Code Example
             jbcode = BarcodeFactory.getInstance().createCode39Extended();
-            code = "Bars4J-39Ext";
-            img = jbcode.createBarcode(code);
-            saveToPNG(img, "Code39Ext.png");
-            
-            //Code93 Code Example
-            jbcode = BarcodeFactory.getInstance().createCode93();
-            code = "BARS4J-93";
+            code = "BARS4J-39Ext";
             img = jbcode.createBarcode(code);
             svg = jbcode.createBarcodeSVG(code);
             saveToSVG(svg, "Code39Ext.svg");
@@ -143,17 +137,19 @@ public class SimpleDemo {
             saveToPNG(img, "Code128.png");
             
             //Code11 Code Example
-            jbcode = BarcodeFactory.getInstance().createCode11();
-            
+            jbcode = BarcodeFactory.getInstance().createCode11();            
             code = "9788515004041";
             img = jbcode.createBarcode(code);
-            saveToPNG(img, "Code128.png");
+            svg = jbcode.createBarcodeSVG(code);
+            saveToSVG(svg, "Code11.svg");
+            saveToPNG(img, "Code11.png");
             
             //Code MSIPlessey Code Example
             jbcode = BarcodeFactory.getInstance().createMSIPlessey();
-            
             code = "9788515004041";
             img = jbcode.createBarcode(code);
+            svg = jbcode.createBarcodeSVG(code);
+            saveToSVG(svg, "MSIPlessey.svg");
             saveToPNG(img, "MSIPlessey.png");
             
             //Standard 2 of 5 Code Example
