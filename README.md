@@ -31,16 +31,16 @@ StringBuffer svg = b4j.createBarcodeSVG(code);
 
 ## SVG Barcode Samples
 ### EAN13
-<img src="images/EAN13.svg" width="120" height="80" />
+<img src="images/EAN13.svg"/>
 
 ### UPCA
-<img src="images/UPCA.svg" width="120" height="80" />
+<img src="images/UPCA.svg"/>
 
 ### Code 39
-<img src="images/Code39.svg" width="250" height="80" />
+<img src="images/Code39.svg"/>
 
 ### Code 128
-<img src="images/Code128.svg" width="250" height="80" />
+<img src="images/Code128.svg"/>
 
 ### PostNet
-<img src="images/PostNet.svg" width="120" height="80" />
+<img src="images/PostNet.svg" height="20" />
