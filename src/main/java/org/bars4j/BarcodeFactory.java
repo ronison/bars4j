@@ -167,10 +167,11 @@ public class BarcodeFactory {
 	 * @return JBarcode instance.
 	 */
 	public Barcode createCodabar(){
-		Barcode jbc = new Barcode(CodabarEncoder.getInstance(), WideRatioCodedPainter.getInstance(), BaseLineTextPainter.getInstance());
-		jbc.setBarHeight(17);
+		Barcode jbc = new Barcode(CodabarEncoder.getInstance(), WideRatioCodedPainter.getInstance(), BaseLineTextPainter.getInstance());	
 		try {
-			jbc.setXDimension(0.264583333);
+			jbc.setBarHeight(17);
+			jbc.setWideRatio(3.0);
+			jbc.setXDimension(0.5291666);
 		} catch (InvalidAtributeException e) {}
 		jbc.setShowText(true);
         jbc.setCheckDigit(false);
@@ -187,7 +188,7 @@ public class BarcodeFactory {
 		Barcode jbc = new Barcode(Code11Encoder.getInstance(), WidthCodedPainter.getInstance(), BaseLineTextPainter.getInstance());
 		jbc.setBarHeight(17);
 		try {
-			jbc.setXDimension(0.264583333);
+			jbc.setXDimension(0.5291666);
 		} catch (InvalidAtributeException e) {}
 		jbc.setShowText(true);
         jbc.setCheckDigit(true);
@@ -204,7 +205,7 @@ public class BarcodeFactory {
 		Barcode jbc = new Barcode(Code39Encoder.getInstance(), WideRatioCodedPainter.getInstance(), BaseLineTextPainter.getInstance());
 		jbc.setBarHeight(17);
 		try {
-			jbc.setXDimension(0.264583333);
+			jbc.setXDimension(0.5291666);
 		} catch (InvalidAtributeException e) {}
 		jbc.setShowText(true);
         jbc.setCheckDigit(false);
@@ -221,7 +222,7 @@ public class BarcodeFactory {
 		Barcode jbc = new Barcode(Code39ExtEncoder.getInstance(), WideRatioCodedPainter.getInstance(), BaseLineTextPainter.getInstance());
 		jbc.setBarHeight(17);
 		try {
-			jbc.setXDimension(0.264583333);
+			jbc.setXDimension(0.5291666);
 		} catch (InvalidAtributeException e) {}
 		jbc.setShowText(true);
         jbc.setCheckDigit(false);
@@ -238,7 +239,7 @@ public class BarcodeFactory {
 		Barcode jbc = new Barcode(Code93Encoder.getInstance(), WidthCodedPainter.getInstance(), BaseLineTextPainter.getInstance());
 		jbc.setBarHeight(17);
 		try {
-			jbc.setXDimension(0.264583333);
+			jbc.setXDimension(0.5291666);
 		} catch (InvalidAtributeException e) {}
 		jbc.setShowText(true);
         jbc.setCheckDigit(true);
@@ -255,7 +256,7 @@ public class BarcodeFactory {
 		Barcode jbc = new Barcode(Code93ExtEncoder.getInstance(), WidthCodedPainter.getInstance(), BaseLineTextPainter.getInstance());
 		jbc.setBarHeight(17);
 		try {
-			jbc.setXDimension(0.264583333);
+			jbc.setXDimension(0.5291666);
 		} catch (InvalidAtributeException e) {}
 		jbc.setShowText(true);
         jbc.setCheckDigit(true);
@@ -272,7 +273,7 @@ public class BarcodeFactory {
 		Barcode jbc = new Barcode(Code128Encoder.getInstance(), WidthCodedPainter.getInstance(), BaseLineTextPainter.getInstance());
 		jbc.setBarHeight(17);
 		try {
-			jbc.setXDimension(0.264583333);
+			jbc.setXDimension(0.5291666);
 		} catch (InvalidAtributeException e) {}
 		jbc.setShowText(true);
         jbc.setCheckDigit(true);
@@ -306,7 +307,7 @@ public class BarcodeFactory {
 		Barcode jbc = new Barcode(Standard2of5Encoder.getInstance(), WideRatioCodedPainter.getInstance(), BaseLineTextPainter.getInstance());
 		jbc.setBarHeight(17);
 		try {
-			jbc.setXDimension(0.264583333);
+			jbc.setXDimension(0.5291666);
 		} catch (InvalidAtributeException e) {}
 		jbc.setShowText(true);
         jbc.setCheckDigit(true);
@@ -323,7 +324,7 @@ public class BarcodeFactory {
 		Barcode jbc = new Barcode(IATA2of5Encoder.getInstance(), WideRatioCodedPainter.getInstance(), BaseLineTextPainter.getInstance());
 		jbc.setBarHeight(17);
 		try {
-			jbc.setXDimension(0.264583333);
+			jbc.setXDimension(0.5291666);
 		} catch (InvalidAtributeException e) {}
 		jbc.setShowText(true);
         jbc.setCheckDigit(true);
@@ -340,7 +341,7 @@ public class BarcodeFactory {
 		Barcode jbc = new Barcode(Interleaved2of5Encoder.getInstance(), WideRatioCodedPainter.getInstance(), BaseLineTextPainter.getInstance());
 		jbc.setBarHeight(17);
 		try {
-			jbc.setXDimension(0.264583333);
+			jbc.setXDimension(0.5291666);
 		} catch (InvalidAtributeException e) {}
 		jbc.setShowText(true);
         jbc.setCheckDigit(true);
@@ -357,7 +358,7 @@ public class BarcodeFactory {
 		Barcode jbc = new Barcode(PostNetEncoder.getInstance(), HeightCodedPainter.getInstance(), BaseLineTextPainter.getInstance());
 		jbc.setBarHeight(2);
 		try {
-			jbc.setXDimension(0.264583333);
+			jbc.setXDimension(0.5291666);
 		} catch (InvalidAtributeException e) {}
 		jbc.setShowText(false);
         jbc.setCheckDigit(true);
@@ -376,7 +377,7 @@ public class BarcodeFactory {
         jbc.setShowCheckDigit(false);
 		return jbc;
 	}
-	
+
 	public Barcode createDatalogic2of5() {
 		Barcode jbc = new Barcode(Datalogic2of5Encoder.getInstance(), WideRatioCodedPainter.getInstance(), BaseLineTextPainter.getInstance());
 		jbc.setBarHeight(17);

@@ -60,6 +60,10 @@ public class SimpleDemo {
             
             //EAN8 Code Example
             jbcode = BarcodeFactory.getInstance().createEAN8();
+<<<<<<< HEAD
+=======
+           
+>>>>>>> branch 'main' of https://github.com/ronison/bars4j.git
             code = "9788515";        
             img = jbcode.createBarcode(code);
             svg = jbcode.createBarcodeSVG(code);
@@ -68,13 +72,20 @@ public class SimpleDemo {
             
             //EAN5 Code Example
             jbcode = BarcodeFactory.getInstance().createEAN5();
+<<<<<<< HEAD
+=======
+            
+>>>>>>> branch 'main' of https://github.com/ronison/bars4j.git
             code = "54495";
-            jbcode.toString();
             img = jbcode.createBarcode(code);
             saveToPNG(img, "EAN5.png");
             
             //UPCA Code Example
             jbcode = BarcodeFactory.getInstance().createUPCA();
+<<<<<<< HEAD
+=======
+            
+>>>>>>> branch 'main' of https://github.com/ronison/bars4j.git
             code = "07567816415";        
             img = jbcode.createBarcode(code);
             svg = jbcode.createBarcodeSVG(code);
@@ -83,6 +94,10 @@ public class SimpleDemo {
             
             //UPCE Code Example
             jbcode = BarcodeFactory.getInstance().createUPCE();
+<<<<<<< HEAD
+=======
+            
+>>>>>>> branch 'main' of https://github.com/ronison/bars4j.git
             code = UPCAEncoder.getInstance().convertUPCAtoUPCE("07567816415");        
             img = jbcode.createBarcode(code);
             svg = jbcode.createBarcodeSVG(code);
@@ -91,8 +106,11 @@ public class SimpleDemo {
             
             //Codabar Code Example
             jbcode = BarcodeFactory.getInstance().createCodabar();
+<<<<<<< HEAD
+=======
+            
+>>>>>>> branch 'main' of https://github.com/ronison/bars4j.git
             code = "97885150040-85";
-            jbcode.setWideRatio(3.0);
             img = jbcode.createBarcode(code);
             svg = jbcode.createBarcodeSVG(code);
             saveToSVG(svg, "Codabar.svg");
@@ -100,15 +118,33 @@ public class SimpleDemo {
             
             //Code39 Code Example
             jbcode = BarcodeFactory.getInstance().createCode39();
+<<<<<<< HEAD
+=======
+            
+>>>>>>> branch 'main' of https://github.com/ronison/bars4j.git
             code = "BARS4J-39";
             img = jbcode.createBarcode(code);
             svg = jbcode.createBarcodeSVG(code);
             saveToSVG(svg, "Code39.svg");
             saveToPNG(img, "Code39.png");
             
+<<<<<<< HEAD
             //Code39 Extended Code Example
             jbcode = BarcodeFactory.getInstance().createCode39Extended();
             code = "Bars4J-39Ext";
+=======
+            //Code39 Code Example
+            jbcode = BarcodeFactory.getInstance().createCode39Extended();
+            
+            code = "Bars4J-39 Ext";
+            img = jbcode.createBarcode(code);
+            saveToPNG(img, "Code39Ext.png");
+            
+            //Code93 Code Example
+            jbcode = BarcodeFactory.getInstance().createCode93();
+            
+            code = "BARS4J-93";
+>>>>>>> branch 'main' of https://github.com/ronison/bars4j.git
             img = jbcode.createBarcode(code);
             svg = jbcode.createBarcodeSVG(code);
             saveToSVG(svg, "Code39Ext.svg");
@@ -124,7 +160,12 @@ public class SimpleDemo {
             
             //Code93Ex Code Example
             jbcode = BarcodeFactory.getInstance().createCode93Extended();
+<<<<<<< HEAD
             code = "Bars4J-93Ext";
+=======
+            
+            code = "Bars4J-93 Ext";
+>>>>>>> branch 'main' of https://github.com/ronison/bars4j.git
             img = jbcode.createBarcode(code);
             svg = jbcode.createBarcodeSVG(code);
             saveToSVG(svg, "Code93Ext.svg");
@@ -132,15 +173,38 @@ public class SimpleDemo {
             
             //Code128 Code Example
             jbcode = BarcodeFactory.getInstance().createCode128();
+<<<<<<< HEAD
+=======
+            
+>>>>>>> branch 'main' of https://github.com/ronison/bars4j.git
             code = "Bars4J-128";
             img = jbcode.createBarcode(code);
             svg = jbcode.createBarcodeSVG(code);
             saveToSVG(svg, "Code128.svg");
             saveToPNG(img, "Code128.png");
             
+            //Code11 Code Example
+            jbcode = BarcodeFactory.getInstance().createCode11();
+            
+            code = "9788515004041";
+            img = jbcode.createBarcode(code);
+            saveToPNG(img, "Code128.png");
+            
+            //Code MSIPlessey Code Example
+            jbcode = BarcodeFactory.getInstance().createMSIPlessey();
+            
+            code = "9788515004041";
+            img = jbcode.createBarcode(code);
+            saveToPNG(img, "MSIPlessey.png");
+            
             //Standard 2 of 5 Code Example
             jbcode = BarcodeFactory.getInstance().createStandard2of5();
+<<<<<<< HEAD
             code = "978851500404";
+=======
+            
+            code = "9788515004041";
+>>>>>>> branch 'main' of https://github.com/ronison/bars4j.git
             img = jbcode.createBarcode(code);
             svg = jbcode.createBarcodeSVG(code);
             saveToSVG(svg, "Standard2of5.svg");
@@ -148,6 +212,10 @@ public class SimpleDemo {
             
             //IATA 2 of 5 Code Example
             jbcode = BarcodeFactory.getInstance().createIATA2of5();
+<<<<<<< HEAD
+=======
+            
+>>>>>>> branch 'main' of https://github.com/ronison/bars4j.git
             code = "978851500404";
             img = jbcode.createBarcode(code);
             svg = jbcode.createBarcodeSVG(code);
@@ -156,6 +224,10 @@ public class SimpleDemo {
             
             //Matrix 2 of 5 Code Example
             jbcode = BarcodeFactory.getInstance().createMatrix2of5();
+<<<<<<< HEAD
+=======
+            
+>>>>>>> branch 'main' of https://github.com/ronison/bars4j.git
             code = "123456";
             img = jbcode.createBarcode(code);
             svg = jbcode.createBarcodeSVG(code);
@@ -164,6 +236,10 @@ public class SimpleDemo {
             
             //Datalogic 2 of 5 Code Example
             jbcode = BarcodeFactory.getInstance().createDatalogic2of5();
+<<<<<<< HEAD
+=======
+            
+>>>>>>> branch 'main' of https://github.com/ronison/bars4j.git
             code = "123456";
             img = jbcode.createBarcode(code);
             svg = jbcode.createBarcodeSVG(code);
@@ -172,6 +248,10 @@ public class SimpleDemo {
             
             //Interleaved 2 of 5 Code Example
             jbcode = BarcodeFactory.getInstance().createInterleaved2of5();
+<<<<<<< HEAD
+=======
+            
+>>>>>>> branch 'main' of https://github.com/ronison/bars4j.git
             code = "9876543210921";        
             img = jbcode.createBarcode(code);
             svg = jbcode.createBarcodeSVG(code);
@@ -180,6 +260,10 @@ public class SimpleDemo {
             
             //PostNet Code Example
             jbcode = BarcodeFactory.getInstance().createPostNet();
+<<<<<<< HEAD
+=======
+            
+>>>>>>> branch 'main' of https://github.com/ronison/bars4j.git
             code = "805365961"; 
             img = jbcode.createBarcode(code);
             svg = jbcode.createBarcodeSVG(code);
