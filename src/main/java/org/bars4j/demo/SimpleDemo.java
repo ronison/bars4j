@@ -52,7 +52,7 @@ public class SimpleDemo {
             //Creates a JBarcode with a EAN13Encoder and a WidthCodedPainter
             Barcode jbcode = BarcodeFactory.getInstance().createEAN13();
             
-            String code = "079357367940";
+            String code = "789100031550";
             BufferedImage img = jbcode.createBarcode(code);
             StringBuffer svg = jbcode.createBarcodeSVG(code);
             saveToSVG(svg, "EAN13.svg");
