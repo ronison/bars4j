@@ -86,5 +86,44 @@ public class EAN13TextPainter implements TextPainter {
         g2d.setColor(Color.black);
         g2d.drawString(text.substring(7), x+textXShift, textYPos);
     }
+    
+    public StringBuffer paintTextSVG(StringBuffer barcode, String text, int barHeight, int nWidth) {
+    	String t1 = text.substring(0, 1);
+    	String t2 = text.substring(1, 7);
+    	String t3 = text.substring(7, 13);
+    	int posY = (int) Math.ceil(barHeight * 0.9);
+    	StringBuffer res = new StringBuffer();
+    	res.append("<rect x=\"0\"  y=\"");
+    	res.append(barHeight);
+    	res.append("\" width=\"");
+    	res.append(nWidth);
+    	res.append("\" height=\"8\" fill=\"white\" />\n");
+    	
+    	res.append("<rect x=\"13\"  y=\"");
+    	res.append(posY);
+    	res.append("\" width=\"43\" height=\"14\" fill=\"white\" />\n");
+    	res.append("<rect x=\"59\"  y=\"");
+    	res.append(posY);
+    	res.append("\" width=\"43\" height=\"14\" fill=\"white\" />\n");
+    	res.append("<text x=\"0\" y=\"");
+    	res.append(posY+10);
+    	res.append("\" class=\"small\" textLength=\"8\">");
+    	res.append(t1);
+    	res.append("</text>\n");
+    	res.append("<text x=\"13\" y=\"");
+    	res.append(posY+10);
+    	res.append("\" class=\"small\" textLength=\"43\">");
+    	res.append(t2);
+    	res.append("</text>\n");
+    	res.append("<text x=\"59\" y=\"");
+    	res.append(posY+10);
+    	res.append("\" class=\"small\" textLength=\"43\">");
+    	res.append(t3);
+    	res.append("</text>\n<text x=\"106\" y=\"");
+    	res.append(posY+10);
+    	res.append("\" class=\"small\" textLength=\"43\">></text>");
+    	return res;
+    	
+    }
 
 }

@@ -85,4 +85,22 @@ public class EAN8TextPainter implements TextPainter {
         g2d.drawString(text.substring(4), x+textXShift, textYPos);
     }
 
+	@Override
+	public StringBuffer paintTextSVG(StringBuffer barcode, String text, int barHeight, int nWidth) {
+		String t1 = text.substring(0, 4);
+    	String t2 = text.substring(4, 8);
+    	int posY = (int) Math.ceil(barHeight * 0.9);
+    	StringBuffer res = new StringBuffer();
+    	res.append("<rect x=\"0\" y=\""+barHeight+"\" width=\""+nWidth+"\" height=\"8\" fill=\"white\" />\n");
+    	res.append("<rect x=\"13\" y=\""+posY+"\" width=\"29\" height=\"14\" fill=\"white\" />\n");
+    	res.append("<rect x=\"45\" y=\""+posY+"\" width=\"29\" height=\"14\" fill=\"white\" />\n");
+    	res.append("<text x=\"13\" y=\""+(posY+10)+"\" class=\"small\" textLength=\"29\">");
+    	res.append(t1);
+    	res.append("</text>\n");
+    	res.append("<text x=\"45\" y=\""+(posY+10)+"\" class=\"small\" textLength=\"29\">");
+    	res.append(t2);
+    	res.append("</text>\n");
+    	return res;
+	}
+
 }

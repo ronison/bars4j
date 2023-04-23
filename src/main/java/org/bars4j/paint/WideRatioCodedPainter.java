@@ -54,7 +54,7 @@ public class WideRatioCodedPainter implements BarcodePainter {
     /* (non-Javadoc)
      * @see org.jbarcode.BarcodePainter#paint(br.ronison.util.BitSet[])
      */
-    public BufferedImage paint(BarSet[] barcode, int barWidth, int barHeight, double wideRatio) {
+    public BufferedImage paintToImg(BarSet[] barcode, int barWidth, int barHeight, double wideRatio) {
         int width = 20*barWidth; //20 x Xdimension is quiet zone width
         int wideWidth = (int)Math.round(barWidth*wideRatio);
         for (int i = 0; i < barcode.length; i++) {
@@ -97,5 +97,62 @@ public class WideRatioCodedPainter implements BarcodePainter {
         }
         return result;
     }
+    
+    @Override
+	public StringBuffer paintToSVG(BarSet[] barcode, int barWidth, int barHeight, double wideRatio) {
+    	StringBuffer res = new StringBuffer();
+		
+		int totalWidth = calcTotalWidth(barcode, barWidth, barHeight, wideRatio);
+		int wideWidth = (int)Math.round(barWidth*wideRatio);
+		
+        res.append("<rect x=\"0\" y=\"0\" width=\"");
+		res.append(totalWidth);
+		res.append("\" height=\"");
+		res.append(barHeight + 15);
+		res.append("\" fill=\"white\" />\n");
+        
+		int pos = 10*barWidth;
+		boolean cFlag = true;
+		for (int i = 0; i < barcode.length; i++) {
+			BarSet bars = barcode[i];
+			int width = 0;
+			for (int j = 0; j < bars.length(); j++) {
+				if(bars.get(j)) {
+					width = wideWidth;
+				} else {
+					width = barWidth;
+				}
+				if(cFlag) {
+					res.append("<rect x=\"");
+					res.append(pos);
+					res.append("\"  y=\"2\" width=\"");
+					res.append(width);
+					res.append("\" height=\"");
+					res.append(barHeight);
+					res.append("\" fill=\"black\" />\n");
+				}
+				cFlag = !cFlag;
+				pos+=width;
+			}
+		}
+		
+		return res;
+	}
+
+	@Override
+	public int calcTotalWidth(BarSet[] barcode, int barWidth, int barHeight, double wideRatio) {
+		int res = 20*barWidth; //20 x Xdimension is quiet zone width
+		int wideWidth = (int)Math.round(barWidth*wideRatio);
+		for (int i = 0; i < barcode.length; i++) {
+            for(int j = 0; j < barcode[i].length(); j++){
+                if(barcode[i].get(j)){
+                    res += wideWidth;
+                } else {
+                    res += barWidth;
+                }
+            }
+        }
+		return res;
+	}
 
 }

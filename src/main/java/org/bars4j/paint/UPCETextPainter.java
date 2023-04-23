@@ -82,4 +82,38 @@ public class UPCETextPainter implements TextPainter {
         g2d.drawString(text.substring(7), barcode.getWidth() - (8*nWidth), textYPos);
     }
 
+	@Override
+	public StringBuffer paintTextSVG(StringBuffer barcode, String text, int barHeight, int nWidth) {
+		String t1 = text.substring(0, 1);
+    	String t2 = text.substring(1, 7);
+    	String t3 = text.substring(7, 8);
+    	int posY = (int) Math.ceil(barHeight * 0.9);
+    	StringBuffer res = new StringBuffer();
+    	res.append("<rect x=\"0\"  y=\"");
+    	res.append(barHeight);
+    	res.append("\" width=\"");
+    	res.append(nWidth);
+    	res.append("\" height=\"8\" fill=\"white\" />\n");
+    	
+    	res.append("<rect x=\"13\"  y=\"");
+    	res.append(posY);
+    	res.append("\" width=\"43\" height=\"14\" fill=\"white\" />\n");
+    	res.append("<text x=\"0\" y=\"");
+    	res.append(posY+10);
+    	res.append("\" class=\"small\" textLength=\"8\">");
+    	res.append(t1);
+    	res.append("</text>\n");
+    	res.append("<text x=\"13\" y=\"");
+    	res.append(posY+10);
+    	res.append("\" class=\"small\" textLength=\"43\">");
+    	res.append(t2);
+    	res.append("</text>\n");
+    	res.append("<text x=\"61\" y=\"");
+    	res.append(posY+10);
+    	res.append("\" class=\"small\" textLength=\"8\">");
+    	res.append(t3);
+    	res.append("</text>");
+    	return res;
+	}
+
 }

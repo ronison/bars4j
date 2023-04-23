@@ -51,12 +51,8 @@ public class HeightCodedPainter implements BarcodePainter {
         return instance;
     }
 
-    public BufferedImage paint(BarSet[] barcode, int barWidth, int barHeight, double wideRatio) {
-        int width = 0;
-        for (int i = 0; i < barcode.length; i++) {
-            width += barcode[i].length();
-        }
-        width = (width*barWidth*2) - barWidth;
+    public BufferedImage paintToImg(BarSet[] barcode, int barWidth, int barHeight, double wideRatio) {
+        int width = calcTotalWidth(barcode, barWidth, barHeight, wideRatio);
         
         BufferedImage result = new BufferedImage(width, barHeight, BufferedImage.TYPE_INT_RGB);
         Graphics2D g2d = result.createGraphics();
@@ -76,5 +72,52 @@ public class HeightCodedPainter implements BarcodePainter {
         }        
         return result;
     }
+
+	@Override
+	public StringBuffer paintToSVG(BarSet[] barcode, int barWidth, int barHeight, double wideRatio) {
+StringBuffer res = new StringBuffer();
+		
+		int totalWidth = calcTotalWidth(barcode, barWidth, barHeight, wideRatio);
+		
+        res.append("<rect x=\"0\" y=\"0\" width=\"");
+		res.append(totalWidth);
+		res.append("\" height=\"");
+		res.append(barHeight + 4);
+		res.append("\" fill=\"white\" />\n");
+        
+		int pos = 2;
+		for (int i = 0; i < barcode.length; i++) {
+			BarSet bars = barcode[i];
+			int height = 0;
+			for (int j = 0; j < bars.length(); j++) {
+				if(bars.get(j)) {
+					height = barHeight;
+				} else {
+					height = barHeight/2;
+				}
+					res.append("<rect x=\"");
+					res.append(pos);
+					res.append("\"  y=\"");
+					res.append(barHeight-height+2);
+					res.append("\" width=\"");
+					res.append(barWidth);
+					res.append("\" height=\"");
+					res.append(height);
+					res.append("\" fill=\"black\" />\n");
+				pos+=2*barWidth;
+			}
+		}
+		
+		return res;
+	}
+
+	@Override
+	public int calcTotalWidth(BarSet[] barcode, int barWidth, int barHeight, double wideRatio) {
+		int width = 0;
+        for (int i = 0; i < barcode.length; i++) {
+            width += barcode[i].length();
+        }
+        return (width*barWidth*2) - barWidth+(4*barWidth);
+	}
 
 }

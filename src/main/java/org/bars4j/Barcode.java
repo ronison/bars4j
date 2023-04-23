@@ -104,7 +104,7 @@ public class Barcode {
      * @param textpainter
      */
     public Barcode(BarcodeEncoder encoder, BarcodePainter painter, TextPainter textpainter){
-        this(encoder, painter, textpainter, MIN_XDIMENSION, 60, 2.0);
+        this(encoder, painter, textpainter, MIN_XDIMENSION, 70, 2.0);
     }
     
     /**
@@ -124,7 +124,7 @@ public class Barcode {
             
         }
         BarSet [] encoded = bcencoder.encode(code);
-        BufferedImage img = bcpainter.paint(encoded, 1, barHeight, wideToNarrow);
+        BufferedImage img = bcpainter.paintToImg(encoded, 1, barHeight, wideToNarrow);
         if(isShowText()){
             textpainter.paintText(img, tmp, 1);
         }
@@ -141,6 +141,48 @@ public class Barcode {
 	
         return result;
     }
+    
+    /**
+     * TODO: Description.
+     * 
+     * @param code
+     * @return
+     * @throws InvalidAtributeException
+     */
+    public StringBuffer createBarcodeSVG(String code) throws InvalidAtributeException{
+        StringBuffer tmp = new StringBuffer(code);
+        if(isCheckDigit()){
+            tmp.append(bcencoder.computeCheckSum(code));
+            if(isShowCheckDigit()){
+                //res = code;
+            }
+            
+        }
+        BarSet [] encoded = bcencoder.encode(tmp.toString());
+        
+        StringBuffer res = new StringBuffer("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"
+        		+ "<!-- Created with Bars4J -->\n\n"
+        		+ "<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.2\">\n\n"
+        		+ "	 <style>\n"
+        		+ "	         text {\n"
+        		+ "	             font-family: 'Courier New', monospace;\n"
+        		+ "				 font-size: 14px;\n"
+        		+ "	         }\n"
+        		+ "	     </style>\n");
+        
+        res.append(bcpainter.paintToSVG(encoded, 1, barHeight, wideToNarrow));
+        
+        if(isShowText()){
+        	int totalWidth = bcpainter.calcTotalWidth(encoded, xdimension, barHeight, wideToNarrow);
+        	res.append(textpainter.paintTextSVG(res, tmp.toString(), barHeight, totalWidth));
+        }
+        
+        res.append("Sorry, your browser does not support inline SVG.\n"
+        		+ "        </svg>");
+       
+        return res;
+    }
+        
     
     /**
      * TODO: Description.

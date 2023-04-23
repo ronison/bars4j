@@ -28,6 +28,7 @@ import org.bars4j.encode.Code39Encoder;
 import org.bars4j.encode.Code39ExtEncoder;
 import org.bars4j.encode.Code93Encoder;
 import org.bars4j.encode.Code93ExtEncoder;
+import org.bars4j.encode.Datalogic2of5Encoder;
 import org.bars4j.encode.EAN13Encoder;
 import org.bars4j.encode.EAN5Encoder;
 import org.bars4j.encode.EAN8Encoder;
@@ -35,6 +36,7 @@ import org.bars4j.encode.IATA2of5Encoder;
 import org.bars4j.encode.Interleaved2of5Encoder;
 import org.bars4j.encode.InvalidAtributeException;
 import org.bars4j.encode.MSIPlesseyEncoder;
+import org.bars4j.encode.Matrix2of5Encoder;
 import org.bars4j.encode.PostNetEncoder;
 import org.bars4j.encode.Standard2of5Encoder;
 import org.bars4j.encode.UPCAEncoder;
@@ -81,7 +83,7 @@ public class BarcodeFactory {
 	 */
 	public Barcode createEAN13(){
 		Barcode jbc = new Barcode(EAN13Encoder.getInstance(), WidthCodedPainter.getInstance(), EAN13TextPainter.getInstance());
-		jbc.setBarHeight(17);
+		jbc.setBarHeight(19);
 		try {
 			jbc.setXDimension(0.264583333);
 		} catch (InvalidAtributeException e) {}
@@ -98,7 +100,7 @@ public class BarcodeFactory {
 	 */
 	public Barcode createEAN8(){
 		Barcode jbc = new Barcode(EAN8Encoder.getInstance(), WidthCodedPainter.getInstance(), EAN8TextPainter.getInstance());
-		jbc.setBarHeight(17);
+		jbc.setBarHeight(19);
 		try {
 			jbc.setXDimension(0.264583333);
 		} catch (InvalidAtributeException e) {}
@@ -353,13 +355,37 @@ public class BarcodeFactory {
 	 */
 	public Barcode createPostNet(){
 		Barcode jbc = new Barcode(PostNetEncoder.getInstance(), HeightCodedPainter.getInstance(), BaseLineTextPainter.getInstance());
-		jbc.setBarHeight(6);
+		jbc.setBarHeight(2);
 		try {
 			jbc.setXDimension(0.264583333);
 		} catch (InvalidAtributeException e) {}
 		jbc.setShowText(false);
         jbc.setCheckDigit(true);
         jbc.setShowCheckDigit(false);
+		return jbc;
+	}
+
+	public Barcode createMatrix2of5() {
+		Barcode jbc = new Barcode(Matrix2of5Encoder.getInstance(), WideRatioCodedPainter.getInstance(), BaseLineTextPainter.getInstance());
+		jbc.setBarHeight(17);
+		try {
+			jbc.setXDimension(0.264583333);
+		} catch (InvalidAtributeException e) {}
+		jbc.setShowText(true);
+        jbc.setCheckDigit(true);
+        jbc.setShowCheckDigit(false);
+		return jbc;
+	}
+	
+	public Barcode createDatalogic2of5() {
+		Barcode jbc = new Barcode(Datalogic2of5Encoder.getInstance(), WideRatioCodedPainter.getInstance(), BaseLineTextPainter.getInstance());
+		jbc.setBarHeight(17);
+		try {
+			jbc.setXDimension(0.264583333);
+		} catch (InvalidAtributeException e) {}
+		jbc.setShowText(true);
+        jbc.setCheckDigit(true);
+        jbc.setShowCheckDigit(true);
 		return jbc;
 	}
 	

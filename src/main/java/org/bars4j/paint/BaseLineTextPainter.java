@@ -37,8 +37,13 @@ public class BaseLineTextPainter implements TextPainter {
     
     private static TextPainter instance; 
     
+    private Color textColor;
+    
+    private Color bgColor;
+    
     private BaseLineTextPainter(){
-        
+        this.setTextColor(Color.BLACK);
+        this.setBgColor(Color.WHITE);
     }
     
     public static TextPainter getInstance(){
@@ -57,16 +62,46 @@ public class BaseLineTextPainter implements TextPainter {
         int h = fm.getHeight();
         int center = (barcode.getWidth() - fm.stringWidth(text))/2;
         
-        g2d.setColor(Color.WHITE);
+        g2d.setColor(getBgColor());
         //passa uma linha limpando em cima
         g2d.fillRect(0, 0, barcode.getWidth(),  barcode.getHeight()*1/20);
         //passa uma linha limpando em baixo
         g2d.fillRect(0, barcode.getHeight() - (h*9/10), barcode.getWidth(),  (h*9/10));
         
        //coloca o texto
-        g2d.setColor(Color.BLACK);
+        g2d.setColor(getTextColor());
         //texto primeiro quadrante
         g2d.drawString(text, center, barcode.getHeight() - (h/10));
     }
+
+	@Override
+	public StringBuffer paintTextSVG(StringBuffer barcode, String text, int barHeight, int nWidth) {
+		StringBuffer res = new StringBuffer();
+		res.append("<rect x=\"0\"  y=\""+barHeight+"\" width=\""+nWidth+"\" height=\"14\" fill=\"white\" />\n");
+		res.append("<text x=\"");
+    	res.append(nWidth/2);
+    	res.append("\" y=\"");
+    	res.append(barHeight + 12); //14 is font size
+    	res.append("\" class=\"small\" text-anchor=\"middle\">");
+    	res.append(text);
+    	res.append("</text>\n");
+    	return res;
+	}
+
+	public Color getTextColor() {
+		return textColor;
+	}
+
+	public void setTextColor(Color textColor) {
+		this.textColor = textColor;
+	}
+
+	public Color getBgColor() {
+		return bgColor;
+	}
+
+	public void setBgColor(Color bgColor) {
+		this.bgColor = bgColor;
+	}
 
 }

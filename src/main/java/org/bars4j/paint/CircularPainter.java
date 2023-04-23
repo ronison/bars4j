@@ -49,7 +49,7 @@ public class CircularPainter implements BarcodePainter {
     /* (non-Javadoc)
      * @see org.jbarcode.BarcodePainter#paint(br.ronison.util.BitSet[])
      */
-    public BufferedImage paint(BarSet[] barcode, int barWidth, int barHeight, double wideRatio) {
+    public BufferedImage paintToImg(BarSet[] barcode, int barWidth, int barHeight, double wideRatio) {
         float width = 0;
         float wideWidth = (float)(barWidth*wideRatio);
         for (int i = 0; i < barcode.length; i++) {
@@ -102,6 +102,18 @@ public class CircularPainter implements BarcodePainter {
         }
         return result;
     }
+
+	@Override
+	public StringBuffer paintToSVG(BarSet[] barcode, int barWidth, int barHeight, double wideRatio) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public int calcTotalWidth(BarSet[] barcode, int barWidth, int barHeight, double wideRatio) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 
 }
 

@@ -36,6 +36,10 @@ import org.bars4j.encode.BarSet;
  */
 public interface BarcodePainter {	
     
-	public BufferedImage paint(BarSet [] barcode, int barWidth, int barHeight, double wideRatio);
+	public BufferedImage paintToImg(BarSet [] barcode, int barWidth, int barHeight, double wideRatio);
+	
+	public StringBuffer paintToSVG(BarSet [] barcode, int barWidth, int barHeight, double wideRatio);
+	
+	public int calcTotalWidth(BarSet [] barcode, int barWidth, int barHeight, double wideRatio);
 	
 }
