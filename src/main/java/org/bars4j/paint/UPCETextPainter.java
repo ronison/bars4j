@@ -87,7 +87,7 @@ public class UPCETextPainter implements TextPainter {
 		String t1 = text.substring(0, 1);
     	String t2 = text.substring(1, 7);
     	String t3 = text.substring(7, 8);
-    	int posY = (int) Math.ceil(barHeight * 0.90);
+    	int posY = (int) Math.ceil(barHeight * 0.9);
     	StringBuffer res = new StringBuffer();
     	res.append("<rect x=\"0\"  y=\"");
     	res.append(barHeight);

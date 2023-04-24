@@ -96,7 +96,7 @@ public class UPCATextPainter implements TextPainter {
     	String t2 = text.substring(1, 6);
     	String t3 = text.substring(6, 11);
     	String t4 = text.substring(11, 12);
-    	int posY = (int) Math.round(barHeight * 0.85);
+    	int posY = (int) Math.round(barHeight * 0.9);
     	StringBuffer res = new StringBuffer();
     	res.append("<rect x=\"0\"  y=\"");
     	res.append(barHeight);

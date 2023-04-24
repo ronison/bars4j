@@ -50,153 +50,153 @@ public class SimpleDemo {
         
         try{
             //Creates a JBarcode with a EAN13Encoder and a WidthCodedPainter
-            Barcode jbcode = BarcodeFactory.getInstance().createEAN13();
+            Barcode b4j = BarcodeFactory.getInstance().createEAN13();
             
             String code = "789100031550";
-            BufferedImage img = jbcode.createBarcode(code);
-            StringBuffer svg = jbcode.createBarcodeSVG(code);
+            BufferedImage img = b4j.createBarcode(code);
+            StringBuffer svg = b4j.createBarcodeSVG(code);
             saveToSVG(svg, "EAN13.svg");
             saveToGIF(img, "EAN13.gif");
             
             //EAN8 Code Example
-            jbcode = BarcodeFactory.getInstance().createEAN8();
+            b4j = BarcodeFactory.getInstance().createEAN8();
             code = "9788515";        
-            img = jbcode.createBarcode(code);
-            svg = jbcode.createBarcodeSVG(code);
+            img = b4j.createBarcode(code);
+            svg = b4j.createBarcodeSVG(code);
             saveToSVG(svg, "EAN8.svg");
             saveToPNG(img, "EAN8.png");
             
             //EAN5 Code Example
-            jbcode = BarcodeFactory.getInstance().createEAN5();
+            b4j = BarcodeFactory.getInstance().createEAN5();
             code = "54495";
-            img = jbcode.createBarcode(code);
+            img = b4j.createBarcode(code);
             saveToPNG(img, "EAN5.png");
             
             //UPCA Code Example
-            jbcode = BarcodeFactory.getInstance().createUPCA();
+            b4j = BarcodeFactory.getInstance().createUPCA();
             code = "07567816415";        
-            img = jbcode.createBarcode(code);
-            svg = jbcode.createBarcodeSVG(code);
+            img = b4j.createBarcode(code);
+            svg = b4j.createBarcodeSVG(code);
             saveToSVG(svg, "UPCA.svg");
             saveToPNG(img, "UPCA.png");
             
             //UPCE Code Example
-            jbcode = BarcodeFactory.getInstance().createUPCE();
+            b4j = BarcodeFactory.getInstance().createUPCE();
             code = UPCAEncoder.getInstance().convertUPCAtoUPCE("07567816415");        
-            img = jbcode.createBarcode(code);
-            svg = jbcode.createBarcodeSVG(code);
+            img = b4j.createBarcode(code);
+            svg = b4j.createBarcodeSVG(code);
             saveToSVG(svg, "UPCE.svg");
             saveToPNG(img, "UPCE.png");
             
             //Codabar Code Example
-            jbcode = BarcodeFactory.getInstance().createCodabar();
+            b4j = BarcodeFactory.getInstance().createCodabar();
             code = "97885150040-85";
-            img = jbcode.createBarcode(code);
-            svg = jbcode.createBarcodeSVG(code);
+            img = b4j.createBarcode(code);
+            svg = b4j.createBarcodeSVG(code);
             saveToSVG(svg, "Codabar.svg");
             saveToJPEG(img, "Codabar.jpg");
             
             //Code39 Code Example
-            jbcode = BarcodeFactory.getInstance().createCode39();
+            b4j = BarcodeFactory.getInstance().createCode39();
             code = "BARS4J-39";
-            img = jbcode.createBarcode(code);
-            svg = jbcode.createBarcodeSVG(code);
+            img = b4j.createBarcode(code);
+            svg = b4j.createBarcodeSVG(code);
             saveToSVG(svg, "Code39.svg");
             saveToPNG(img, "Code39.png");
             
             //Code39 Extended Code Example
-            jbcode = BarcodeFactory.getInstance().createCode39Extended();
+            b4j = BarcodeFactory.getInstance().createCode39Extended();
             code = "BARS4J-39Ext";
-            img = jbcode.createBarcode(code);
-            svg = jbcode.createBarcodeSVG(code);
+            img = b4j.createBarcode(code);
+            svg = b4j.createBarcodeSVG(code);
             saveToSVG(svg, "Code39Ext.svg");
             saveToPNG(img, "Code39Ext.png");
             
             //Code93 Code Example
-            jbcode = BarcodeFactory.getInstance().createCode93();
+            b4j = BarcodeFactory.getInstance().createCode93();
             code = "BARS4J-93";
-            img = jbcode.createBarcode(code);
-            svg = jbcode.createBarcodeSVG(code);
+            img = b4j.createBarcode(code);
+            svg = b4j.createBarcodeSVG(code);
             saveToSVG(svg, "Code93.svg");
             saveToPNG(img, "Code93.png");
             
             //Code93Ex Code Example
-            jbcode = BarcodeFactory.getInstance().createCode93Extended();
+            b4j = BarcodeFactory.getInstance().createCode93Extended();
             code = "Bars4J-93Ext";
-            img = jbcode.createBarcode(code);
-            svg = jbcode.createBarcodeSVG(code);
+            img = b4j.createBarcode(code);
+            svg = b4j.createBarcodeSVG(code);
             saveToSVG(svg, "Code93Ext.svg");
             saveToPNG(img, "Code93Ext.png");
             
             //Code128 Code Example
-            jbcode = BarcodeFactory.getInstance().createCode128();
+            b4j = BarcodeFactory.getInstance().createCode128();
             code = "Bars4J-128";
-            img = jbcode.createBarcode(code);
-            svg = jbcode.createBarcodeSVG(code);
+            img = b4j.createBarcode(code);
+            svg = b4j.createBarcodeSVG(code);
             saveToSVG(svg, "Code128.svg");
             saveToPNG(img, "Code128.png");
             
             //Code11 Code Example
-            jbcode = BarcodeFactory.getInstance().createCode11();            
+            b4j = BarcodeFactory.getInstance().createCode11();            
             code = "9788515004041";
-            img = jbcode.createBarcode(code);
-            svg = jbcode.createBarcodeSVG(code);
+            img = b4j.createBarcode(code);
+            svg = b4j.createBarcodeSVG(code);
             saveToSVG(svg, "Code11.svg");
             saveToPNG(img, "Code11.png");
             
             //Code MSIPlessey Code Example
-            jbcode = BarcodeFactory.getInstance().createMSIPlessey();
+            b4j = BarcodeFactory.getInstance().createMSIPlessey();
             code = "9788515004041";
-            img = jbcode.createBarcode(code);
-            svg = jbcode.createBarcodeSVG(code);
+            img = b4j.createBarcode(code);
+            svg = b4j.createBarcodeSVG(code);
             saveToSVG(svg, "MSIPlessey.svg");
             saveToPNG(img, "MSIPlessey.png");
             
             //Standard 2 of 5 Code Example
-            jbcode = BarcodeFactory.getInstance().createStandard2of5();
+            b4j = BarcodeFactory.getInstance().createStandard2of5();
             code = "978851500404";
-            img = jbcode.createBarcode(code);
-            svg = jbcode.createBarcodeSVG(code);
+            img = b4j.createBarcode(code);
+            svg = b4j.createBarcodeSVG(code);
             saveToSVG(svg, "Standard2of5.svg");
             saveToJPEG(img, "Standard2of5.jpg");
             
             //IATA 2 of 5 Code Example
-            jbcode = BarcodeFactory.getInstance().createIATA2of5();
+            b4j = BarcodeFactory.getInstance().createIATA2of5();
             code = "978851500404";
-            img = jbcode.createBarcode(code);
-            svg = jbcode.createBarcodeSVG(code);
+            img = b4j.createBarcode(code);
+            svg = b4j.createBarcodeSVG(code);
             saveToSVG(svg, "IATA2of5.svg");
             saveToPNG(img, "IATA2of5.png");
             
             //Matrix 2 of 5 Code Example
-            jbcode = BarcodeFactory.getInstance().createMatrix2of5();
+            b4j = BarcodeFactory.getInstance().createMatrix2of5();
             code = "123456";
-            img = jbcode.createBarcode(code);
-            svg = jbcode.createBarcodeSVG(code);
+            img = b4j.createBarcode(code);
+            svg = b4j.createBarcodeSVG(code);
             saveToSVG(svg, "Matrix2of5.svg");
             saveToPNG(img, "Matrix2of5.png");
             
             //Datalogic 2 of 5 Code Example
-            jbcode = BarcodeFactory.getInstance().createDatalogic2of5();
+            b4j = BarcodeFactory.getInstance().createDatalogic2of5();
             code = "123456";
-            img = jbcode.createBarcode(code);
-            svg = jbcode.createBarcodeSVG(code);
+            img = b4j.createBarcode(code);
+            svg = b4j.createBarcodeSVG(code);
             saveToSVG(svg, "Datalogic2of5.svg");
             saveToPNG(img, "Datalogic2of5.png");
             
             //Interleaved 2 of 5 Code Example
-            jbcode = BarcodeFactory.getInstance().createInterleaved2of5();
+            b4j = BarcodeFactory.getInstance().createInterleaved2of5();
             code = "9876543210921";        
-            img = jbcode.createBarcode(code);
-            svg = jbcode.createBarcodeSVG(code);
+            img = b4j.createBarcode(code);
+            svg = b4j.createBarcodeSVG(code);
             saveToSVG(svg, "Interleaved2of5.svg");
             saveToPNG(img, "Interleaved2of5.png");
             
             //PostNet Code Example
-            jbcode = BarcodeFactory.getInstance().createPostNet();
+            b4j = BarcodeFactory.getInstance().createPostNet();
             code = "805365961"; 
-            img = jbcode.createBarcode(code);
-            svg = jbcode.createBarcodeSVG(code);
+            img = b4j.createBarcode(code);
+            svg = b4j.createBarcodeSVG(code);
             saveToSVG(svg, "PostNet.svg");
             saveToJPEG(img, "PostNet.jpg");
         } catch (Exception e) {
