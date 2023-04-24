@@ -106,7 +106,7 @@ public class SimpleDemo {
             
             //Code39 Extended Code Example
             b4j = BarcodeFactory.getInstance().createCode39Extended();
-            code = "BARS4J-39Ext";
+            code = "Bars4J-39Ext";
             img = b4j.createBarcode(code);
             svg = b4j.createBarcodeSVG(code);
             saveToSVG(svg, "Code39Ext.svg");

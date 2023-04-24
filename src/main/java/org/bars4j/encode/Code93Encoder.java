@@ -103,11 +103,11 @@ public class Code93Encoder implements BarcodeEncoder {
             return 42;
         } else if( c == '\u00B9' ){ //special char ($)
             return 43;
-        } else if( c == '\u00B3' ){ //special char (/)
-            return 44;
-        } else if( c == '\u00A3' ){ //special char (+)
-            return 45;
         } else if( c == '\u00B2' ){ //special char (%)
+            return 44;
+        } else if( c == '\u00B3' ){ //special char (/)
+            return 45;
+        } else if( c == '\u00A3' ){ //special char (+)
             return 46;
         } else {
             throw new InvalidAtributeException("[Code93] The text contains unsuported chars.");
@@ -137,11 +137,11 @@ public class Code93Encoder implements BarcodeEncoder {
         } else if( c == 43 ){
             return '\u00B9';
         } else if( c == 44 ){
-            return '\u00B3';
-        } else if( c == 45 ){
-            return '\u00A3';
-        } else if( c == 46 ){
             return '\u00B2';
+        } else if( c == 45 ){
+            return '\u00B3';
+        } else if( c == 46 ){
+            return '\u00A3';
         } else {
             throw new InvalidAtributeException("[Code93] The text contains unsuported chars.");
         }
