@@ -96,7 +96,7 @@ public class UPCATextPainter implements TextPainter {
     	String t2 = text.substring(1, 6);
     	String t3 = text.substring(6, 11);
     	String t4 = text.substring(11, 12);
-    	int posY = (int) Math.ceil(barHeight * 0.9);
+    	int posY = (int) Math.round(barHeight * 0.85);
     	StringBuffer res = new StringBuffer();
     	res.append("<rect x=\"0\"  y=\"");
     	res.append(barHeight);
@@ -130,6 +130,11 @@ public class UPCATextPainter implements TextPainter {
     	res.append(t4);
     	res.append("</text>");
     	return res;
+	}
+
+	@Override
+	public int calcTotalHeight(int barHeight, int fontSize) {
+		return (int) Math.ceil((barHeight * 0.9) + fontSize);
 	}
 
 }

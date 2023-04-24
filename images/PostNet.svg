@@ -1,1 +1,65 @@
-<svg xmlns="http://www.w3.org/2000/svg" version="1.2" width="108px" height="12px" preserveAspectRatio="x108Y12 meet"><path fill="#fff" d="M0 0h107v12H0z"/><path d="M2 2h1v8H2zm2 0h1v8H4zm2 4h1v4H6zm2 0h1v4H8zm2-4h1v8h-1zm2 4h1v4h-1zm2-4h1v8h-1zm2 0h1v8h-1zm2 4h1v4h-1zm2 0h1v4h-1zm2 0h1v4h-1zm2 0h1v4h-1zm2-4h1v8h-1zm2 4h1v4h-1zm2-4h1v8h-1zm2 4h1v4h-1zm2 0h1v4h-1zm2 0h1v4h-1zm2-4h1v8h-1zm2 0h1v8h-1zm2 4h1v4h-1zm2 0h1v4h-1zm2-4h1v8h-1zm2 0h1v8h-1zm2 4h1v4h-1zm2 0h1v4h-1zm2 0h1v4h-1zm2-4h1v8h-1zm2 4h1v4h-1zm2-4h1v8h-1zm2 4h1v4h-1zm2-4h1v8h-1zm2 4h1v4h-1zm2-4h1v8h-1zm2 4h1v4h-1zm2 0h1v4h-1zm2 0h1v4h-1zm2-4h1v8h-1zm2 0h1v8h-1zm2 4h1v4h-1zm2 0h1v4h-1zm2 0h1v4h-1zm2 0h1v4h-1zm2 0h1v4h-1zm2-4h1v8h-1zm2 0h1v8h-1zm2 0h1v8h-1zm2 4h1v4h-1zm2 0h1v4h-1zm2 0h1v4h-1zm2-4h1v8h-1zm2 0h1v8h-1z"/>Sorry, your browser does not support inline SVG.</svg>
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<!-- Created with Bars4J -->
+
+<svg xmlns="http://www.w3.org/2000/svg" version="1.2" width="107" height="12"  preserveAspectRatio="x107Y12 meet">
+	 <style>
+	         text {
+	             font-family: 'Courier New', monospace;
+				 font-size: 14px;
+	         }
+	     </style>
+<rect x="0" y="0" width="107" height="12" fill="white" />
+<rect x="2"  y="2" width="1" height="8" fill="black" />
+<rect x="4"  y="2" width="1" height="8" fill="black" />
+<rect x="6"  y="6" width="1" height="4" fill="black" />
+<rect x="8"  y="6" width="1" height="4" fill="black" />
+<rect x="10"  y="2" width="1" height="8" fill="black" />
+<rect x="12"  y="6" width="1" height="4" fill="black" />
+<rect x="14"  y="2" width="1" height="8" fill="black" />
+<rect x="16"  y="2" width="1" height="8" fill="black" />
+<rect x="18"  y="6" width="1" height="4" fill="black" />
+<rect x="20"  y="6" width="1" height="4" fill="black" />
+<rect x="22"  y="6" width="1" height="4" fill="black" />
+<rect x="24"  y="6" width="1" height="4" fill="black" />
+<rect x="26"  y="2" width="1" height="8" fill="black" />
+<rect x="28"  y="6" width="1" height="4" fill="black" />
+<rect x="30"  y="2" width="1" height="8" fill="black" />
+<rect x="32"  y="6" width="1" height="4" fill="black" />
+<rect x="34"  y="6" width="1" height="4" fill="black" />
+<rect x="36"  y="6" width="1" height="4" fill="black" />
+<rect x="38"  y="2" width="1" height="8" fill="black" />
+<rect x="40"  y="2" width="1" height="8" fill="black" />
+<rect x="42"  y="6" width="1" height="4" fill="black" />
+<rect x="44"  y="6" width="1" height="4" fill="black" />
+<rect x="46"  y="2" width="1" height="8" fill="black" />
+<rect x="48"  y="2" width="1" height="8" fill="black" />
+<rect x="50"  y="6" width="1" height="4" fill="black" />
+<rect x="52"  y="6" width="1" height="4" fill="black" />
+<rect x="54"  y="6" width="1" height="4" fill="black" />
+<rect x="56"  y="2" width="1" height="8" fill="black" />
+<rect x="58"  y="6" width="1" height="4" fill="black" />
+<rect x="60"  y="2" width="1" height="8" fill="black" />
+<rect x="62"  y="6" width="1" height="4" fill="black" />
+<rect x="64"  y="2" width="1" height="8" fill="black" />
+<rect x="66"  y="6" width="1" height="4" fill="black" />
+<rect x="68"  y="2" width="1" height="8" fill="black" />
+<rect x="70"  y="6" width="1" height="4" fill="black" />
+<rect x="72"  y="6" width="1" height="4" fill="black" />
+<rect x="74"  y="6" width="1" height="4" fill="black" />
+<rect x="76"  y="2" width="1" height="8" fill="black" />
+<rect x="78"  y="2" width="1" height="8" fill="black" />
+<rect x="80"  y="6" width="1" height="4" fill="black" />
+<rect x="82"  y="6" width="1" height="4" fill="black" />
+<rect x="84"  y="6" width="1" height="4" fill="black" />
+<rect x="86"  y="6" width="1" height="4" fill="black" />
+<rect x="88"  y="6" width="1" height="4" fill="black" />
+<rect x="90"  y="2" width="1" height="8" fill="black" />
+<rect x="92"  y="2" width="1" height="8" fill="black" />
+<rect x="94"  y="2" width="1" height="8" fill="black" />
+<rect x="96"  y="6" width="1" height="4" fill="black" />
+<rect x="98"  y="6" width="1" height="4" fill="black" />
+<rect x="100"  y="6" width="1" height="4" fill="black" />
+<rect x="102"  y="2" width="1" height="8" fill="black" />
+<rect x="104"  y="2" width="1" height="8" fill="black" />
+Sorry, your browser does not support inline SVG.
+</svg>

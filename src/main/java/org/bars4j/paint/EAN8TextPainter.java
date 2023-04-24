@@ -103,4 +103,9 @@ public class EAN8TextPainter implements TextPainter {
     	return res;
 	}
 
+	@Override
+	public int calcTotalHeight(int barHeight, int fontSize) {
+		return (int) Math.ceil((barHeight * 0.9) + fontSize);
+	}
+
 }

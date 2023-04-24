@@ -41,9 +41,12 @@ public class BaseLineTextPainter implements TextPainter {
     
     private Color bgColor;
     
+    private int fontSize;
+    
     private BaseLineTextPainter(){
         this.setTextColor(Color.BLACK);
         this.setBgColor(Color.WHITE);
+        this.fontSize = 14;
     }
     
     public static TextPainter getInstance(){
@@ -81,7 +84,7 @@ public class BaseLineTextPainter implements TextPainter {
 		res.append("<text x=\"");
     	res.append(nWidth/2);
     	res.append("\" y=\"");
-    	res.append(barHeight + 12); //14 is font size
+    	res.append(barHeight + fontSize-2); //14 is font size
     	res.append("\" class=\"small\" text-anchor=\"middle\">");
     	res.append(text);
     	res.append("</text>\n");
@@ -102,6 +105,11 @@ public class BaseLineTextPainter implements TextPainter {
 
 	public void setBgColor(Color bgColor) {
 		this.bgColor = bgColor;
+	}
+
+	@Override
+	public int calcTotalHeight(int barHeight, int fontSize) {
+		return barHeight+fontSize;
 	}
 
 }

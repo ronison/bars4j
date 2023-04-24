@@ -57,6 +57,8 @@ public class Barcode {
 	private double wideToNarrow;
 
     private int xdimension;
+    
+    private int fontSize;
 
 	private boolean showText;
 
@@ -94,6 +96,7 @@ public class Barcode {
         this.showCheckDigit = true;
         this.checkDigit = true;
         this.showText = true;
+        this.fontSize = 14;
     }
 
     /**
@@ -151,18 +154,37 @@ public class Barcode {
      */
     public StringBuffer createBarcodeSVG(String code) throws InvalidAtributeException{
         StringBuffer tmp = new StringBuffer(code);
+        StringBuffer label = new StringBuffer(code);
         if(isCheckDigit()){
             tmp.append(bcencoder.computeCheckSum(code));
             if(isShowCheckDigit()){
-                //res = code;
+                label = tmp;
             }
             
         }
         BarSet [] encoded = bcencoder.encode(tmp.toString());
         
-        StringBuffer res = new StringBuffer("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"
+        int totalWidth = bcpainter.calcTotalWidth(encoded, xdimension, barHeight, wideToNarrow);
+        int totalHeight = barHeight+4; //2px top margin + 2px bottom margin
+        
+        StringBuffer pcode = bcpainter.paintToSVG(encoded, 1, barHeight, wideToNarrow);
+        
+        if(isShowText()){
+        	pcode.append(textpainter.paintTextSVG(pcode, label.toString(), barHeight, totalWidth));
+        	totalHeight = textpainter.calcTotalHeight(barHeight, fontSize);
+        }
+        
+        StringBuffer res = new StringBuffer("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>\n"
         		+ "<!-- Created with Bars4J -->\n\n"
-        		+ "<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.2\">\n\n"
+        		+ "<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.2\" width=\"");
+        res.append(totalWidth);
+        res.append("\" height=\"");
+        res.append(totalHeight);
+        res.append("\"  preserveAspectRatio=\"x");
+        res.append(totalWidth);
+        res.append("Y");
+        res.append(totalHeight);
+        res.append(" meet\">\n"
         		+ "	 <style>\n"
         		+ "	         text {\n"
         		+ "	             font-family: 'Courier New', monospace;\n"
@@ -170,15 +192,9 @@ public class Barcode {
         		+ "	         }\n"
         		+ "	     </style>\n");
         
-        res.append(bcpainter.paintToSVG(encoded, 1, barHeight, wideToNarrow));
+        res.append(pcode);
         
-        if(isShowText()){
-        	int totalWidth = bcpainter.calcTotalWidth(encoded, xdimension, barHeight, wideToNarrow);
-        	res.append(textpainter.paintTextSVG(res, tmp.toString(), barHeight, totalWidth));
-        }
-        
-        res.append("Sorry, your browser does not support inline SVG.\n"
-        		+ "        </svg>");
+        res.append("Sorry, your browser does not support inline SVG.\n</svg>");
        
         return res;
     }
@@ -366,7 +382,15 @@ public class Barcode {
         this.textpainter = textpainter;
     }
     
-    /**
+    public int getFontSize() {
+		return fontSize;
+	}
+
+	public void setFontSize(int fontSize) {
+		this.fontSize = fontSize;
+	}
+
+	/**
      * TODO: Description.
      */
     public String toString(){

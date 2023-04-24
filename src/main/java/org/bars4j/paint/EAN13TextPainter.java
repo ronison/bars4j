@@ -126,4 +126,9 @@ public class EAN13TextPainter implements TextPainter {
     	
     }
 
+	@Override
+	public int calcTotalHeight(int barHeight, int fontSize) {
+		return (int) Math.ceil((barHeight * 0.9) + fontSize);
+	}
+
 }

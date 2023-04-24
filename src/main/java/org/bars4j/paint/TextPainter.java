@@ -34,4 +34,6 @@ public interface TextPainter {
 	public void paintText(BufferedImage barcode, String text, int barWidth);
 
 	public StringBuffer paintTextSVG(StringBuffer barcode, String text, int barHeight, int nWidth);
+	
+	public int calcTotalHeight(int barHeight, int fontSize);
 }

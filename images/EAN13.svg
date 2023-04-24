@@ -1,1 +1,49 @@
-<svg xmlns="http://www.w3.org/2000/svg" version="1.2" width="115" height="78" preserveAspectRatio="x115Y78 meet"><style>text{font-family:&quot;Courier New&quot;,monospace;font-size:14px}</style><path fill="#fff" d="M0 0h115v76H0z"/><path d="M10 2h1v72h-1zm2 0h1v72h-1zm2 0h2v72h-2zm3 0h3v72h-3zm5 0h1v72h-1zm2 0h3v72h-3zm5 0h2v72h-2zm4 0h1v72h-1zm2 0h1v72h-1zm3 0h3v72h-3zm6 0h2v72h-2zm3 0h1v72h-1zm2 0h1v72h-1zm3 0h3v72h-3zm4 0h1v72h-1zm2 0h1v72h-1zm2 0h1v72h-1zm5 0h1v72h-1zm2 0h2v72h-2zm4 0h2v72h-2zm3 0h1v72h-1zm3 0h3v72h-3zm4 0h1v72h-1zm3 0h3v72h-3zm4 0h3v72h-3zm5 0h1v72h-1zm2 0h1v72h-1zm4 0h1v72h-1zm3 0h1v72h-1zm2 0h1v72h-1z"/><path fill="#fff" d="M0 72h115v8H0z"/><path fill="#fff" d="M13 65h43v14H13zm46 0h43v14H59z"/><text y="75" class="small" textLength="8">7</text><text x="13" y="75" class="small" textLength="43">891000</text><text x="59" y="75" class="small" textLength="43">315507</text><text x="106" y="75" class="small" textLength="43">&gt;</text>Sorry, your browser does not support inline SVG.</svg>
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<!-- Created with Bars4J -->
+
+<svg xmlns="http://www.w3.org/2000/svg" version="1.2" width="115" height="79"  preserveAspectRatio="x115Y79 meet">
+	 <style>
+	         text {
+	             font-family: 'Courier New', monospace;
+				 font-size: 14px;
+	         }
+	     </style>
+<rect x="0" y="0" width="115" height="76" fill="white" />
+<rect x="10"  y="2" width="1" height="72" fill="black" />
+<rect x="12"  y="2" width="1" height="72" fill="black" />
+<rect x="14"  y="2" width="2" height="72" fill="black" />
+<rect x="17"  y="2" width="3" height="72" fill="black" />
+<rect x="22"  y="2" width="1" height="72" fill="black" />
+<rect x="24"  y="2" width="3" height="72" fill="black" />
+<rect x="29"  y="2" width="2" height="72" fill="black" />
+<rect x="33"  y="2" width="1" height="72" fill="black" />
+<rect x="35"  y="2" width="1" height="72" fill="black" />
+<rect x="38"  y="2" width="3" height="72" fill="black" />
+<rect x="44"  y="2" width="2" height="72" fill="black" />
+<rect x="47"  y="2" width="1" height="72" fill="black" />
+<rect x="49"  y="2" width="1" height="72" fill="black" />
+<rect x="52"  y="2" width="3" height="72" fill="black" />
+<rect x="56"  y="2" width="1" height="72" fill="black" />
+<rect x="58"  y="2" width="1" height="72" fill="black" />
+<rect x="60"  y="2" width="1" height="72" fill="black" />
+<rect x="65"  y="2" width="1" height="72" fill="black" />
+<rect x="67"  y="2" width="2" height="72" fill="black" />
+<rect x="71"  y="2" width="2" height="72" fill="black" />
+<rect x="74"  y="2" width="1" height="72" fill="black" />
+<rect x="77"  y="2" width="3" height="72" fill="black" />
+<rect x="81"  y="2" width="1" height="72" fill="black" />
+<rect x="84"  y="2" width="3" height="72" fill="black" />
+<rect x="88"  y="2" width="3" height="72" fill="black" />
+<rect x="93"  y="2" width="1" height="72" fill="black" />
+<rect x="95"  y="2" width="1" height="72" fill="black" />
+<rect x="99"  y="2" width="1" height="72" fill="black" />
+<rect x="102"  y="2" width="1" height="72" fill="black" />
+<rect x="104"  y="2" width="1" height="72" fill="black" />
+<rect x="0"  y="72" width="115" height="8" fill="white" />
+<rect x="13"  y="65" width="43" height="14" fill="white" />
+<rect x="59"  y="65" width="43" height="14" fill="white" />
+<text x="0" y="75" class="small" textLength="8">7</text>
+<text x="13" y="75" class="small" textLength="43">891000</text>
+<text x="59" y="75" class="small" textLength="43">315507</text>
+<text x="106" y="75" class="small" textLength="43">></text>Sorry, your browser does not support inline SVG.
+</svg>
