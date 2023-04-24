@@ -30,17 +30,39 @@ StringBuffer svg = b4j.createBarcodeSVG(code);
 ```
 
 ## SVG Barcode Samples
-### EAN13
-<img src="images/EAN13.svg" height="100" />
 
-### UPCA
-<img src="images/UPCA.svg" height="100" />
+### EAN / UPC
 
-### Code 39
-<img src="images/Code39.svg" height="100" />
+| EAN13 | EAN8 | UPCA | UPCE |
+|----------|:-------------:|:------:|------|
+<img src="images/EAN13.svg" height="100" /> | <img src="images/EAN8.svg" height="100" /> | <img src="images/UPCA.svg" height="100" /> | <img src="images/UPCE.svg" height="100" /> |
 
-### Code 128
-<img src="images/Code128.svg" height="100" />
+### Codes
+| Code 39 | Code 39 Extended |
+|----------|-------------|
+| <img src="images/Code39.svg" height="100" /> | <img src="images/Code39Ext.svg" height="100" /> |
+
+| Code 93 | Code 93 Extended |
+|----------|-------------|
+| <img src="images/Code93.svg" height="100" /> | <img src="images/Code93Ext.svg" height="100" /> |
+
+| Codabar | Code 11 | 
+|----------|-------------|
+| <img src="images/Codabar.svg" height="100" /> | <img src="images/Code11.svg" height="100" /> |
+
+| Code 128 | MSI Plessey | 
+|----------|-------------|
+| <img src="images/Code128.svg" height="100" /> | <img src="images/MSIPlessey.svg" height="100" /> |
+
+### ITF
+
+| Standard 2of5 | Interleaved 2of5 |
+|----------|-------------|
+| <img src="images/Standard2of5.svg" height="100" /> | <img src="images/Interleaved2of5.svg" height="100" /> | 
+
+| IATA 2of5 | Matrix 2of5 | Datalogic 2of5 |
+|----------|-------------|----------|
+| <img src="images/IATA2of5.svg" height="100" /> |<img src="images/Matrix2of5.svg" height="100" /> |  <img src="images/Datalogic2of5.svg" height="100" /> |
 
 ### PostNet
 <img src="images/PostNet.svg" height="30" />
