@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<!-- Created with Bars4J -->
+
+<svg xmlns="http://www.w3.org/2000/svg" version="1.2" width="138" height="78"  preserveAspectRatio="x138Y78 meet">
+	 <style>
+	         text {
+	             font-family: 'Courier New', monospace;
+				 font-size: 14px;
+	         }
+	     </style>
+<rect x="0" y="0" width="138" height="68" fill="white" />
+<rect x="10"  y="2" width="1" height="64" fill="black" />
+<rect x="12"  y="2" width="1" height="64" fill="black" />
+<rect x="14"  y="2" width="4" height="64" fill="black" />
+<rect x="19"  y="2" width="2" height="64" fill="black" />
+<rect x="22"  y="2" width="1" height="64" fill="black" />
+<rect x="25"  y="2" width="1" height="64" fill="black" />
+<rect x="28"  y="2" width="2" height="64" fill="black" />
+<rect x="31"  y="2" width="1" height="64" fill="black" />
+<rect x="33"  y="2" width="1" height="64" fill="black" />
+<rect x="37"  y="2" width="2" height="64" fill="black" />
+<rect x="40"  y="2" width="2" height="64" fill="black" />
+<rect x="44"  y="2" width="1" height="64" fill="black" />
+<rect x="46"  y="2" width="2" height="64" fill="black" />
+<rect x="49"  y="2" width="1" height="64" fill="black" />
+<rect x="51"  y="2" width="2" height="64" fill="black" />
+<rect x="55"  y="2" width="1" height="64" fill="black" />
+<rect x="58"  y="2" width="1" height="64" fill="black" />
+<rect x="60"  y="2" width="1" height="64" fill="black" />
+<rect x="64"  y="2" width="1" height="64" fill="black" />
+<rect x="67"  y="2" width="2" height="64" fill="black" />
+<rect x="70"  y="2" width="1" height="64" fill="black" />
+<rect x="73"  y="2" width="1" height="64" fill="black" />
+<rect x="76"  y="2" width="1" height="64" fill="black" />
+<rect x="78"  y="2" width="3" height="64" fill="black" />
+<rect x="82"  y="2" width="1" height="64" fill="black" />
+<rect x="87"  y="2" width="1" height="64" fill="black" />
+<rect x="89"  y="2" width="1" height="64" fill="black" />
+<rect x="91"  y="2" width="1" height="64" fill="black" />
+<rect x="93"  y="2" width="1" height="64" fill="black" />
+<rect x="98"  y="2" width="1" height="64" fill="black" />
+<rect x="100"  y="2" width="1" height="64" fill="black" />
+<rect x="105"  y="2" width="1" height="64" fill="black" />
+<rect x="107"  y="2" width="1" height="64" fill="black" />
+<rect x="109"  y="2" width="1" height="64" fill="black" />
+<rect x="112"  y="2" width="1" height="64" fill="black" />
+<rect x="114"  y="2" width="2" height="64" fill="black" />
+<rect x="118"  y="2" width="1" height="64" fill="black" />
+<rect x="120"  y="2" width="1" height="64" fill="black" />
+<rect x="122"  y="2" width="4" height="64" fill="black" />
+<rect x="127"  y="2" width="1" height="64" fill="black" />
+<rect x="0"  y="64" width="138" height="14" fill="white" />
+<text x="69" y="76" class="small" text-anchor="middle">BARS4J-93</text>
+Sorry, your browser does not support inline SVG.
+</svg>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<!-- Created with Bars4J -->
+
+<svg xmlns="http://www.w3.org/2000/svg" version="1.2" width="89" height="78"  preserveAspectRatio="x89Y78 meet">
+	 <style>
+	         text {
+	             font-family: 'Courier New', monospace;
+				 font-size: 14px;
+	         }
+	     </style>
+<rect x="0" y="0" width="89" height="79" fill="white" />
+<rect x="10"  y="2" width="2" height="64" fill="black" />
+<rect x="13"  y="2" width="1" height="64" fill="black" />
+<rect x="15"  y="2" width="1" height="64" fill="black" />
+<rect x="17"  y="2" width="2" height="64" fill="black" />
+<rect x="20"  y="2" width="1" height="64" fill="black" />
+<rect x="22"  y="2" width="2" height="64" fill="black" />
+<rect x="25"  y="2" width="1" height="64" fill="black" />
+<rect x="28"  y="2" width="1" height="64" fill="black" />
+<rect x="30"  y="2" width="2" height="64" fill="black" />
+<rect x="33"  y="2" width="2" height="64" fill="black" />
+<rect x="37"  y="2" width="1" height="64" fill="black" />
+<rect x="39"  y="2" width="1" height="64" fill="black" />
+<rect x="41"  y="2" width="1" height="64" fill="black" />
+<rect x="43"  y="2" width="2" height="64" fill="black" />
+<rect x="46"  y="2" width="2" height="64" fill="black" />
+<rect x="49"  y="2" width="2" height="64" fill="black" />
+<rect x="52"  y="2" width="2" height="64" fill="black" />
+<rect x="55"  y="2" width="1" height="64" fill="black" />
+<rect x="57"  y="2" width="1" height="64" fill="black" />
+<rect x="60"  y="2" width="2" height="64" fill="black" />
+<rect x="63"  y="2" width="1" height="64" fill="black" />
+<rect x="65"  y="2" width="2" height="64" fill="black" />
+<rect x="68"  y="2" width="1" height="64" fill="black" />
+<rect x="70"  y="2" width="2" height="64" fill="black" />
+<rect x="73"  y="2" width="2" height="64" fill="black" />
+<rect x="76"  y="2" width="1" height="64" fill="black" />
+<rect x="78"  y="2" width="1" height="64" fill="black" />
+<rect x="0"  y="64" width="89" height="14" fill="white" />
+<text x="44" y="76" class="small" text-anchor="middle">123456</text>
+Sorry, your browser does not support inline SVG.
+</svg>

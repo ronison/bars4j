@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<!-- Created with Bars4J -->
+
+<svg xmlns="http://www.w3.org/2000/svg" version="1.2" width="191" height="78"  preserveAspectRatio="x191Y78 meet">
+	 <style>
+	         text {
+	             font-family: 'Courier New', monospace;
+				 font-size: 14px;
+	         }
+	     </style>
+<rect x="0" y="0" width="191" height="79" fill="white" />
+<rect x="10"  y="2" width="2" height="64" fill="black" />
+<rect x="13"  y="2" width="2" height="64" fill="black" />
+<rect x="16"  y="2" width="1" height="64" fill="black" />
+<rect x="18"  y="2" width="1" height="64" fill="black" />
+<rect x="20"  y="2" width="2" height="64" fill="black" />
+<rect x="23"  y="2" width="1" height="64" fill="black" />
+<rect x="25"  y="2" width="2" height="64" fill="black" />
+<rect x="28"  y="2" width="1" height="64" fill="black" />
+<rect x="30"  y="2" width="1" height="64" fill="black" />
+<rect x="32"  y="2" width="1" height="64" fill="black" />
+<rect x="34"  y="2" width="1" height="64" fill="black" />
+<rect x="36"  y="2" width="2" height="64" fill="black" />
+<rect x="39"  y="2" width="2" height="64" fill="black" />
+<rect x="42"  y="2" width="2" height="64" fill="black" />
+<rect x="45"  y="2" width="1" height="64" fill="black" />
+<rect x="47"  y="2" width="1" height="64" fill="black" />
+<rect x="49"  y="2" width="2" height="64" fill="black" />
+<rect x="52"  y="2" width="1" height="64" fill="black" />
+<rect x="54"  y="2" width="2" height="64" fill="black" />
+<rect x="57"  y="2" width="1" height="64" fill="black" />
+<rect x="59"  y="2" width="1" height="64" fill="black" />
+<rect x="61"  y="2" width="2" height="64" fill="black" />
+<rect x="64"  y="2" width="1" height="64" fill="black" />
+<rect x="66"  y="2" width="2" height="64" fill="black" />
+<rect x="69"  y="2" width="1" height="64" fill="black" />
+<rect x="71"  y="2" width="2" height="64" fill="black" />
+<rect x="74"  y="2" width="1" height="64" fill="black" />
+<rect x="76"  y="2" width="1" height="64" fill="black" />
+<rect x="78"  y="2" width="2" height="64" fill="black" />
+<rect x="81"  y="2" width="1" height="64" fill="black" />
+<rect x="83"  y="2" width="1" height="64" fill="black" />
+<rect x="85"  y="2" width="1" height="64" fill="black" />
+<rect x="87"  y="2" width="2" height="64" fill="black" />
+<rect x="90"  y="2" width="2" height="64" fill="black" />
+<rect x="93"  y="2" width="1" height="64" fill="black" />
+<rect x="95"  y="2" width="2" height="64" fill="black" />
+<rect x="98"  y="2" width="1" height="64" fill="black" />
+<rect x="100"  y="2" width="1" height="64" fill="black" />
+<rect x="102"  y="2" width="1" height="64" fill="black" />
+<rect x="104"  y="2" width="1" height="64" fill="black" />
+<rect x="106"  y="2" width="2" height="64" fill="black" />
+<rect x="109"  y="2" width="2" height="64" fill="black" />
+<rect x="112"  y="2" width="1" height="64" fill="black" />
+<rect x="114"  y="2" width="1" height="64" fill="black" />
+<rect x="116"  y="2" width="1" height="64" fill="black" />
+<rect x="118"  y="2" width="2" height="64" fill="black" />
+<rect x="121"  y="2" width="2" height="64" fill="black" />
+<rect x="124"  y="2" width="1" height="64" fill="black" />
+<rect x="126"  y="2" width="1" height="64" fill="black" />
+<rect x="128"  y="2" width="1" height="64" fill="black" />
+<rect x="130"  y="2" width="2" height="64" fill="black" />
+<rect x="133"  y="2" width="1" height="64" fill="black" />
+<rect x="135"  y="2" width="2" height="64" fill="black" />
+<rect x="138"  y="2" width="1" height="64" fill="black" />
+<rect x="140"  y="2" width="1" height="64" fill="black" />
+<rect x="142"  y="2" width="2" height="64" fill="black" />
+<rect x="145"  y="2" width="2" height="64" fill="black" />
+<rect x="148"  y="2" width="1" height="64" fill="black" />
+<rect x="150"  y="2" width="1" height="64" fill="black" />
+<rect x="152"  y="2" width="1" height="64" fill="black" />
+<rect x="154"  y="2" width="2" height="64" fill="black" />
+<rect x="157"  y="2" width="1" height="64" fill="black" />
+<rect x="159"  y="2" width="2" height="64" fill="black" />
+<rect x="162"  y="2" width="2" height="64" fill="black" />
+<rect x="165"  y="2" width="1" height="64" fill="black" />
+<rect x="167"  y="2" width="2" height="64" fill="black" />
+<rect x="170"  y="2" width="1" height="64" fill="black" />
+<rect x="172"  y="2" width="1" height="64" fill="black" />
+<rect x="174"  y="2" width="2" height="64" fill="black" />
+<rect x="177"  y="2" width="1" height="64" fill="black" />
+<rect x="179"  y="2" width="2" height="64" fill="black" />
+<rect x="0"  y="64" width="191" height="14" fill="white" />
+<text x="95" y="76" class="small" text-anchor="middle">978851500404</text>
+Sorry, your browser does not support inline SVG.
+</svg>
