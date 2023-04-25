@@ -91,15 +91,27 @@ public class EAN8TextPainter implements TextPainter {
     	String t2 = text.substring(4, 8);
     	int posY = (int) Math.ceil(barHeight * 0.9);
     	StringBuffer res = new StringBuffer();
-    	res.append("<rect x=\"0\" y=\""+barHeight+"\" width=\""+nWidth+"\" height=\"8\" fill=\"white\" />\n");
-    	res.append("<rect x=\"13\" y=\""+posY+"\" width=\"29\" height=\"14\" fill=\"white\" />\n");
-    	res.append("<rect x=\"45\" y=\""+posY+"\" width=\"29\" height=\"14\" fill=\"white\" />\n");
-    	res.append("<text x=\"13\" y=\""+(posY+10)+"\" class=\"small\" textLength=\"29\">");
+    	
+    	res.append("<path fill=\"#fff\" d=\"M0 ");
+    	res.append(barHeight);
+    	res.append("h");
+    	res.append(nWidth);
+    	res.append("v8H0z\"/>");
+    	
+    	res.append("<path fill=\"#fff\" d=\"M13 ");
+    	res.append(posY);
+    	res.append("h29v14H13zm32 0h29v14H45z\"/>");
+    	res.append("<text x=\"13\" y=\"");
+    	res.append(posY+10);
+    	res.append("\" class=\"small\" textLength=\"29\">");
     	res.append(t1);
-    	res.append("</text>\n");
-    	res.append("<text x=\"45\" y=\""+(posY+10)+"\" class=\"small\" textLength=\"29\">");
+    	res.append("</text>");
+    	res.append("<text x=\"45\" y=\"");
+    	res.append(posY+10);
+    	res.append("\" class=\"small\" textLength=\"29\">");
     	res.append(t2);
-    	res.append("</text>\n");
+    	res.append("</text>");
+    	
     	return res;
 	}
 

@@ -78,35 +78,44 @@ public class HeightCodedPainter implements BarcodePainter {
 StringBuffer res = new StringBuffer();
 		
 		int totalWidth = calcTotalWidth(barcode, barWidth, barHeight, wideRatio);
-		
-        res.append("<rect x=\"0\" y=\"0\" width=\"");
-		res.append(totalWidth);
-		res.append("\" height=\"");
-		res.append(barHeight + 4);
-		res.append("\" fill=\"white\" />\n");
-        
 		int pos = 2;
+		
+		res.append("<path fill=\"#fff\" d=\"M0 0h");
+		res.append(totalWidth);
+		res.append("v");
+		res.append(barHeight + 15);
+		res.append("H0z\"/>");
+
+		res.append("<path d=\"");
+        
+		int relPos = 0;
+		int height = 0;
 		for (int i = 0; i < barcode.length; i++) {
 			BarSet bars = barcode[i];
-			int height = 0;
 			for (int j = 0; j < bars.length(); j++) {
 				if(bars.get(j)) {
 					height = barHeight;
+					
 				} else {
 					height = barHeight/2;
 				}
-					res.append("<rect x=\"");
-					res.append(pos);
-					res.append("\"  y=\"");
-					res.append(barHeight-height+2);
-					res.append("\" width=\"");
+				height *= -1;
+					res.append("m");
+					res.append(pos-relPos);
+					res.append(" ");
+					res.append(0);
+					res.append("h");
 					res.append(barWidth);
-					res.append("\" height=\"");
+					res.append("v");
 					res.append(height);
-					res.append("\" fill=\"black\" />\n");
+					res.append("h-");
+					res.append(barWidth);
+					res.append("z");
+					relPos=pos;
 				pos+=2*barWidth;
 			}
 		}
+		res.append("\"/>");
 		
 		return res;
 	}

@@ -175,26 +175,20 @@ public class Barcode {
         }
         
         StringBuffer res = new StringBuffer("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>\n"
-        		+ "<!-- Created with Bars4J -->\n\n"
+        		+ "<!-- Created with Bars4J -->\n"
         		+ "<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.2\" width=\"");
         res.append(totalWidth);
         res.append("\" height=\"");
         res.append(totalHeight);
-        res.append("\"  preserveAspectRatio=\"x");
+        res.append("\" preserveAspectRatio=\"x");
         res.append(totalWidth);
         res.append("Y");
         res.append(totalHeight);
-        res.append(" meet\">\n"
-        		+ "	 <style>\n"
-        		+ "	         text {\n"
-        		+ "	             font-family: 'Courier New', monospace;\n"
-        		+ "				 font-size: 14px;\n"
-        		+ "	         }\n"
-        		+ "	     </style>\n");
+        res.append(" meet\"><style>text{font-family: 'Courier New', monospace;font-size: 14px;}</style>");
         
         res.append(pcode);
         
-        res.append("Sorry, your browser does not support inline SVG.\n</svg>");
+        res.append("Sorry, your browser does not support inline SVG.</svg>");
        
         return res;
     }

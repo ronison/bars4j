@@ -45,9 +45,9 @@ public abstract class ToFEncoder implements BarcodeEncoder {
         int sum = 0; 
         for(int charPos = 0; charPos < text.length(); charPos++) {
             if( charPos % 2 == 0 ){
-                sum += (charToInt(text.charAt(charPos))*3);
-            } else {
                 sum += charToInt(text.charAt(charPos));
+            } else {
+                sum += charToInt(text.charAt(charPos))*3;
             }   
         }
 

@@ -89,25 +89,27 @@ public class UPCETextPainter implements TextPainter {
     	String t3 = text.substring(7, 8);
     	int posY = (int) Math.ceil(barHeight * 0.9);
     	StringBuffer res = new StringBuffer();
-    	res.append("<rect x=\"0\"  y=\"");
-    	res.append(barHeight);
-    	res.append("\" width=\"");
-    	res.append(nWidth);
-    	res.append("\" height=\"8\" fill=\"white\" />\n");
     	
-    	res.append("<rect x=\"13\"  y=\"");
+    	res.append("<path fill=\"#fff\" d=\"M0 ");
+    	res.append(barHeight);
+    	res.append("h");
+    	res.append(nWidth);
+    	res.append("v8H0z\"/>");
+    	
+    	res.append("<path fill=\"#fff\" d=\"M13 ");
     	res.append(posY);
-    	res.append("\" width=\"43\" height=\"14\" fill=\"white\" />\n");
+    	res.append("h43v14H13z\"/>");
+    	
     	res.append("<text x=\"0\" y=\"");
     	res.append(posY+10);
     	res.append("\" class=\"small\" textLength=\"8\">");
     	res.append(t1);
-    	res.append("</text>\n");
+    	res.append("</text>");
     	res.append("<text x=\"13\" y=\"");
     	res.append(posY+10);
     	res.append("\" class=\"small\" textLength=\"43\">");
     	res.append(t2);
-    	res.append("</text>\n");
+    	res.append("</text>");
     	res.append("<text x=\"61\" y=\"");
     	res.append(posY+10);
     	res.append("\" class=\"small\" textLength=\"8\">");

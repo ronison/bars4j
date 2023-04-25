@@ -46,14 +46,13 @@ public abstract class EANEncoder implements BarcodeEncoder {
     public String computeCheckSum(String text) throws InvalidAtributeException{
 		
 		int sum = 0;
-		boolean odd = true;
-		for(int charPos = text.length() - 1; charPos >= 0; charPos--) {
-			if( odd ){
-				sum += 3*charToInt(text.charAt(charPos));
+		int odd = text.length() % 2;
+		for(int charPos = 0; charPos < text.length(); charPos++) {
+			if( (charPos+odd) % 2 > 0 ){
+				sum += charToInt(text.charAt(charPos))*3;
 			} else {
 				sum += charToInt(text.charAt(charPos));
 			}
-			odd = !odd; 
 		}
 
 		int result = sum%10;

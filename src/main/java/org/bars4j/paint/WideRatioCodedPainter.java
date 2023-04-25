@@ -105,17 +105,22 @@ public class WideRatioCodedPainter implements BarcodePainter {
 		int totalWidth = calcTotalWidth(barcode, barWidth, barHeight, wideRatio);
 		int wideWidth = (int)Math.round(barWidth*wideRatio);
 		
-        res.append("<rect x=\"0\" y=\"0\" width=\"");
+		res.append("<path fill=\"#fff\" d=\"M0 0h");
 		res.append(totalWidth);
-		res.append("\" height=\"");
+		res.append("v");
 		res.append(barHeight + 15);
-		res.append("\" fill=\"white\" />\n");
+		res.append("H0z\"/>");
+
+		res.append("<path d=\"");
+		//res.append(10*barWidth);
         
 		int pos = 10*barWidth;
+		int relPos = 0;
+		int relY = 2;
+		int width = 0;
 		boolean cFlag = true;
 		for (int i = 0; i < barcode.length; i++) {
 			BarSet bars = barcode[i];
-			int width = 0;
 			for (int j = 0; j < bars.length(); j++) {
 				if(bars.get(j)) {
 					width = wideWidth;
@@ -123,18 +128,25 @@ public class WideRatioCodedPainter implements BarcodePainter {
 					width = barWidth;
 				}
 				if(cFlag) {
-					res.append("<rect x=\"");
-					res.append(pos);
-					res.append("\"  y=\"2\" width=\"");
+					res.append("m");
+					res.append(pos-relPos);
+					res.append(" ");
+					res.append(relY);
+					res.append("h");
 					res.append(width);
-					res.append("\" height=\"");
+					res.append("v");
 					res.append(barHeight);
-					res.append("\" fill=\"black\" />\n");
+					res.append("h-");
+					res.append(width);
+					res.append("z");
+					relPos=pos;
+					relY=0;
 				}
 				cFlag = !cFlag;
 				pos+=width;
 			}
 		}
+		res.append("\"/>");
 		
 		return res;
 	}

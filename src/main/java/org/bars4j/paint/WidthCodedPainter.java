@@ -94,46 +94,49 @@ public class WidthCodedPainter implements BarcodePainter {
 		
 		int totalWidth = calcTotalWidth(barcode, barWidth, barHeight, wideRatio);
 		
-        res.append("<rect x=\"0\" y=\"0\" width=\"");
+        res.append("<path fill=\"#fff\" d=\"M0 0h");
 		res.append(totalWidth);
-		res.append("\" height=\"");
+		res.append("v");
 		res.append(barHeight + 4);
-		res.append("\" fill=\"white\" />\n"); //TODO: set bgcolor
-        
-		int pos = 10*barWidth;
+		res.append("H0z\"/>");
+
+		res.append("<path d=\"M");
+		res.append(10*barWidth);
+		
+		int width=0,white = 0, relY=2;
 		for (int i = 0; i < barcode.length; i++) {
 			BarSet bars = barcode[i];
-			int width = 0;
 			for (int j = 0; j < bars.length(); j++) {
-				if(bars.get(j)) {
-					width+=barWidth;
+				if(!bars.get(j)) {
+					white+=barWidth;
 				} else {
-					if(width > 0) {
-						res.append("<rect x=\"");
-						res.append(pos-width);
-						res.append("\"  y=\"2\" width=\"");
+					if(white > 0 && width > 0) {
+						res.append(" ");
+						res.append(relY);
+						res.append("h");
 						res.append(width);
-						res.append("\" height=\"");
+						res.append("v");
 						res.append(barHeight);
-						res.append("\" fill=\"");
-						res.append("black"); //TODO: set fgcolor
-						res.append("\" />\n");
+						res.append("h-");
+						res.append(width);
+						res.append("zm");
+						res.append((white+width));
+						relY=0;
+						width = 0;
+						white = 0;
 					}
-					width = 0;
+					width+=barWidth;
 				}
-				pos+=barWidth;
 			}
-			if(width > 0) {
-				res.append("<rect x=\"");
-				res.append(pos-width);
-				res.append("\"  y=\"2\" width=\"");
-				res.append(width);
-				res.append("\" height=\"");
-				res.append(barHeight);
-				res.append("\" fill=\"");
-				res.append("black"); //TODO: set fgcolor
-				res.append("\" />\n");
-			}
+		}
+		if(width > 0) {
+			res.append(" 0h");
+			res.append(width);
+			res.append("v");
+			res.append(barHeight);
+			res.append("h-");
+			res.append(width);
+			res.append("z\"/>");
 		}
 		return res;
 	}

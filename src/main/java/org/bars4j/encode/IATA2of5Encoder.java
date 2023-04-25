@@ -36,9 +36,8 @@ public class IATA2of5Encoder extends Standard2of5Encoder {
         }
         return instance;
     }
-	
+    
     public String toString(){
         return "IATA 2of5";
     }
-
 }

@@ -80,14 +80,22 @@ public class BaseLineTextPainter implements TextPainter {
 	@Override
 	public StringBuffer paintTextSVG(StringBuffer barcode, String text, int barHeight, int nWidth) {
 		StringBuffer res = new StringBuffer();
-		res.append("<rect x=\"0\"  y=\""+barHeight+"\" width=\""+nWidth+"\" height=\"14\" fill=\"white\" />\n");
+		//TEXT AREA
+		res.append("<path fill=\"#fff\" d=\"M0 ");
+		res.append(barHeight);
+		res.append("h");
+		res.append(nWidth);
+		res.append("v");
+		res.append(fontSize);
+		res.append("H0z\"/>");
+		//TEXT
 		res.append("<text x=\"");
     	res.append(nWidth/2);
     	res.append("\" y=\"");
     	res.append(barHeight + fontSize-2); //14 is font size
     	res.append("\" class=\"small\" text-anchor=\"middle\">");
     	res.append(text);
-    	res.append("</text>\n");
+    	res.append("</text>");
     	return res;
 	}
 

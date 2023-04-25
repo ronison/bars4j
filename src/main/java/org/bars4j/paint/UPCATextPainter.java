@@ -98,33 +98,32 @@ public class UPCATextPainter implements TextPainter {
     	String t4 = text.substring(11, 12);
     	int posY = (int) Math.round(barHeight * 0.9);
     	StringBuffer res = new StringBuffer();
-    	res.append("<rect x=\"0\"  y=\"");
-    	res.append(barHeight);
-    	res.append("\" width=\"");
-    	res.append(nWidth);
-    	res.append("\" height=\"8\" fill=\"white\" />\n");
     	
-    	res.append("<rect x=\"20\"  y=\"");
+    	res.append("<path fill=\"#fff\" d=\"M0 ");
+    	res.append(barHeight);
+    	res.append("h");
+    	res.append(nWidth);
+    	res.append("v8H0z\"/>");
+    	
+    	res.append("<path fill=\"#fff\" d=\"M20 ");
     	res.append(posY);
-    	res.append("\" width=\"36\" height=\"14\" fill=\"white\" />\n");
-    	res.append("<rect x=\"59\"  y=\"");
-    	res.append(posY);
-    	res.append("\" width=\"36\" height=\"14\" fill=\"white\" />\n");
+    	res.append("h36v14H20zm39 0h36v14H59z\"/>");
+    	
     	res.append("<text x=\"0\" y=\"");
     	res.append(posY+10);
     	res.append("\" class=\"small\" textLength=\"8\">");
     	res.append(t1);
-    	res.append("</text>\n");
+    	res.append("</text>");
     	res.append("<text x=\"20\" y=\"");
     	res.append(posY+10);
     	res.append("\" class=\"small\" textLength=\"36\">");
     	res.append(t2);
-    	res.append("</text>\n");
+    	res.append("</text>");
     	res.append("<text x=\"59\" y=\"");
     	res.append(posY+10);
     	res.append("\" class=\"small\" textLength=\"36\">");
     	res.append(t3);
-    	res.append("</text>\n<text x=\"106\" y=\"");
+    	res.append("</text><text x=\"106\" y=\"");
     	res.append(posY+10);
     	res.append("\" class=\"small\" textLength=\"8\">");
     	res.append(t4);
