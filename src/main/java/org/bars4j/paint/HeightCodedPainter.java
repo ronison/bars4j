@@ -88,7 +88,7 @@ StringBuffer res = new StringBuffer();
 
 		res.append("<path d=\"");
         
-		int relPos = 0;
+		int relPos = 0, relY = 10;
 		int height = 0;
 		for (int i = 0; i < barcode.length; i++) {
 			BarSet bars = barcode[i];
@@ -100,18 +100,19 @@ StringBuffer res = new StringBuffer();
 					height = barHeight/2;
 				}
 				height *= -1;
-					res.append("m");
-					res.append(pos-relPos);
-					res.append(" ");
-					res.append(0);
-					res.append("h");
-					res.append(barWidth);
-					res.append("v");
-					res.append(height);
-					res.append("h-");
-					res.append(barWidth);
-					res.append("z");
-					relPos=pos;
+				res.append("m");
+				res.append(pos-relPos);
+				res.append(" ");
+				res.append(relY);
+				res.append("h");
+				res.append(barWidth);
+				res.append("v");
+				res.append(height);
+				res.append("h-");
+				res.append(barWidth);
+				res.append("z");
+				relPos=pos;
+				relY = 0;
 				pos+=2*barWidth;
 			}
 		}
