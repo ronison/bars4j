@@ -128,19 +128,18 @@ public class Barcode {
         }
         BarSet [] encoded = bcencoder.encode(code);
         BufferedImage img = bcpainter.paintToImg(encoded, 1, barHeight, wideToNarrow);
-        if(isShowText()){
-            textpainter.paintText(img, tmp, 1);
-        }
         
-        BufferedImage result = new BufferedImage((int)(img.getWidth()*(module/(MIN_XDIMENSION)))+1, (int)getBarHeight(), BufferedImage.TYPE_INT_RGB);
-        AffineTransform at =
-            AffineTransform.getScaleInstance((module/(MIN_XDIMENSION)),
-                getBarHeight()/img.getHeight());
+        BufferedImage result = new BufferedImage((int)(img.getWidth()*(module/(MIN_XDIMENSION)))+1, (int)getBarHeight() + 8, BufferedImage.TYPE_INT_RGB);
+        AffineTransform at = new AffineTransform((module/(MIN_XDIMENSION)), 0.0, 0.0, (double)getBarHeight()/img.getHeight(), 0.0, 4.0);
         Graphics2D g2d = result.createGraphics();
         g2d.setBackground(Color.WHITE);
         g2d.setColor(Color.WHITE);
         g2d.fillRect(0, 0, result.getWidth(), result.getHeight());
         g2d.drawRenderedImage(img, at);
+        
+        if(isShowText()){
+        	textpainter.paintText(result, tmp, 1);
+        }
 	
         return result;
     }
