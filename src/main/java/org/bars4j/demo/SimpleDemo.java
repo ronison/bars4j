@@ -51,18 +51,33 @@ public class SimpleDemo {
         try{
             //Creates a JBarcode with a EAN13Encoder and a WidthCodedPainter
             Barcode b4j = BarcodeFactory.getInstance().createEAN13();
+            long startTime = 0, elapsedTime = 0;
             
+
+            System.out.println("EAN13:");
             String code = "789100031550";
+            startTime = System.currentTimeMillis();
             BufferedImage img = b4j.createBarcode(code);
+            elapsedTime = System.currentTimeMillis() - startTime;
+            System.out.println("- IMG: " + elapsedTime);
+            startTime = System.currentTimeMillis();
             StringBuffer svg = b4j.createBarcodeSVG(code);
+            System.out.println("- SVG: " + elapsedTime);
             saveToSVG(svg, "EAN13.svg");
-            saveToGIF(img, "EAN13.gif");
+            saveToPNG(img, "EAN13.png");
             
             //EAN8 Code Example
+            System.out.println("EAN8:");
             b4j = BarcodeFactory.getInstance().createEAN8();
-            code = "9788515";        
+            code = "9788515";
+            startTime = System.currentTimeMillis();
             img = b4j.createBarcode(code);
+            elapsedTime = System.currentTimeMillis() - startTime;
+            System.out.println("- IMG: " + elapsedTime);
+            startTime = System.currentTimeMillis();
             svg = b4j.createBarcodeSVG(code);
+            elapsedTime = System.currentTimeMillis() - startTime;
+            System.out.println("- SVG: " + elapsedTime);
             saveToSVG(svg, "EAN8.svg");
             saveToPNG(img, "EAN8.png");
             
@@ -73,58 +88,107 @@ public class SimpleDemo {
             saveToPNG(img, "EAN5.png");
             
             //UPCA Code Example
+            System.out.println("UPCA:");
             b4j = BarcodeFactory.getInstance().createUPCA();
             code = "07567816415";        
+            startTime = System.currentTimeMillis();
             img = b4j.createBarcode(code);
+            elapsedTime = System.currentTimeMillis() - startTime;
+            System.out.println("- IMG: " + elapsedTime);
+            startTime = System.currentTimeMillis();
             svg = b4j.createBarcodeSVG(code);
+            elapsedTime = System.currentTimeMillis() - startTime;
+            System.out.println("- SVG: " + elapsedTime);
             saveToSVG(svg, "UPCA.svg");
             saveToPNG(img, "UPCA.png");
             
             //UPCE Code Example
+            System.out.println("UPCE:");
             b4j = BarcodeFactory.getInstance().createUPCE();
-            code = UPCAEncoder.getInstance().convertUPCAtoUPCE("07567816415");        
+            code = UPCAEncoder.getInstance().convertUPCAtoUPCE("07567816415");
+            startTime = System.currentTimeMillis();
             img = b4j.createBarcode(code);
+            elapsedTime = System.currentTimeMillis() - startTime;
+            System.out.println("- IMG: " + elapsedTime);
+            startTime = System.currentTimeMillis();
             svg = b4j.createBarcodeSVG(code);
+            elapsedTime = System.currentTimeMillis() - startTime;
+            System.out.println("- SVG: " + elapsedTime);
             saveToSVG(svg, "UPCE.svg");
             saveToPNG(img, "UPCE.png");
             
             //Codabar Code Example
+            System.out.println("Codabar:");
             b4j = BarcodeFactory.getInstance().createCodabar();
             code = "97885150040-85";
+            startTime = System.currentTimeMillis();
+            elapsedTime = System.currentTimeMillis() - startTime;
+            System.out.println("- IMG: " + elapsedTime);
             img = b4j.createBarcode(code);
+            startTime = System.currentTimeMillis();
             svg = b4j.createBarcodeSVG(code);
+            elapsedTime = System.currentTimeMillis() - startTime;
+            System.out.println("- SVG: " + elapsedTime);
             saveToSVG(svg, "Codabar.svg");
             saveToJPEG(img, "Codabar.jpg");
             
             //Code39 Code Example
+            System.out.println("Code 39:");
             b4j = BarcodeFactory.getInstance().createCode39();
             code = "BARS4J-39";
+            startTime = System.currentTimeMillis();
             img = b4j.createBarcode(code);
+            elapsedTime = System.currentTimeMillis() - startTime;
+            System.out.println("- IMG: " + elapsedTime);
+            startTime = System.currentTimeMillis();
             svg = b4j.createBarcodeSVG(code);
+            elapsedTime = System.currentTimeMillis() - startTime;
+            System.out.println("- SVG: " + elapsedTime);
             saveToSVG(svg, "Code39.svg");
             saveToPNG(img, "Code39.png");
             
             //Code39 Extended Code Example
+            System.out.println("Code 39 Extended:");
             b4j = BarcodeFactory.getInstance().createCode39Extended();
             code = "Bars4J-39Ext";
+            startTime = System.currentTimeMillis();
             img = b4j.createBarcode(code);
+            elapsedTime = System.currentTimeMillis() - startTime;
+            System.out.println("- IMG: " + elapsedTime);
+            startTime = System.currentTimeMillis();
             svg = b4j.createBarcodeSVG(code);
+            elapsedTime = System.currentTimeMillis() - startTime;
+            System.out.println("- SVG: " + elapsedTime);
             saveToSVG(svg, "Code39Ext.svg");
             saveToPNG(img, "Code39Ext.png");
             
             //Code93 Code Example
+            System.out.println("Code 93:");
             b4j = BarcodeFactory.getInstance().createCode93();
             code = "BARS4J-93";
+            startTime = System.currentTimeMillis();
             img = b4j.createBarcode(code);
+            elapsedTime = System.currentTimeMillis() - startTime;
+            System.out.println("- IMG: " + elapsedTime);
+            startTime = System.currentTimeMillis();
             svg = b4j.createBarcodeSVG(code);
+            elapsedTime = System.currentTimeMillis() - startTime;
+            System.out.println("- SVG: " + elapsedTime);
             saveToSVG(svg, "Code93.svg");
             saveToPNG(img, "Code93.png");
             
             //Code93Ex Code Example
+            System.out.println("Code 93 Extended:");
             b4j = BarcodeFactory.getInstance().createCode93Extended();
             code = "Bars4J-93Ext";
+            startTime = System.currentTimeMillis();
             img = b4j.createBarcode(code);
+            elapsedTime = System.currentTimeMillis() - startTime;
+            System.out.println("- IMG: " + elapsedTime);
+            startTime = System.currentTimeMillis();
             svg = b4j.createBarcodeSVG(code);
+            elapsedTime = System.currentTimeMillis() - startTime;
+            System.out.println("- SVG: " + elapsedTime);
             saveToSVG(svg, "Code93Ext.svg");
             saveToPNG(img, "Code93Ext.png");
             
