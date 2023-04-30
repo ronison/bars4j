@@ -119,7 +119,7 @@ public class EAN13TextPainter implements TextPainter {
     	res.append(t3);
     	res.append("</text><text x=\"106\" y=\"");
     	res.append(posY+10);
-    	res.append("\" class=\"small\" textLength=\"43\">></text>");
+    	res.append("\" class=\"small\" textLength=\"8\">></text>");
     	return res;
     	
     }
