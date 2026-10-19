@@ -1,0 +1,3 @@
+width=324
+height=72
+sha256=ccca48f3fd911904dae4d99cbee942a78fb9e3d805c536ee88b13bcb1a21c474

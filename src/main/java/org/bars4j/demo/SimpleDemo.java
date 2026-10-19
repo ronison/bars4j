@@ -28,6 +28,7 @@ import java.io.UnsupportedEncodingException;
 
 import org.bars4j.Barcode;
 import org.bars4j.BarcodeFactory;
+import org.bars4j.api.BarcodeGenerator;
 import org.bars4j.encode.UPCAEncoder;
 import org.bars4j.util.ImageUtil;
 
@@ -263,6 +264,14 @@ public class SimpleDemo {
             svg = b4j.createBarcodeSVG(code);
             saveToSVG(svg, "PostNet.svg");
             saveToJPEG(img, "PostNet.jpg");
+
+            //QRCode Example (new unified API / self-contained 2D encoder)
+            System.out.println("QRCode:");
+            String qrText = "https://github.com/ronison/bars4j";
+            BufferedImage qrImg = BarcodeGenerator.of("QRCODE").toImage(qrText);
+            String qrSvg = BarcodeGenerator.of("QRCODE").toSvg(qrText);
+            saveToSVG(new StringBuffer(qrSvg), "QRCode.svg");
+            saveToPNG(qrImg, "QRCode.png");
         } catch (Exception e) {
             e.printStackTrace();
         }

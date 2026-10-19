@@ -39,7 +39,7 @@ public class UPCEEncoder extends EANEncoder {
 		new BarSet("100101")
 	};
 	
-	private BarSet RIGTH_GUARD_EXT = new BarSet("010101");
+	private BarSet RIGHT_GUARD_EXT = new BarSet("010101");
     
     
     
@@ -76,7 +76,7 @@ public class UPCEEncoder extends EANEncoder {
 				}
 			}
 			//barras centrais que dividem o codigo
-			result[7] = RIGTH_GUARD_EXT;
+			result[7] = RIGHT_GUARD_EXT;
 		} catch( NumberFormatException nfexc ){
 			throw new InvalidAtributeException("[UPCE] O padrao suporta apenas numeros.");
 		}

@@ -77,7 +77,7 @@ public class EAN13Encoder extends EANEncoder {
 				result[i + 1] = CODES[charToInt(texto.charAt(i))];
 			}
 			//barras centrais que dividem o codigo
-			result[14] = RIGTH_GUARD;
+			result[14] = RIGHT_GUARD;
 		} catch( NumberFormatException nfexc ){
 			throw new InvalidAtributeException("[EAN13] Only numbers suported.");
 		}

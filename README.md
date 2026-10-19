@@ -1,7 +1,7 @@
 # Bars4J - A simple, fast and effective way to include barcodes in java applications.
 This project aims to create a java library (framework) for barcode creation. It is a revival of an old project I had at SourceForge, called JBarcode and now it has been renamed to Bars4J. The main features are support for a wide variety of standards, simplicity of including barcodes in Java applications and high performance with low memory consumption.
 
-Barcodes Supported: EAN13, EAN8, UPCA, UPCE, Codabar, Code 11, Code 128, Code 39, Code 39 Extended, Code 93, Code 93 Extended, Standard 2of5, Interleaved 2of5, IATA 2of5, Datalogic 2of5, Matrix 2of5, MSI Plessey and PostNet.
+Barcodes Supported: EAN13, EAN8, UPCA, UPCE, Codabar, Code 11, Code 128, Code 39, Code 39 Extended, Code 93, Code 93 Extended, Standard 2of5, Interleaved 2of5, IATA 2of5, Datalogic 2of5, Matrix 2of5, MSI Plessey, PostNet and QRCode (2D).
 
 ## Simple and fast
 
@@ -28,6 +28,55 @@ String code = "Bars4J Code 128";
 StringBuffer svg = b4j.createBarcodeSVG(code);
 ...
 ```
+
+## QRCode (2D)
+
+QRCode is generated through the unified format registry, which returns a matrix symbol. It supports
+versions 1-10, error correction levels L/M/Q/H and the numeric, alphanumeric and byte modes.
+
+```
+...
+//Creates a QRCode barcode
+BarcodeGenerator generator = BarcodeGenerator.of("QRCODE");
+
+//Export as IMG
+BufferedImage img = generator.toImage("Bars4J");
+
+//Export as SVG
+String svg = generator.toSvg("Bars4J");
+...
+```
+
+The same `BarcodeGenerator.of("<format id>")` entry point works for every registered format,
+e.g. `BarcodeGenerator.of("EAN13").toSvg("789100031550")`. The list of ids is available from
+`BarcodeRegistry.getInstance().ids()`.
+
+## Building and running the demos
+
+Build and run the tests:
+
+```
+mvn test
+```
+
+Run the demos (output is written to `./images`). `mvn exec:java` runs `QRCodeDemo` by default;
+pass `-Dexec.mainClass=...` to run another one:
+
+```
+mvn exec:java                                                # QRCodeDemo
+mvn exec:java -Dexec.mainClass=org.bars4j.demo.SimpleDemo     # all 1D formats + QRCode
+mvn exec:java -Dexec.mainClass=org.bars4j.demo.SwingDemo      # Swing UI
+```
+
+Alternatively, run a demo class directly from `target/classes`:
+
+```
+mvn compile
+java -cp target/classes org.bars4j.demo.QRCodeDemo
+```
+
+> Note: `java -jar target/bars4j-*.jar` does not work because this is a library jar (it has no
+> `Main-Class`). Use one of the commands above.
 
 ## SVG Barcode Samples
 
@@ -66,3 +115,6 @@ StringBuffer svg = b4j.createBarcodeSVG(code);
 
 ### PostNet
 <img src="images/PostNet.svg" height="30" />
+
+### QRCode (2D)
+<img src="images/QRCode.svg" height="150" />

@@ -41,7 +41,7 @@ public abstract class EANEncoder implements BarcodeEncoder {
 	
 	protected static final BarSet CENTER_GUARD = new BarSet("01010");
 	
-	protected static final BarSet RIGTH_GUARD = new BarSet("101");
+	protected static final BarSet RIGHT_GUARD = new BarSet("101");
     
     public String computeCheckSum(String text) throws InvalidAtributeException{
 		

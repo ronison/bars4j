@@ -251,7 +251,9 @@ public class BarcodeComponent extends JComponent implements PropertyChangeListen
      * @param checkSum The checkSum to set.
      */
     public void setCheckSum(String checkSum) {
-        firePropertyChange("checkSum", this.checkSum, this.checkSum);
+        String old = this.checkSum;
+        this.checkSum = checkSum;
+        firePropertyChange("checkSum", old, checkSum);
         invalidate();
         repaint();
     }
@@ -338,7 +340,6 @@ public class BarcodeComponent extends JComponent implements PropertyChangeListen
         firePropertyChange("textPainter", old, textpainter);
         invalidate();
         repaint();
-        barcode.setTextPainter(textpainter);
     }
     
     public Barcode getBarcode() {

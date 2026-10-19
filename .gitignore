@@ -1,0 +1,11 @@
+target/
+.DS_Store
+*.iml
+.idea/
+.classpath
+.project
+.settings/
+
+# Demo-generated raster images (SVG samples are tracked).
+images/*.png
+images/*.jpg

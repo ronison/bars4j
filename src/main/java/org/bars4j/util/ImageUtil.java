@@ -25,76 +25,64 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Locale;
 
 import javax.imageio.ImageIO;
 
-import net.jmge.gif.Gif89Encoder;
-
-import com.keypoint.PngEncoder;
-
-
-
 /**
- * This is a utility class to image encode assistence.
- * 
+ * Utility class to encode images, backed by the standard ImageIO API.
+ *
  * @author Flavio Sampaio
  * @since 0.1
  */
 public class ImageUtil {
-	
-	public static final String JPEG = "jpeg";
-	public static final String PNG = "png";
-	public static final String GIF = "gif";
-	
-	public static final int DEFAULT_DPI = 96;
-	
-	/**
-	 * Creates a image encoded on specified format. 
-	 * 
-	 * @param image Image to be encoded.
-	 * @param format Image format (PNG or JPEG).
-	 * @return Byte array with encoded image.
-	 * @throws IOException
-	 */
-	public static byte[] encode(BufferedImage image, String format) throws IOException{
-		return encode(image, format, 96, 96);
-	}
-	
-	/**
-	 * Creates a image encoded on specified format an dpi. 
-	 * 
-	 * @param image Image to be encoded.
-	 * @param format Image format (PNG or JPEG).
-	 * @param xDpi Horizontal dpi definition.
-	 * @param yDpi Vertical dpi definition.
-	 * @return Byte array with encoded image.
-	 * @throws IOException
-	 */
-	public static byte[] encode(BufferedImage image, String format, int xDpi, int yDpi) throws IOException{
-			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			encodeAndWrite(image, format, out, xDpi, yDpi);
-			return out.toByteArray();
-	}
-	
-	public static void encodeAndWrite(BufferedImage image, String format, OutputStream out) throws IOException{
-		encodeAndWrite(image, format, out, DEFAULT_DPI, DEFAULT_DPI);
-	}
-	
-	public static void encodeAndWrite(BufferedImage image, String format, OutputStream out, int xDpi, int yDpi) throws IOException{
-		if(PNG.equals(format)){
-			PngEncoder pngEncoder = new PngEncoder(image);
-			pngEncoder.setDpi(xDpi, yDpi);
-			out.write(pngEncoder.pngEncode());
-		} else if(JPEG.equals(format)){
-			ImageIO.write(image, format, out);
-		} else if(GIF.equals(format)){
-			Gif89Encoder gifenc = new Gif89Encoder();
-			gifenc.addFrame(image);
-			gifenc.setComments("Bars4J 0.3.0");
-			gifenc.encode(out);
-		}else {
-			throw new IOException("Unsupported image type");
-		}
-	}
 
+    public static final String JPEG = "jpeg";
+    public static final String PNG = "png";
+    public static final String GIF = "gif";
+
+    public static final int DEFAULT_DPI = 96;
+
+    /**
+     * Creates an image encoded in the specified format.
+     *
+     * @param image  image to be encoded.
+     * @param format image format (PNG, JPEG or GIF).
+     * @return byte array with the encoded image.
+     * @throws IOException if the format is not supported.
+     */
+    public static byte[] encode(BufferedImage image, String format) throws IOException {
+        return encode(image, format, DEFAULT_DPI, DEFAULT_DPI);
+    }
+
+    /**
+     * Creates an image encoded in the specified format and dpi.
+     *
+     * @param image image to be encoded.
+     * @param format image format (PNG, JPEG or GIF).
+     * @param xDpi horizontal dpi definition.
+     * @param yDpi vertical dpi definition.
+     * @return byte array with the encoded image.
+     * @throws IOException if the format is not supported.
+     */
+    public static byte[] encode(BufferedImage image, String format, int xDpi, int yDpi) throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        encodeAndWrite(image, format, out, xDpi, yDpi);
+        return out.toByteArray();
+    }
+
+    public static void encodeAndWrite(BufferedImage image, String format, OutputStream out) throws IOException {
+        encodeAndWrite(image, format, out, DEFAULT_DPI, DEFAULT_DPI);
+    }
+
+    public static void encodeAndWrite(BufferedImage image, String format, OutputStream out, int xDpi, int yDpi)
+            throws IOException {
+        String normalized = format == null ? "" : format.toLowerCase(Locale.ROOT);
+        if (!PNG.equals(normalized) && !JPEG.equals(normalized) && !GIF.equals(normalized)) {
+            throw new IOException("Unsupported image type: " + format);
+        }
+        if (!ImageIO.write(image, normalized, out)) {
+            throw new IOException("No image writer available for format: " + format);
+        }
+    }
 }

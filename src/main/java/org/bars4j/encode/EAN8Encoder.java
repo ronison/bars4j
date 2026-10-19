@@ -65,7 +65,7 @@ public class EAN8Encoder extends EANEncoder {
 				result[i + 2] = CODES[atual];
 			}
 			//barras centrais que dividem o codigo
-			result[10] = RIGTH_GUARD;
+			result[10] = RIGHT_GUARD;
 		} catch( NumberFormatException nfexc ){
 			throw new InvalidAtributeException("[EAN8] Only numbers suported.");
 		}

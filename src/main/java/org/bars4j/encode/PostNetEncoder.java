@@ -85,8 +85,11 @@ public class PostNetEncoder implements BarcodeEncoder {
 		for (int i = 0; i < texto.length(); i++) {
 			check += Integer.parseInt(String.valueOf(texto.charAt(i)));
 		}
-		check = 10 - (check%10);
-		return String.valueOf(check);
+		int result = check % 10;
+		if (result == 0) {
+			return "0";
+		}
+		return String.valueOf(10 - result);
 	}
     
     public String toString(){
