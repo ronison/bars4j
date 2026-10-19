@@ -99,6 +99,22 @@ java -cp target/classes org.bars4j.demo.QRCodeDemo
 > Note: `java -jar target/bars4j-*.jar` does not work because this is a library jar (it has no
 > `Main-Class`). Use one of the commands above.
 
+### Desktop demo (Swing)
+
+`SwingDemo` is an interactive desktop application:
+
+```
+mvn exec:java -Dexec.mainClass=org.bars4j.demo.SwingDemo
+```
+
+* pick any registered format (1D or 2D) from the format list;
+* edit the content and the format-specific options — the preview updates in real time;
+* **linear** options: x-dimension, bar height, wide ratio, human-readable text, check digit;
+* **matrix** options: module size, foreground and background colours;
+* zoom the preview with the mouse wheel (double-click resets the zoom);
+* **Print…** sends the barcode to a printer (scaled to fit and centred on the page);
+* **Export PNG…** / **Export SVG…** save the current result.
+
 ## SVG Barcode Samples
 
 ### EAN / UPC

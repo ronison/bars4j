@@ -29,12 +29,27 @@ public final class LinearBarcodeFormat implements BarcodeFormat {
 
     private static final int FONT_SIZE = 14;
 
+    /**
+     * User-configurable options of a linear format. All values map to the legacy facade attributes.
+     *
+     * @param xDimensionMm  narrow bar width (x-dimension) in millimetres
+     * @param barHeightMm   bar height in millimetres
+     * @param wideRatio     wide-to-narrow ratio (only used by wide-ratio coded formats)
+     * @param checkDigit    whether to append the computed check digit before encoding
+     * @param showCheckDigit whether to include the check digit in the human readable label
+     * @param showText      whether to draw the human readable label
+     */
+    public record LinearOptions(double xDimensionMm, double barHeightMm, double wideRatio,
+                                boolean checkDigit, boolean showCheckDigit, boolean showText) {
+    }
+
     private final LinearEncoder encoder;
     private final LinearRenderer renderer;
     private final LinearTextRenderer textRenderer;
     private final FormatSpec spec;
 
     private final double module;
+    private final double barHeightMm;
     private final double wideToNarrow;
     private final int barHeight;
     private final int xdimension;
@@ -51,11 +66,24 @@ public final class LinearBarcodeFormat implements BarcodeFormat {
         this.spec = spec;
         this.module = xDimension;
         this.xdimension = Math.max((int) (xDimension / MIN_XDIMENSION), 1);
+        this.barHeightMm = barHeightMm;
         this.barHeight = (int) Math.round(barHeightMm / MIN_XDIMENSION);
         this.wideToNarrow = wideRatio;
         this.checkDigit = checkDigit;
         this.showCheckDigit = showCheckDigit;
         this.showText = showText;
+    }
+
+    /** Returns the current configuration of this format. */
+    public LinearOptions options() {
+        return new LinearOptions(module, barHeightMm, wideToNarrow, checkDigit, showCheckDigit, showText);
+    }
+
+    /** Returns a copy of this format with the given options applied. */
+    public LinearBarcodeFormat withOptions(LinearOptions options) {
+        return new LinearBarcodeFormat(encoder, renderer, textRenderer, spec,
+                options.xDimensionMm(), options.barHeightMm(), options.wideRatio(),
+                options.checkDigit(), options.showCheckDigit(), options.showText());
     }
 
     @Override
