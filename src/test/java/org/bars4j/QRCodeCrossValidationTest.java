@@ -48,6 +48,12 @@ class QRCodeCrossValidationTest {
         inputs.add(rep('Z', 170));
         inputs.add(rep('x', 118));
         inputs.add(rep('9', 260));
+        // Larger inputs that push the symbol into higher versions (up to around v40).
+        inputs.add(rep('a', 600));
+        inputs.add(rep('x', 1200));
+        inputs.add(rep('7', 2000));
+        inputs.add(rep('A', 1000));
+        inputs.add(rep('a', 1250));
         return inputs;
     }
 
@@ -77,7 +83,7 @@ class QRCodeCrossValidationTest {
         }
         assertTrue(versionsSeen.size() >= 6,
                 "expected the inputs to exercise several versions, saw " + versionsSeen);
-        assertTrue(versionsSeen.contains(1) && versionsSeen.contains(10),
-                "expected versions 1 and 10 to be exercised, saw " + versionsSeen);
+        assertTrue(versionsSeen.contains(1) && versionsSeen.contains(40),
+                "expected versions 1 and 40 to be exercised, saw " + versionsSeen);
     }
 }

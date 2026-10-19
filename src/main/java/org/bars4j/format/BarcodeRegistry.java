@@ -5,7 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.bars4j.BarcodeFactory;
+import org.bars4j.encode.matrix.DataMatrixEncoder;
 import org.bars4j.encode.matrix.QRCodeEncoder;
 import org.bars4j.encode.matrix.qr.QrEccLevel;
 import org.bars4j.render.matrix.MatrixRenderer;
@@ -70,7 +70,8 @@ public final class BarcodeRegistry {
                 matrix("QRCODE", "QRCode"));
     }
 
-    static BarcodeFactory factory() {
-        return BarcodeFactory.getInstance();
+    static BarcodeFormat dataMatrix() {
+        return new MatrixBarcodeFormat(new DataMatrixEncoder(), new MatrixRenderer(),
+                matrix("DATAMATRIX", "Data Matrix"));
     }
 }

@@ -56,7 +56,7 @@ class QRCodeGeneratorTest {
 
     @Test
     void rejectsOversizedInput() {
-        String tooLong = "x".repeat(2000);
+        String tooLong = "x".repeat(5000);
         assertThrows(Exception.class, () -> BarcodeGenerator.of("QRCODE").toImage(tooLong));
     }
 

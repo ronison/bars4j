@@ -17,13 +17,14 @@ public final class MatrixRenderer implements BarcodeRenderer {
     public BufferedImage toImage(BarcodeSymbol symbol, RenderSpec spec) {
         MatrixSymbol matrix = (MatrixSymbol) symbol;
         int moduleSize = spec.moduleSize();
-        int total = (matrix.widthInModules() + 2 * matrix.quietZone()) * moduleSize;
-        BufferedImage image = new BufferedImage(total, total, BufferedImage.TYPE_INT_RGB);
+        int width = (matrix.widthInModules() + 2 * matrix.quietZone()) * moduleSize;
+        int height = (matrix.heightInModules() + 2 * matrix.quietZone()) * moduleSize;
+        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 
         int background = spec.background().getRGB();
         int foreground = spec.foreground().getRGB();
-        for (int y = 0; y < total; y++) {
-            for (int x = 0; x < total; x++) {
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
                 image.setRGB(x, y, background);
             }
         }
@@ -47,12 +48,13 @@ public final class MatrixRenderer implements BarcodeRenderer {
     public String toSvg(BarcodeSymbol symbol, RenderSpec spec) {
         MatrixSymbol matrix = (MatrixSymbol) symbol;
         int moduleSize = spec.moduleSize();
-        int total = (matrix.widthInModules() + 2 * matrix.quietZone()) * moduleSize;
+        int width = (matrix.widthInModules() + 2 * matrix.quietZone()) * moduleSize;
+        int height = (matrix.heightInModules() + 2 * matrix.quietZone()) * moduleSize;
         String foreground = toHex(spec.foreground().getRGB());
         String background = toHex(spec.background().getRGB());
 
         StringBuilder svg = new StringBuilder();
-        svg.append("<rect width=\"").append(total).append("\" height=\"").append(total)
+        svg.append("<rect width=\"").append(width).append("\" height=\"").append(height)
                 .append("\" fill=\"").append(background).append("\"/>");
         svg.append("<path fill=\"").append(foreground).append("\" d=\"");
         for (int row = 0; row < matrix.heightInModules(); row++) {

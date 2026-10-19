@@ -1,7 +1,7 @@
 package org.bars4j.encode.matrix.qr;
 
 /**
- * QRCode version metadata (versions 1-10).
+ * QRCode version metadata (versions 1-40).
  *
  * <p>Holds the symbol size, alignment pattern centres and the error-correction block layout per
  * ECC level. Data source: ISO/IEC 18004.
@@ -70,7 +70,19 @@ public final class QrVersion {
         if (versionNumber <= 6) {
             return 7;
         }
-        return 0; // versions 7-13
+        if (versionNumber <= 13) {
+            return 0;
+        }
+        if (versionNumber <= 20) {
+            return 3;
+        }
+        if (versionNumber <= 27) {
+            return 4;
+        }
+        if (versionNumber <= 34) {
+            return 3;
+        }
+        return 0;
     }
 
     public static QrVersion getVersionForNumber(int versionNumber) {
@@ -80,13 +92,17 @@ public final class QrVersion {
         return VERSIONS[versionNumber - 1];
     }
 
+    public static int maxVersion() {
+        return VERSIONS.length;
+    }
+
     public static QrVersion smallestVersionForData(int dataBits, QrEccLevel level) {
         for (QrVersion version : VERSIONS) {
             if (version.ecBlocks(level).totalDataCodewords() * 8 >= dataBits) {
                 return version;
             }
         }
-        throw new IllegalArgumentException("Data too large for versions 1-10: " + dataBits + " bits");
+        throw new IllegalArgumentException("Data too large for QRCode versions 1-" + VERSIONS.length);
     }
 
     private static EcBlocks eb(int ecPerBlock, EcBlock... blocks) {
@@ -123,7 +139,97 @@ public final class QrVersion {
                                 eb(24, b(4, 12), b(4, 13))}),
                 new QrVersion(10, new int[]{6, 28, 50},
                         new EcBlocks[]{eb(18, b(2, 68), b(2, 69)), eb(26, b(4, 43), b(1, 44)),
-                                eb(24, b(6, 19), b(2, 20)), eb(28, b(6, 15), b(2, 16))})
+                                eb(24, b(6, 19), b(2, 20)), eb(28, b(6, 15), b(2, 16))}),
+                new QrVersion(11, new int[]{6, 30, 54},
+                        new EcBlocks[]{eb(20, b(4, 81)), eb(30, b(1, 50), b(4, 51)), eb(28, b(4, 22), b(4, 23)),
+                                eb(24, b(3, 12), b(8, 13))}),
+                new QrVersion(12, new int[]{6, 32, 58},
+                        new EcBlocks[]{eb(24, b(2, 92), b(2, 93)), eb(22, b(6, 36), b(2, 37)),
+                                eb(26, b(4, 20), b(6, 21)), eb(28, b(7, 14), b(4, 15))}),
+                new QrVersion(13, new int[]{6, 34, 62},
+                        new EcBlocks[]{eb(26, b(4, 107)), eb(22, b(8, 37), b(1, 38)), eb(24, b(8, 20), b(4, 21)),
+                                eb(22, b(12, 11), b(4, 12))}),
+                new QrVersion(14, new int[]{6, 26, 46, 66},
+                        new EcBlocks[]{eb(30, b(3, 115), b(1, 116)), eb(24, b(4, 40), b(5, 41)),
+                                eb(20, b(11, 16), b(5, 17)), eb(24, b(11, 12), b(5, 13))}),
+                new QrVersion(15, new int[]{6, 26, 48, 70},
+                        new EcBlocks[]{eb(22, b(5, 87), b(1, 88)), eb(24, b(5, 41), b(5, 42)),
+                                eb(30, b(5, 24), b(7, 25)), eb(24, b(11, 12), b(7, 13))}),
+                new QrVersion(16, new int[]{6, 26, 50, 74},
+                        new EcBlocks[]{eb(24, b(5, 98), b(1, 99)), eb(28, b(7, 45), b(3, 46)),
+                                eb(24, b(15, 19), b(2, 20)), eb(30, b(3, 15), b(13, 16))}),
+                new QrVersion(17, new int[]{6, 30, 54, 78},
+                        new EcBlocks[]{eb(28, b(1, 107), b(5, 108)), eb(28, b(10, 46), b(1, 47)),
+                                eb(28, b(1, 22), b(15, 23)), eb(28, b(2, 14), b(17, 15))}),
+                new QrVersion(18, new int[]{6, 30, 56, 82},
+                        new EcBlocks[]{eb(30, b(5, 120), b(1, 121)), eb(26, b(9, 43), b(4, 44)),
+                                eb(28, b(17, 22), b(1, 23)), eb(28, b(2, 14), b(19, 15))}),
+                new QrVersion(19, new int[]{6, 30, 58, 86},
+                        new EcBlocks[]{eb(28, b(3, 113), b(4, 114)), eb(26, b(3, 44), b(11, 45)),
+                                eb(26, b(17, 21), b(4, 22)), eb(26, b(9, 13), b(16, 14))}),
+                new QrVersion(20, new int[]{6, 34, 62, 90},
+                        new EcBlocks[]{eb(28, b(3, 107), b(5, 108)), eb(26, b(3, 41), b(13, 42)),
+                                eb(30, b(15, 24), b(5, 25)), eb(28, b(15, 15), b(10, 16))}),
+                new QrVersion(21, new int[]{6, 28, 50, 72, 94},
+                        new EcBlocks[]{eb(28, b(4, 116), b(4, 117)), eb(26, b(17, 42)),
+                                eb(28, b(17, 22), b(6, 23)), eb(30, b(19, 16), b(6, 17))}),
+                new QrVersion(22, new int[]{6, 26, 50, 74, 98},
+                        new EcBlocks[]{eb(28, b(2, 111), b(7, 112)), eb(28, b(17, 46)),
+                                eb(30, b(7, 24), b(16, 25)), eb(24, b(34, 13))}),
+                new QrVersion(23, new int[]{6, 30, 54, 78, 102},
+                        new EcBlocks[]{eb(30, b(4, 121), b(5, 122)), eb(28, b(4, 47), b(14, 48)),
+                                eb(30, b(11, 24), b(14, 25)), eb(30, b(16, 15), b(14, 16))}),
+                new QrVersion(24, new int[]{6, 28, 54, 80, 106},
+                        new EcBlocks[]{eb(30, b(6, 117), b(4, 118)), eb(28, b(6, 45), b(14, 46)),
+                                eb(30, b(11, 24), b(16, 25)), eb(30, b(30, 16), b(2, 17))}),
+                new QrVersion(25, new int[]{6, 32, 58, 84, 110},
+                        new EcBlocks[]{eb(26, b(8, 106), b(4, 107)), eb(28, b(8, 47), b(13, 48)),
+                                eb(30, b(7, 24), b(22, 25)), eb(30, b(22, 15), b(13, 16))}),
+                new QrVersion(26, new int[]{6, 30, 58, 86, 114},
+                        new EcBlocks[]{eb(28, b(10, 114), b(2, 115)), eb(28, b(19, 46), b(4, 47)),
+                                eb(28, b(28, 22), b(6, 23)), eb(30, b(33, 16), b(4, 17))}),
+                new QrVersion(27, new int[]{6, 34, 62, 90, 118},
+                        new EcBlocks[]{eb(30, b(8, 122), b(4, 123)), eb(28, b(22, 45), b(3, 46)),
+                                eb(30, b(8, 23), b(26, 24)), eb(30, b(12, 15), b(28, 16))}),
+                new QrVersion(28, new int[]{6, 26, 50, 74, 98, 122},
+                        new EcBlocks[]{eb(30, b(3, 117), b(10, 118)), eb(28, b(3, 45), b(23, 46)),
+                                eb(30, b(4, 24), b(31, 25)), eb(30, b(11, 15), b(31, 16))}),
+                new QrVersion(29, new int[]{6, 30, 54, 78, 102, 126},
+                        new EcBlocks[]{eb(30, b(7, 116), b(7, 117)), eb(28, b(21, 45), b(7, 46)),
+                                eb(30, b(1, 23), b(37, 24)), eb(30, b(19, 15), b(26, 16))}),
+                new QrVersion(30, new int[]{6, 26, 52, 78, 104, 130},
+                        new EcBlocks[]{eb(30, b(5, 115), b(10, 116)), eb(28, b(19, 47), b(10, 48)),
+                                eb(30, b(15, 24), b(25, 25)), eb(30, b(23, 15), b(25, 16))}),
+                new QrVersion(31, new int[]{6, 30, 56, 82, 108, 134},
+                        new EcBlocks[]{eb(30, b(13, 115), b(3, 116)), eb(28, b(2, 46), b(29, 47)),
+                                eb(30, b(42, 24), b(1, 25)), eb(30, b(23, 15), b(28, 16))}),
+                new QrVersion(32, new int[]{6, 34, 60, 86, 112, 138},
+                        new EcBlocks[]{eb(30, b(17, 115)), eb(28, b(10, 46), b(23, 47)),
+                                eb(30, b(10, 24), b(35, 25)), eb(30, b(19, 15), b(35, 16))}),
+                new QrVersion(33, new int[]{6, 30, 58, 86, 114, 142},
+                        new EcBlocks[]{eb(30, b(17, 115), b(1, 116)), eb(28, b(14, 46), b(21, 47)),
+                                eb(30, b(29, 24), b(19, 25)), eb(30, b(11, 15), b(46, 16))}),
+                new QrVersion(34, new int[]{6, 34, 62, 90, 118, 146},
+                        new EcBlocks[]{eb(30, b(13, 115), b(6, 116)), eb(28, b(14, 46), b(23, 47)),
+                                eb(30, b(44, 24), b(7, 25)), eb(30, b(59, 16), b(1, 17))}),
+                new QrVersion(35, new int[]{6, 30, 54, 78, 102, 126, 150},
+                        new EcBlocks[]{eb(30, b(12, 121), b(7, 122)), eb(28, b(12, 47), b(26, 48)),
+                                eb(30, b(39, 24), b(14, 25)), eb(30, b(22, 15), b(41, 16))}),
+                new QrVersion(36, new int[]{6, 24, 50, 76, 102, 128, 154},
+                        new EcBlocks[]{eb(30, b(6, 121), b(14, 122)), eb(28, b(6, 47), b(34, 48)),
+                                eb(30, b(46, 24), b(10, 25)), eb(30, b(2, 15), b(64, 16))}),
+                new QrVersion(37, new int[]{6, 28, 54, 80, 106, 132, 158},
+                        new EcBlocks[]{eb(30, b(17, 122), b(4, 123)), eb(28, b(29, 46), b(14, 47)),
+                                eb(30, b(49, 24), b(10, 25)), eb(30, b(24, 15), b(46, 16))}),
+                new QrVersion(38, new int[]{6, 32, 58, 84, 110, 136, 162},
+                        new EcBlocks[]{eb(30, b(4, 122), b(18, 123)), eb(28, b(13, 46), b(32, 47)),
+                                eb(30, b(48, 24), b(14, 25)), eb(30, b(42, 15), b(32, 16))}),
+                new QrVersion(39, new int[]{6, 26, 54, 82, 110, 138, 166},
+                        new EcBlocks[]{eb(30, b(20, 117), b(4, 118)), eb(28, b(40, 47), b(7, 48)),
+                                eb(30, b(43, 24), b(22, 25)), eb(30, b(10, 15), b(67, 16))}),
+                new QrVersion(40, new int[]{6, 30, 58, 86, 114, 142, 170},
+                        new EcBlocks[]{eb(30, b(19, 118), b(6, 119)), eb(28, b(18, 47), b(31, 48)),
+                                eb(30, b(34, 24), b(34, 25)), eb(30, b(20, 15), b(61, 16))})
         };
     }
 }

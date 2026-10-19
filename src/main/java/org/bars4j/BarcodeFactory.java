@@ -56,7 +56,10 @@ import org.bars4j.paint.WidthCodedPainter;
  * 
  * @author Flavio Sampaio
  * @since 0.2
+ * @deprecated Use the unified {@link org.bars4j.api.BarcodeGenerator} API (via
+ *             {@link org.bars4j.format.BarcodeRegistry}) instead. Kept for backward compatibility.
  */
+@Deprecated(since = "0.4.0", forRemoval = false)
 public class BarcodeFactory {
 	
 	private static BarcodeFactory instance;

@@ -59,6 +59,13 @@ public class QRCodeDemo {
             String eanSvg = BarcodeGenerator.of("EAN13").toSvg("789100031550");
             saveToSVG(eanSvg, "EAN13-from-new-api.svg");
             System.out.println("EAN13 via unified API -> images/EAN13-from-new-api.svg");
+
+            // Data Matrix (ECC200), rendered with the same unified API.
+            String dmText = "https://github.com/ronison/bars4j";
+            BufferedImage dmImage = BarcodeGenerator.of("DATAMATRIX").toImage(dmText);
+            saveToPNG(dmImage, "DataMatrix.png");
+            saveToSVG(BarcodeGenerator.of("DATAMATRIX").toSvg(dmText), "DataMatrix.svg");
+            System.out.println("DATAMATRIX: " + dmImage.getWidth() + "x" + dmImage.getHeight() + "px -> images/DataMatrix.png");
         } catch (Exception e) {
             e.printStackTrace();
         }

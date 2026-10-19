@@ -19,7 +19,6 @@ import org.bars4j.symbol.MatrixSymbol;
  */
 public final class QRCodeEncoder implements MatrixEncoder {
 
-    private static final int MAX_VERSION = 10;
     private static final int QUIET_ZONE = 4;
 
     private final QrEccLevel eccLevel;
@@ -75,13 +74,13 @@ public final class QRCodeEncoder implements MatrixEncoder {
             }
             return version;
         }
-        for (int number = 1; number <= MAX_VERSION; number++) {
+        for (int number = 1; number <= QrVersion.maxVersion(); number++) {
             QrVersion version = QrVersion.getVersionForNumber(number);
             if (requiredBits(segment, number) <= version.ecBlocks(eccLevel).totalDataCodewords() * 8) {
                 return version;
             }
         }
-        throw new UnsupportedTextException("Data too large for QRCode versions 1-" + MAX_VERSION);
+        throw new UnsupportedTextException("Data too large for QRCode versions 1-" + QrVersion.maxVersion());
     }
 
     private static int requiredBits(QrSegment segment, int version) {

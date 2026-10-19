@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import org.bars4j.encode.BarSet;
@@ -30,33 +29,34 @@ import org.bars4j.encode.PostNetEncoder;
 import org.bars4j.encode.Standard2of5Encoder;
 import org.bars4j.encode.UPCAEncoder;
 import org.bars4j.encode.UPCEEncoder;
-import org.bars4j.encode.linear.LegacyLinearEncoderAdapter;
+import org.bars4j.encode.api.LinearEncoder;
+import org.bars4j.encode.linear.BarSetBridge;
 import org.bars4j.format.BitSemantics;
 import org.bars4j.paint.BarcodePainter;
 import org.bars4j.paint.HeightCodedPainter;
 import org.bars4j.paint.WideRatioCodedPainter;
 import org.bars4j.paint.WidthCodedPainter;
-import org.bars4j.render.BarcodeRenderer;
 import org.bars4j.render.RenderSpec;
-import org.bars4j.render.linear.LegacyPainterRenderer;
+import org.bars4j.render.linear.HeightCodedRenderer;
+import org.bars4j.render.linear.LinearRenderer;
+import org.bars4j.render.linear.WideRatioCodedRenderer;
+import org.bars4j.render.linear.WidthCodedRenderer;
 import org.bars4j.symbol.LinearSymbol;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
 
 /**
- * Phase 1: verifies that the new symbol/renderer architecture reproduces the legacy bit arrays
- * and painter output exactly.
+ * The new native linear encoders/renderers must reproduce the legacy bit arrays and painter output
+ * exactly. The legacy encoders/painters are intentionally kept only for this cross-check.
  */
 class AdaptationTest {
 
-    private record Case(String name, BarcodeEncoder encoder, BarcodePainter painter,
+    private record Case(String name, BarcodeEncoder legacyEncoder, LinearEncoder encoder,
+                        BarcodePainter painter, LinearRenderer renderer,
                         BitSemantics semantics, String code, boolean needsCheck) {
-        LinearSymbol symbol() throws Exception {
-            return new LegacyLinearEncoderAdapter(encoder, semantics).encode(effectiveCode());
-        }
 
-        BarcodeRenderer renderer() {
-            return new LegacyPainterRenderer(painter, semantics);
+        LinearSymbol symbol() throws Exception {
+            return encoder.encode(effectiveCode());
         }
 
         /** The facade appends the check digit before encoding; replicate that here. */
@@ -69,43 +69,62 @@ class AdaptationTest {
 
     private static List<Case> cases() throws Exception {
         List<Case> cases = new ArrayList<>();
-        cases.add(new Case("EAN13", EAN13Encoder.getInstance(), WidthCodedPainter.getInstance(),
+        cases.add(new Case("EAN13", EAN13Encoder.getInstance(), new org.bars4j.encode.linear.Ean13Encoder(),
+                WidthCodedPainter.getInstance(), new WidthCodedRenderer(),
                 BitSemantics.MODULE_DARK, "789100031550", true));
-        cases.add(new Case("EAN8", EAN8Encoder.getInstance(), WidthCodedPainter.getInstance(),
+        cases.add(new Case("EAN8", EAN8Encoder.getInstance(), new org.bars4j.encode.linear.Ean8Encoder(),
+                WidthCodedPainter.getInstance(), new WidthCodedRenderer(),
                 BitSemantics.MODULE_DARK, "9788515", true));
-        cases.add(new Case("EAN5", EAN5Encoder.getInstance(), WidthCodedPainter.getInstance(),
+        cases.add(new Case("EAN5", EAN5Encoder.getInstance(), new org.bars4j.encode.linear.Ean5Encoder(),
+                WidthCodedPainter.getInstance(), new WidthCodedRenderer(),
                 BitSemantics.MODULE_DARK, "54495", false));
-        cases.add(new Case("UPCA", UPCAEncoder.getInstance(), WidthCodedPainter.getInstance(),
+        cases.add(new Case("UPCA", UPCAEncoder.getInstance(), new org.bars4j.encode.linear.UpcaEncoder(),
+                WidthCodedPainter.getInstance(), new WidthCodedRenderer(),
                 BitSemantics.MODULE_DARK, "07567816415", true));
-        cases.add(new Case("UPCE", UPCEEncoder.getInstance(), WidthCodedPainter.getInstance(),
+        cases.add(new Case("UPCE", UPCEEncoder.getInstance(), new org.bars4j.encode.linear.UpceEncoder(),
+                WidthCodedPainter.getInstance(), new WidthCodedRenderer(),
                 BitSemantics.MODULE_DARK, UPCAEncoder.getInstance().convertUPCAtoUPCE("07567816415"), true));
-        cases.add(new Case("Codabar", CodabarEncoder.getInstance(), WideRatioCodedPainter.getInstance(),
+        cases.add(new Case("Codabar", CodabarEncoder.getInstance(), new org.bars4j.encode.linear.CodabarEncoder(),
+                WideRatioCodedPainter.getInstance(), new WideRatioCodedRenderer(),
                 BitSemantics.WIDE_NARROW_ALTERNATING, "97885150040-85", false));
-        cases.add(new Case("Code39", Code39Encoder.getInstance(), WideRatioCodedPainter.getInstance(),
+        cases.add(new Case("Code39", Code39Encoder.getInstance(), new org.bars4j.encode.linear.Code39Encoder(),
+                WideRatioCodedPainter.getInstance(), new WideRatioCodedRenderer(),
                 BitSemantics.WIDE_NARROW_ALTERNATING, "BARS4J-39", false));
-        cases.add(new Case("Code39Ext", Code39ExtEncoder.getInstance(), WideRatioCodedPainter.getInstance(),
+        cases.add(new Case("Code39Ext", Code39ExtEncoder.getInstance(), new org.bars4j.encode.linear.Code39ExtEncoder(),
+                WideRatioCodedPainter.getInstance(), new WideRatioCodedRenderer(),
                 BitSemantics.WIDE_NARROW_ALTERNATING, "Bars4J-39Ext", false));
-        cases.add(new Case("Code93", Code93Encoder.getInstance(), WidthCodedPainter.getInstance(),
+        cases.add(new Case("Code93", Code93Encoder.getInstance(), new org.bars4j.encode.linear.Code93Encoder(),
+                WidthCodedPainter.getInstance(), new WidthCodedRenderer(),
                 BitSemantics.MODULE_DARK, "BARS4J-93", true));
-        cases.add(new Case("Code93Ext", Code93ExtEncoder.getInstance(), WidthCodedPainter.getInstance(),
+        cases.add(new Case("Code93Ext", Code93ExtEncoder.getInstance(), new org.bars4j.encode.linear.Code93ExtEncoder(),
+                WidthCodedPainter.getInstance(), new WidthCodedRenderer(),
                 BitSemantics.MODULE_DARK, "Bars4J-93Ext", true));
-        cases.add(new Case("Code128", Code128Encoder.getInstance(), WidthCodedPainter.getInstance(),
+        cases.add(new Case("Code128", Code128Encoder.getInstance(), new org.bars4j.encode.linear.Code128Encoder(),
+                WidthCodedPainter.getInstance(), new WidthCodedRenderer(),
                 BitSemantics.MODULE_DARK, "Bars4J-128", true));
-        cases.add(new Case("Code11", Code11Encoder.getInstance(), WidthCodedPainter.getInstance(),
+        cases.add(new Case("Code11", Code11Encoder.getInstance(), new org.bars4j.encode.linear.Code11Encoder(),
+                WidthCodedPainter.getInstance(), new WidthCodedRenderer(),
                 BitSemantics.MODULE_DARK, "9788515004041", true));
-        cases.add(new Case("MSIPlessey", MSIPlesseyEncoder.getInstance(), WidthCodedPainter.getInstance(),
+        cases.add(new Case("MSIPlessey", MSIPlesseyEncoder.getInstance(), new org.bars4j.encode.linear.MsiPlesseyEncoder(),
+                WidthCodedPainter.getInstance(), new WidthCodedRenderer(),
                 BitSemantics.MODULE_DARK, "9788515004041", true));
-        cases.add(new Case("Standard2of5", Standard2of5Encoder.getInstance(), WideRatioCodedPainter.getInstance(),
+        cases.add(new Case("Standard2of5", Standard2of5Encoder.getInstance(), new org.bars4j.encode.linear.Standard2of5Encoder(),
+                WideRatioCodedPainter.getInstance(), new WideRatioCodedRenderer(),
                 BitSemantics.WIDE_NARROW_ALTERNATING, "978851500404", true));
-        cases.add(new Case("IATA2of5", IATA2of5Encoder.getInstance(), WideRatioCodedPainter.getInstance(),
+        cases.add(new Case("IATA2of5", IATA2of5Encoder.getInstance(), new org.bars4j.encode.linear.Iata2of5Encoder(),
+                WideRatioCodedPainter.getInstance(), new WideRatioCodedRenderer(),
                 BitSemantics.WIDE_NARROW_ALTERNATING, "978851500404", true));
-        cases.add(new Case("Matrix2of5", Matrix2of5Encoder.getInstance(), WideRatioCodedPainter.getInstance(),
+        cases.add(new Case("Matrix2of5", Matrix2of5Encoder.getInstance(), new org.bars4j.encode.linear.Matrix2of5Encoder(),
+                WideRatioCodedPainter.getInstance(), new WideRatioCodedRenderer(),
                 BitSemantics.WIDE_NARROW_ALTERNATING, "123456", true));
-        cases.add(new Case("Datalogic2of5", Datalogic2of5Encoder.getInstance(), WideRatioCodedPainter.getInstance(),
+        cases.add(new Case("Datalogic2of5", Datalogic2of5Encoder.getInstance(), new org.bars4j.encode.linear.Datalogic2of5Encoder(),
+                WideRatioCodedPainter.getInstance(), new WideRatioCodedRenderer(),
                 BitSemantics.WIDE_NARROW_ALTERNATING, "123456", true));
-        cases.add(new Case("Interleaved2of5", Interleaved2of5Encoder.getInstance(), WideRatioCodedPainter.getInstance(),
+        cases.add(new Case("Interleaved2of5", Interleaved2of5Encoder.getInstance(), new org.bars4j.encode.linear.Interleaved2of5Encoder(),
+                WideRatioCodedPainter.getInstance(), new WideRatioCodedRenderer(),
                 BitSemantics.WIDE_NARROW_ALTERNATING, "9876543210921", true));
-        cases.add(new Case("PostNet", PostNetEncoder.getInstance(), HeightCodedPainter.getInstance(),
+        cases.add(new Case("PostNet", PostNetEncoder.getInstance(), new org.bars4j.encode.linear.PostNetEncoder(),
+                HeightCodedPainter.getInstance(), new HeightCodedRenderer(),
                 BitSemantics.HEIGHT_CODED, "805365961", true));
         return cases;
     }
@@ -119,11 +138,21 @@ class AdaptationTest {
     }
 
     @TestFactory
+    Stream<DynamicTest> checksumsMatchLegacy() throws Exception {
+        return cases().stream().map(c -> dynamicTest(c.name(), () -> {
+            if (c.needsCheck()) {
+                assertEquals(c.legacyEncoder().computeCheckSum(c.code()), c.encoder().computeCheckSum(c.code()),
+                        "checksum changed for " + c.name());
+            }
+        }));
+    }
+
+    @TestFactory
     Stream<DynamicTest> legacyBitsArePreserved() throws Exception {
         return cases().stream().map(c -> dynamicTest(c.name(), () -> {
-            BarSet[] legacy = c.encoder().encode(c.effectiveCode());
+            BarSet[] legacy = c.legacyEncoder().encode(c.effectiveCode());
             LinearSymbol symbol = c.symbol();
-            BarSet[] roundTrip = org.bars4j.encode.linear.BarSetBridge.toBarSets(symbol, c.semantics());
+            BarSet[] roundTrip = BarSetBridge.toBarSets(symbol, c.semantics());
             assertEquals(bits(legacy), bits(roundTrip), "bit array changed for " + c.name());
         }));
     }
@@ -131,7 +160,7 @@ class AdaptationTest {
     @TestFactory
     Stream<DynamicTest> rendererMatchesLegacyPainter() throws Exception {
         return cases().stream().map(c -> dynamicTest(c.name(), () -> {
-            BarSet[] legacy = c.encoder().encode(c.effectiveCode());
+            BarSet[] legacy = c.legacyEncoder().encode(c.effectiveCode());
             BufferedImage expected = c.painter().paintToImg(legacy, SPEC.barWidth(), SPEC.barHeight(), SPEC.wideRatio());
             BufferedImage actual = c.renderer().toImage(c.symbol(), SPEC);
             assertImagesEqual(expected, actual, c.name());

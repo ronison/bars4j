@@ -47,7 +47,11 @@ import org.bars4j.paint.TextPainter;
  * 
  * @author Flavio Sampaio
  * @since 0.1
+ * @deprecated Use the unified {@link org.bars4j.api.BarcodeGenerator} API (via
+ *             {@code BarcodeGenerator.of("EAN13").toImage(text)}) instead. This legacy facade is
+ *             kept only for backward compatibility.
  */
+@Deprecated(since = "0.4.0", forRemoval = false)
 public class Barcode {
     
     public static final double MIN_XDIMENSION = 0.264583333;

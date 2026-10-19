@@ -43,7 +43,10 @@ import org.bars4j.paint.TextPainter;
  * 
  * @author Flávio Sampaio
  * @since 0.1
+ * @deprecated Use the unified {@link org.bars4j.api.BarcodeGenerator} API instead. Kept for
+ *             backward compatibility.
  */
+@Deprecated(since = "0.4.0", forRemoval = false)
 public class BarcodeComponent extends JComponent implements PropertyChangeListener{
 
     private static final long serialVersionUID = 1L;

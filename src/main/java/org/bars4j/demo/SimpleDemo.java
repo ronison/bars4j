@@ -272,6 +272,14 @@ public class SimpleDemo {
             String qrSvg = BarcodeGenerator.of("QRCODE").toSvg(qrText);
             saveToSVG(new StringBuffer(qrSvg), "QRCode.svg");
             saveToPNG(qrImg, "QRCode.png");
+
+            //Data Matrix Example (new unified API / self-contained 2D encoder)
+            System.out.println("Data Matrix:");
+            String dmText = "https://github.com/ronison/bars4j";
+            BufferedImage dmImg = BarcodeGenerator.of("DATAMATRIX").toImage(dmText);
+            String dmSvg = BarcodeGenerator.of("DATAMATRIX").toSvg(dmText);
+            saveToSVG(new StringBuffer(dmSvg), "DataMatrix.svg");
+            saveToPNG(dmImg, "DataMatrix.png");
         } catch (Exception e) {
             e.printStackTrace();
         }

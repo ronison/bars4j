@@ -1,7 +1,7 @@
 # Bars4J - A simple, fast and effective way to include barcodes in java applications.
 This project aims to create a java library (framework) for barcode creation. It is a revival of an old project I had at SourceForge, called JBarcode and now it has been renamed to Bars4J. The main features are support for a wide variety of standards, simplicity of including barcodes in Java applications and high performance with low memory consumption.
 
-Barcodes Supported: EAN13, EAN8, UPCA, UPCE, Codabar, Code 11, Code 128, Code 39, Code 39 Extended, Code 93, Code 93 Extended, Standard 2of5, Interleaved 2of5, IATA 2of5, Datalogic 2of5, Matrix 2of5, MSI Plessey, PostNet and QRCode (2D).
+Barcodes Supported: EAN13, EAN8, UPCA, UPCE, Codabar, Code 11, Code 128, Code 39, Code 39 Extended, Code 93, Code 93 Extended, Standard 2of5, Interleaved 2of5, IATA 2of5, Datalogic 2of5, Matrix 2of5, MSI Plessey, PostNet, QRCode (2D) and Data Matrix (2D).
 
 ## Simple and fast
 
@@ -32,12 +32,33 @@ StringBuffer svg = b4j.createBarcodeSVG(code);
 ## QRCode (2D)
 
 QRCode is generated through the unified format registry, which returns a matrix symbol. It supports
-versions 1-10, error correction levels L/M/Q/H and the numeric, alphanumeric and byte modes.
+versions 1-40, error correction levels L/M/Q/H and the numeric, alphanumeric, byte and Kanji modes.
+The implementation is self-contained: there is no runtime dependency on any external QR library
+(ZXing is only used in the tests for cross-validation).
 
 ```
 ...
 //Creates a QRCode barcode
 BarcodeGenerator generator = BarcodeGenerator.of("QRCODE");
+
+//Export as IMG
+BufferedImage img = generator.toImage("Bars4J");
+
+//Export as SVG
+String svg = generator.toSvg("Bars4J");
+...
+```
+
+## Data Matrix (2D)
+
+Data Matrix (ECC200) is also available through the unified registry. It supports the standard square
+and rectangular symbols with full Reed-Solomon error correction and interleaving, using ASCII
+encodation (ISO-8859-1 input). Like the QRCode implementation it has no runtime dependency.
+
+```
+...
+//Creates a Data Matrix barcode
+BarcodeGenerator generator = BarcodeGenerator.of("DATAMATRIX");
 
 //Export as IMG
 BufferedImage img = generator.toImage("Bars4J");
@@ -118,3 +139,6 @@ java -cp target/classes org.bars4j.demo.QRCodeDemo
 
 ### QRCode (2D)
 <img src="images/QRCode.svg" height="150" />
+
+### Data Matrix (2D)
+<img src="images/DataMatrix.svg" height="150" />

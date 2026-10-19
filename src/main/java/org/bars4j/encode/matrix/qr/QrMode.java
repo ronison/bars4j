@@ -9,7 +9,8 @@ package org.bars4j.encode.matrix.qr;
 public enum QrMode {
     NUMERIC(0x1, new int[]{10, 12, 14}),
     ALPHANUMERIC(0x2, new int[]{9, 11, 13}),
-    BYTE(0x4, new int[]{8, 16, 16});
+    BYTE(0x4, new int[]{8, 16, 16}),
+    KANJI(0x8, new int[]{8, 10, 12});
 
     private final int indicatorBits;
     private final int[] charCountBits;
