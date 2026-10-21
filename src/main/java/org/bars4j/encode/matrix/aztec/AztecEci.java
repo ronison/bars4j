@@ -2,14 +2,41 @@ package org.bars4j.encode.matrix.aztec;
 
 import java.nio.charset.Charset;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * Maps JDK character sets to the ECI assignment numbers used by the Aztec {@code FLG(n)} escape.
  *
- * <p>Only the character sets commonly used for barcodes are recognised. When no ECI number is
- * known the caller should encode without an ECI, assuming the default {@code ISO-8859-1} mapping.
+ * <p>Only the character sets commonly seen in barcodes are listed. When a character set has no
+ * assignment number the caller should encode without an ECI and fall back to the default Latin-1
+ * interpretation.
  */
 public final class AztecEci {
+
+    private static final Map<String, Integer> ASSIGNMENTS = Map.ofEntries(
+            Map.entry("ISO-8859-1", 1),
+            Map.entry("ISO8859-1", 1),
+            Map.entry("ISO88591", 1),
+            Map.entry("UTF-8", 26),
+            Map.entry("UTF8", 26),
+            Map.entry("US-ASCII", 27),
+            Map.entry("ASCII", 27),
+            Map.entry("UTF-16BE", 25),
+            Map.entry("UNICODEBIGUNMARKED", 25),
+            Map.entry("WINDOWS-1250", 21),
+            Map.entry("CP1250", 21),
+            Map.entry("WINDOWS-1251", 22),
+            Map.entry("CP1251", 22),
+            Map.entry("WINDOWS-1252", 23),
+            Map.entry("CP1252", 23),
+            Map.entry("WINDOWS-1256", 24),
+            Map.entry("CP1256", 24),
+            Map.entry("BIG5", 28),
+            Map.entry("GB18030", 29),
+            Map.entry("GB2312", 29),
+            Map.entry("GBK", 29),
+            Map.entry("EUC-KR", 30),
+            Map.entry("EUCKR", 30));
 
     private AztecEci() {
     }
@@ -20,44 +47,10 @@ public final class AztecEci {
      * @throws IllegalArgumentException if the character set has no known ECI number
      */
     public static int valueFor(Charset charset) {
-        String name = charset.name().toUpperCase(Locale.ROOT);
-        switch (name) {
-            case "ISO-8859-1":
-            case "ISO8859-1":
-            case "ISO88591":
-                return 1;
-            case "UTF-8":
-            case "UTF8":
-                return 26;
-            case "US-ASCII":
-            case "ASCII":
-                return 27;
-            case "UTF-16BE":
-            case "UNICODEBIGUNMARKED":
-                return 25;
-            case "WINDOWS-1250":
-            case "CP1250":
-                return 21;
-            case "WINDOWS-1251":
-            case "CP1251":
-                return 22;
-            case "WINDOWS-1252":
-            case "CP1252":
-                return 23;
-            case "WINDOWS-1256":
-            case "CP1256":
-                return 24;
-            case "BIG5":
-                return 28;
-            case "GB18030":
-            case "GB2312":
-            case "GBK":
-                return 29;
-            case "EUC-KR":
-            case "EUCKR":
-                return 30;
-            default:
-                throw new IllegalArgumentException("No ECI code for character set " + charset);
+        Integer assignment = ASSIGNMENTS.get(charset.name().toUpperCase(Locale.ROOT));
+        if (assignment == null) {
+            throw new IllegalArgumentException("No ECI code for character set " + charset);
         }
+        return assignment;
     }
 }

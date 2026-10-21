@@ -6,21 +6,22 @@ import java.nio.charset.StandardCharsets;
 import org.bars4j.encode.api.UnsupportedTextException;
 
 /**
- * Core Aztec symbol generation: picks between compact and full layout and chooses the layer count,
- * stuffs and error-corrects the data bits, builds the mode message and lays the modules out in the
- * characteristic spiral around the central bull's-eye and (for full symbols) the reference grid.
- *
- * <p>Implements ISO/IEC 24778 without any external dependency.
+ * Builds a complete Aztec symbol (ISO/IEC 24778) from input text: chooses the symbol size, performs
+ * bit stuffing and error correction, generates the mode message and delegates the module placement
+ * to {@link AztecLayout}.
  */
 public final class AztecSymbolEncoder {
 
-    /** Highest number of layers allowed for a full symbol. */
+    /** Largest layer count of a full symbol. */
     private static final int MAX_LAYERS = 32;
-    /** Highest number of layers allowed for a compact symbol. */
+    /** Largest layer count of a compact symbol. */
     private static final int MAX_COMPACT_LAYERS = 4;
 
-    /** Codeword width (in bits) indexed by layer count. */
-    private static final int[] WORD_SIZE = {
+    /**
+     * Codeword width in bits for each layer count: 4 bits at one layer, then 6, 8, 10 and finally
+     * 12 bits as the symbol grows.
+     */
+    private static final int[] CODEWORD_WIDTH = {
             4, 6, 6, 8, 8, 8, 8, 8, 8, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
             12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
     };
@@ -31,290 +32,186 @@ public final class AztecSymbolEncoder {
     /**
      * Encodes {@code content} as an Aztec symbol.
      *
-     * @param content     text to encode; without an explicit {@code charset} it must be representable
-     *                    as ISO-8859-1 (Latin-1)
-     * @param eccPercent  minimum percentage of error correction words
+     * @param content      text to encode; without an explicit {@code charset} it must be representable
+     *                     as ISO-8859-1 (Latin-1)
+     * @param eccPercent   minimum percentage of error correction words
      * @param forcedLayers {@code null} or {@code 0} for automatic sizing; a negative value forces a
-     *                    compact symbol with {@code abs(value)} layers, a positive value forces a
-     *                    full symbol with that many layers
-     * @param charset     character set to announce with an ECI, or {@code null} for no ECI
+     *                     compact symbol with {@code abs(value)} layers, a positive value forces a
+     *                     full symbol with that many layers
+     * @param charset      character set to announce with an ECI, or {@code null} for no ECI
      */
     public static AztecCode encode(String content, int eccPercent, Integer forcedLayers, Charset charset)
             throws UnsupportedTextException {
-        byte[] data = content.getBytes(charset != null ? charset : StandardCharsets.ISO_8859_1);
-        AztecBitBuffer bits = new AztecHighLevelEncoder(data, charset).encode();
+        byte[] bytes = content.getBytes(charset != null ? charset : StandardCharsets.ISO_8859_1);
+        AztecBitBuffer dataBits = new AztecHighLevelEncoder(bytes, charset).encode();
 
-        int eccBits = bits.size() * eccPercent / 100 + 11;
-        int totalSizeBits = bits.size() + eccBits;
+        int checkBits = dataBits.size() * eccPercent / 100 + 11;
 
-        boolean compact;
-        int layers;
-        int totalBitsInLayer;
-        int wordSize;
-        AztecBitBuffer stuffedBits;
+        Sizing sizing;
         if (forcedLayers != null && forcedLayers != 0) {
-            compact = forcedLayers < 0;
-            layers = Math.abs(forcedLayers);
-            if (layers > (compact ? MAX_COMPACT_LAYERS : MAX_LAYERS)) {
-                throw new IllegalArgumentException("Illegal value " + forcedLayers + " for layers");
-            }
-            totalBitsInLayer = totalBitsInLayer(layers, compact);
-            wordSize = WORD_SIZE[layers];
-            int usableBitsInLayers = totalBitsInLayer - (totalBitsInLayer % wordSize);
-            stuffedBits = stuffBits(bits, wordSize);
-            if (stuffedBits.size() + eccBits > usableBitsInLayers) {
-                throw new UnsupportedTextException("Data too large for user specified layer");
-            }
-            if (compact && stuffedBits.size() > wordSize * 64) {
-                throw new UnsupportedTextException("Data too large for user specified layer");
-            }
+            sizing = forcedSize(dataBits, checkBits, forcedLayers);
         } else {
-            wordSize = 0;
-            stuffedBits = null;
-            // Candidate sizes are tried in the order Compact1, Compact2, Compact3, Compact4,
-            // Normal4, Normal5, ... Normal(i) for i < 4 is not used because Compact(i+1) has the
-            // same size with more capacity.
-            for (int i = 0; ; i++) {
-                if (i > MAX_LAYERS) {
-                    throw new UnsupportedTextException("Data too large for an Aztec code");
-                }
-                compact = i <= 3;
-                layers = compact ? i + 1 : i;
-                totalBitsInLayer = totalBitsInLayer(layers, compact);
-                if (totalSizeBits > totalBitsInLayer) {
-                    continue;
-                }
-                if (stuffedBits == null || wordSize != WORD_SIZE[layers]) {
-                    wordSize = WORD_SIZE[layers];
-                    stuffedBits = stuffBits(bits, wordSize);
-                }
-                int usableBitsInLayers = totalBitsInLayer - (totalBitsInLayer % wordSize);
-                if (compact && stuffedBits.size() > wordSize * 64) {
-                    // Compact symbols hold at most 64 data words.
-                    continue;
-                }
-                if (stuffedBits.size() + eccBits <= usableBitsInLayers) {
-                    break;
-                }
-            }
+            sizing = automaticSize(dataBits, checkBits);
         }
 
-        AztecBitBuffer messageBits = generateCheckWords(stuffedBits, totalBitsInLayer, wordSize);
-        int messageSizeInWords = stuffedBits.size() / wordSize;
-        AztecBitBuffer modeMessage = generateModeMessage(compact, layers, messageSizeInWords);
-
-        int baseMatrixSize = (compact ? 11 : 14) + layers * 4; // excluding the reference grid
-        int[] alignmentMap = new int[baseMatrixSize];
-        int matrixSize;
-        if (compact) {
-            // Compact symbols have no reference grid, so the alignment map is the identity.
-            matrixSize = baseMatrixSize;
-            for (int i = 0; i < alignmentMap.length; i++) {
-                alignmentMap[i] = i;
-            }
-        } else {
-            matrixSize = baseMatrixSize + 1 + 2 * ((baseMatrixSize / 2 - 1) / 15);
-            int origCenter = baseMatrixSize / 2;
-            int center = matrixSize / 2;
-            for (int i = 0; i < origCenter; i++) {
-                int newOffset = i + i / 15;
-                alignmentMap[origCenter - i - 1] = center - newOffset - 1;
-                alignmentMap[origCenter + i] = center + newOffset + 1;
-            }
-        }
-        AztecBitMatrix matrix = new AztecBitMatrix(matrixSize);
-
-        // Draw the data bits, two columns and two rows per side of each layer.
-        for (int i = 0, rowOffset = 0; i < layers; i++) {
-            int rowSize = (layers - i) * 4 + (compact ? 9 : 12);
-            for (int j = 0; j < rowSize; j++) {
-                int columnOffset = j * 2;
-                for (int k = 0; k < 2; k++) {
-                    if (messageBits.get(rowOffset + columnOffset + k)) {
-                        matrix.set(alignmentMap[i * 2 + k], alignmentMap[i * 2 + j]);
-                    }
-                    if (messageBits.get(rowOffset + rowSize * 2 + columnOffset + k)) {
-                        matrix.set(alignmentMap[i * 2 + j], alignmentMap[baseMatrixSize - 1 - i * 2 - k]);
-                    }
-                    if (messageBits.get(rowOffset + rowSize * 4 + columnOffset + k)) {
-                        matrix.set(alignmentMap[baseMatrixSize - 1 - i * 2 - k],
-                                alignmentMap[baseMatrixSize - 1 - i * 2 - j]);
-                    }
-                    if (messageBits.get(rowOffset + rowSize * 6 + columnOffset + k)) {
-                        matrix.set(alignmentMap[baseMatrixSize - 1 - i * 2 - j], alignmentMap[i * 2 + k]);
-                    }
-                }
-            }
-            rowOffset += rowSize * 8;
-        }
-
-        drawModeMessage(matrix, compact, matrixSize, modeMessage);
-
-        if (compact) {
-            drawBullsEye(matrix, matrixSize / 2, 5);
-        } else {
-            drawBullsEye(matrix, matrixSize / 2, 7);
-            for (int i = 0, j = 0; i < baseMatrixSize / 2 - 1; i += 15, j += 16) {
-                for (int k = (matrixSize / 2) & 1; k < matrixSize; k += 2) {
-                    matrix.set(matrixSize / 2 - j, k);
-                    matrix.set(matrixSize / 2 + j, k);
-                    matrix.set(k, matrixSize / 2 - j);
-                    matrix.set(k, matrixSize / 2 + j);
-                }
-            }
-        }
-
-        return new AztecCode(compact, layers, messageSizeInWords, matrix);
+        int dataWords = sizing.stuffed.size() / sizing.wordSize;
+        AztecBitBuffer message = addCheckWords(sizing.stuffed, sizing.totalBitsInLayer, sizing.wordSize);
+        AztecBitBuffer modeMessage = buildModeMessage(sizing.compact, sizing.layers, dataWords);
+        AztecBitMatrix matrix = AztecLayout.of(sizing.compact, sizing.layers).build(message, modeMessage);
+        return new AztecCode(sizing.compact, sizing.layers, dataWords, matrix);
     }
 
-    /** Draws the central bull's-eye of the given radius (in modules). */
-    private static void drawBullsEye(AztecBitMatrix matrix, int center, int size) {
-        for (int i = 0; i < size; i += 2) {
-            for (int j = center - i; j <= center + i; j++) {
-                matrix.set(j, center - i);
-                matrix.set(j, center + i);
-                matrix.set(center - i, j);
-                matrix.set(center + i, j);
-            }
-        }
-        matrix.set(center - size, center - size);
-        matrix.set(center - size + 1, center - size);
-        matrix.set(center - size, center - size + 1);
-        matrix.set(center + size, center - size);
-        matrix.set(center + size, center - size + 1);
-        matrix.set(center + size, center + size - 1);
-    }
+    /** A chosen symbol size together with its stuffed data. */
+    private static final class Sizing {
+        final boolean compact;
+        final int layers;
+        final int wordSize;
+        final int totalBitsInLayer;
+        final AztecBitBuffer stuffed;
 
-    /** Builds the mode message (symbol geometry plus its Reed-Solomon check words). */
-    static AztecBitBuffer generateModeMessage(boolean compact, int layers, int messageSizeInWords) {
-        AztecBitBuffer modeMessage = new AztecBitBuffer();
-        if (compact) {
-            modeMessage.appendBits(layers - 1, 2);
-            modeMessage.appendBits(messageSizeInWords - 1, 6);
-            modeMessage = generateCheckWords(modeMessage, 28, 4);
-        } else {
-            modeMessage.appendBits(layers - 1, 5);
-            modeMessage.appendBits(messageSizeInWords - 1, 11);
-            modeMessage = generateCheckWords(modeMessage, 40, 4);
-        }
-        return modeMessage;
-    }
-
-    private static void drawModeMessage(AztecBitMatrix matrix, boolean compact, int matrixSize, AztecBitBuffer modeMessage) {
-        int center = matrixSize / 2;
-        if (compact) {
-            for (int i = 0; i < 7; i++) {
-                int offset = center - 3 + i;
-                if (modeMessage.get(i)) {
-                    matrix.set(offset, center - 5);
-                }
-                if (modeMessage.get(i + 7)) {
-                    matrix.set(center + 5, offset);
-                }
-                if (modeMessage.get(20 - i)) {
-                    matrix.set(offset, center + 5);
-                }
-                if (modeMessage.get(27 - i)) {
-                    matrix.set(center - 5, offset);
-                }
-            }
-        } else {
-            for (int i = 0; i < 10; i++) {
-                int offset = center - 5 + i + i / 5;
-                if (modeMessage.get(i)) {
-                    matrix.set(offset, center - 7);
-                }
-                if (modeMessage.get(i + 10)) {
-                    matrix.set(center + 7, offset);
-                }
-                if (modeMessage.get(29 - i)) {
-                    matrix.set(offset, center + 7);
-                }
-                if (modeMessage.get(39 - i)) {
-                    matrix.set(center - 7, offset);
-                }
-            }
+        Sizing(boolean compact, int layers, int wordSize, int totalBitsInLayer, AztecBitBuffer stuffed) {
+            this.compact = compact;
+            this.layers = layers;
+            this.wordSize = wordSize;
+            this.totalBitsInLayer = totalBitsInLayer;
+            this.stuffed = stuffed;
         }
     }
 
-    /** Appends the Reed-Solomon check words of {@code wordSize} bits to {@code bitBuffer}. */
-    private static AztecBitBuffer generateCheckWords(AztecBitBuffer bitBuffer, int totalBits, int wordSize) {
-        // bitBuffer is always a multiple of wordSize, so no padding is required.
-        int messageSizeInWords = bitBuffer.size() / wordSize;
-        GenericReedSolomonEncoder rs = new GenericReedSolomonEncoder(fieldForWordSize(wordSize));
-        int totalWords = totalBits / wordSize;
-        int[] messageWords = bitsToWords(bitBuffer, wordSize, totalWords);
-        rs.encode(messageWords, totalWords - messageSizeInWords);
-        int startPad = totalBits % wordSize;
-        AztecBitBuffer messageBits = new AztecBitBuffer();
-        messageBits.appendBits(0, startPad);
-        for (int messageWord : messageWords) {
-            messageBits.appendBits(messageWord, wordSize);
+    /** Validates a caller-requested layer count and prepares its data. */
+    private static Sizing forcedSize(AztecBitBuffer dataBits, int checkBits, int forcedLayers)
+            throws UnsupportedTextException {
+        boolean compact = forcedLayers < 0;
+        int layers = Math.abs(forcedLayers);
+        int maxLayers = compact ? MAX_COMPACT_LAYERS : MAX_LAYERS;
+        if (layers > maxLayers) {
+            throw new IllegalArgumentException("Illegal value " + forcedLayers + " for layers");
         }
-        return messageBits;
-    }
-
-    /** Packs the leading words of {@code bits} into an array of {@code totalWords} codewords. */
-    private static int[] bitsToWords(AztecBitBuffer bits, int wordSize, int totalWords) {
-        int[] message = new int[totalWords];
-        int words = bits.size() / wordSize;
-        for (int i = 0; i < words; i++) {
-            int value = 0;
-            for (int j = 0; j < wordSize; j++) {
-                value |= bits.get(i * wordSize + j) ? (1 << (wordSize - j - 1)) : 0;
-            }
-            message[i] = value;
+        int wordSize = CODEWORD_WIDTH[layers];
+        int totalBitsInLayer = dataCapacity(compact, layers);
+        AztecBitBuffer stuffed = insertStuffing(dataBits, wordSize);
+        int usableBits = totalBitsInLayer - totalBitsInLayer % wordSize;
+        boolean tooLarge = stuffed.size() + checkBits > usableBits
+                || (compact && stuffed.size() > wordSize * 64);
+        if (tooLarge) {
+            throw new UnsupportedTextException("Data too large for user specified layer");
         }
-        return message;
-    }
-
-    private static GenericGaloisField fieldForWordSize(int wordSize) {
-        switch (wordSize) {
-            case 4:
-                return GenericGaloisField.AZTEC_PARAM;
-            case 6:
-                return GenericGaloisField.AZTEC_DATA_6;
-            case 8:
-                return GenericGaloisField.AZTEC_DATA_8;
-            case 10:
-                return GenericGaloisField.AZTEC_DATA_10;
-            case 12:
-                return GenericGaloisField.AZTEC_DATA_12;
-            default:
-                throw new IllegalArgumentException("Unsupported word size " + wordSize);
-        }
+        return new Sizing(compact, layers, wordSize, totalBitsInLayer, stuffed);
     }
 
     /**
-     * Splits {@code bits} into {@code wordSize}-bit words, inserting stuffing when a word would
-     * otherwise read as all zeros or all ones (which are reserved for the decoder's unstuffing).
+     * Finds the smallest symbol that fits. Compact symbols are tried first (Compact1 through
+     * Compact4); the smallest full symbol is Normal4, because a smaller full symbol would have the
+     * same size as a compact one with less capacity.
      */
-    static AztecBitBuffer stuffBits(AztecBitBuffer bits, int wordSize) {
+    private static Sizing automaticSize(AztecBitBuffer dataBits, int checkBits)
+            throws UnsupportedTextException {
+        AztecBitBuffer stuffed = null;
+        int wordSize = 0;
+        for (int candidate = 0; candidate <= MAX_LAYERS; candidate++) {
+            boolean compact = candidate <= 3;
+            int layers = compact ? candidate + 1 : candidate;
+            int totalBitsInLayer = dataCapacity(compact, layers);
+            if (dataBits.size() + checkBits > totalBitsInLayer) {
+                continue;
+            }
+            if (stuffed == null || wordSize != CODEWORD_WIDTH[layers]) {
+                wordSize = CODEWORD_WIDTH[layers];
+                stuffed = insertStuffing(dataBits, wordSize);
+            }
+            // Compact symbols can carry at most 64 data words.
+            if (compact && stuffed.size() > wordSize * 64) {
+                continue;
+            }
+            int usableBits = totalBitsInLayer - totalBitsInLayer % wordSize;
+            if (stuffed.size() + checkBits <= usableBits) {
+                return new Sizing(compact, layers, wordSize, totalBitsInLayer, stuffed);
+            }
+        }
+        throw new UnsupportedTextException("Data too large for an Aztec code");
+    }
+
+    /** Number of data bits available in {@code layers} layers of the given layout. */
+    private static int dataCapacity(boolean compact, int layers) {
+        return ((compact ? 88 : 112) + 16 * layers) * layers;
+    }
+
+    /**
+     * Splits {@code bits} into {@code wordSize}-bit words. A word whose upper bits would all be one
+     * or all be zero is ambiguous, so the final bit is forced and one input bit is deferred to the
+     * following word. Missing bits at the end are treated as ones.
+     */
+    static AztecBitBuffer insertStuffing(AztecBitBuffer bits, int wordSize) {
         AztecBitBuffer out = new AztecBitBuffer();
-        int n = bits.size();
-        int mask = (1 << wordSize) - 2;
-        for (int i = 0; i < n; i += wordSize) {
+        int bitCount = bits.size();
+        int allOne = (1 << wordSize) - 1;
+        int upperMask = allOne - 1;
+
+        int read = 0;
+        while (read < bitCount) {
             int word = 0;
-            for (int j = 0; j < wordSize; j++) {
-                if (i + j >= n || bits.get(i + j)) {
-                    word |= 1 << (wordSize - 1 - j);
+            for (int offset = 0; offset < wordSize; offset++) {
+                int position = read + offset;
+                if (position >= bitCount || bits.get(position)) {
+                    word |= 1 << (wordSize - 1 - offset);
                 }
             }
-            if ((word & mask) == mask) {
-                out.appendBits(word & mask, wordSize);
-                i--;
-            } else if ((word & mask) == 0) {
-                out.appendBits(word | 1, wordSize);
-                i--;
+            int upper = word & upperMask;
+            if (upper == upperMask) {
+                // Force the last bit to zero and let the borrowed one open the next word.
+                out.appendBits(upperMask, wordSize);
+                read += wordSize - 1;
+            } else if (upper == 0) {
+                // Force a lone one in the last position.
+                out.appendBits(1, wordSize);
+                read += wordSize - 1;
             } else {
                 out.appendBits(word, wordSize);
+                read += wordSize;
             }
         }
         return out;
     }
 
-    /** Returns the number of data bits in {@code layers} layers of the given layout. */
-    private static int totalBitsInLayer(int layers, boolean compact) {
-        return ((compact ? 88 : 112) + 16 * layers) * layers;
+    /** Builds the mode message: symbol geometry, protected by Reed-Solomon check words. */
+    static AztecBitBuffer buildModeMessage(boolean compact, int layers, int dataWords) {
+        AztecBitBuffer raw = new AztecBitBuffer();
+        if (compact) {
+            raw.appendBits(layers - 1, 2);
+            raw.appendBits(dataWords - 1, 6);
+            return addCheckWords(raw, 28, 4);
+        }
+        raw.appendBits(layers - 1, 5);
+        raw.appendBits(dataWords - 1, 11);
+        return addCheckWords(raw, 40, 4);
+    }
+
+    /**
+     * Packs {@code dataBits} into {@code totalBits / wordSize} codewords and fills the trailing
+     * slots with Reed-Solomon check words, returning the complete message as a bit buffer.
+     */
+    private static AztecBitBuffer addCheckWords(AztecBitBuffer dataBits, int totalBits, int wordSize) {
+        int dataWords = dataBits.size() / wordSize;
+        int totalWords = totalBits / wordSize;
+        int[] words = new int[totalWords];
+        for (int w = 0; w < dataWords; w++) {
+            int value = 0;
+            for (int bit = 0; bit < wordSize; bit++) {
+                if (dataBits.get(w * wordSize + bit)) {
+                    value |= 1 << (wordSize - 1 - bit);
+                }
+            }
+            words[w] = value;
+        }
+        AztecReedSolomon.appendCheckWords(words, totalWords - dataWords, AztecField.forWordSize(wordSize));
+
+        AztecBitBuffer message = new AztecBitBuffer();
+        // Prepend the filler that aligns the codeword block inside the available bits.
+        int leadingFiller = totalBits % wordSize;
+        message.appendBits(0, leadingFiller);
+        for (int word : words) {
+            message.appendBits(word, wordSize);
+        }
+        return message;
     }
 }

@@ -2,7 +2,6 @@ package org.bars4j.encode.matrix.aztec;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Deque;
@@ -11,256 +10,160 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Turns the input bytes into the first level of Aztec encoding: the sequence of mode latches,
- * temporary shifts and binary shift runs that represent the text.
+ * First level of Aztec encoding: converts the raw input bytes into the bit stream of mode codes,
+ * temporary shifts and binary-shift runs.
  *
- * <p>For each input prefix a set of candidate {@link AztecState}s is maintained. Adding one more
- * character branches every state into the possible encodings (latch, shift or binary shift), and
- * dominated states are pruned before continuing. Finally the cheapest surviving state is serialised.
+ * <p>The stream is grown one input symbol at a time while a frontier of candidate
+ * {@link AztecEncoderState}s is kept. Every candidate can branch into the encodings allowed at the
+ * next byte (a latch into a mode that holds it, a shift, or a binary shift), and candidates that can
+ * never win are pruned. When the input is exhausted the cheapest surviving candidate is serialised.
+ *
+ * <p>Four punctuation symbols are encoded together with their following space or newline as a
+ * single two-character code; those pairs are consumed in one step.
  */
 public final class AztecHighLevelEncoder {
 
-    static final int MODE_UPPER = 0;
-    static final int MODE_LOWER = 1;
-    static final int MODE_DIGIT = 2;
-    static final int MODE_MIXED = 3;
-    static final int MODE_PUNCT = 4;
-
-    static final String[] MODE_NAMES = {"UPPER", "LOWER", "DIGIT", "MIXED", "PUNCT"};
-
-    /**
-     * For each ordered pair of modes, packs the cheapest way to latch from the first to the second:
-     * the high 16 bits hold the number of bits, the low 16 bits the latch code itself.
-     */
-    static final int[][] LATCH_TABLE = {
-            { // UPPER
-                    0,
-                    (5 << 16) + 28,               // UPPER -> LOWER
-                    (5 << 16) + 30,               // UPPER -> DIGIT
-                    (5 << 16) + 29,               // UPPER -> MIXED
-                    (10 << 16) + (29 << 5) + 30,  // UPPER -> MIXED -> PUNCT
-            },
-            { // LOWER
-                    (9 << 16) + (30 << 4) + 14,   // LOWER -> DIGIT -> UPPER
-                    0,
-                    (5 << 16) + 30,               // LOWER -> DIGIT
-                    (5 << 16) + 29,               // LOWER -> MIXED
-                    (10 << 16) + (29 << 5) + 30,  // LOWER -> MIXED -> PUNCT
-            },
-            { // DIGIT
-                    (4 << 16) + 14,               // DIGIT -> UPPER
-                    (9 << 16) + (14 << 5) + 28,   // DIGIT -> UPPER -> LOWER
-                    0,
-                    (9 << 16) + (14 << 5) + 29,   // DIGIT -> UPPER -> MIXED
-                    (14 << 16) + (14 << 10) + (29 << 5) + 30, // DIGIT -> UPPER -> MIXED -> PUNCT
-            },
-            { // MIXED
-                    (5 << 16) + 29,               // MIXED -> UPPER
-                    (5 << 16) + 28,               // MIXED -> LOWER
-                    (10 << 16) + (29 << 5) + 30,  // MIXED -> UPPER -> DIGIT
-                    0,
-                    (5 << 16) + 30,               // MIXED -> PUNCT
-            },
-            { // PUNCT
-                    (5 << 16) + 31,               // PUNCT -> UPPER
-                    (10 << 16) + (31 << 5) + 28,  // PUNCT -> UPPER -> LOWER
-                    (10 << 16) + (31 << 5) + 30,  // PUNCT -> UPPER -> DIGIT
-                    (10 << 16) + (31 << 5) + 29,  // PUNCT -> UPPER -> MIXED
-                    0,
-            },
-    };
-
-    /** {@code [mode][byte]} -> code for that byte in that mode, or 0 when the byte is not defined. */
-    private static final int[][] CHAR_MAP = new int[5][256];
-    static {
-        CHAR_MAP[MODE_UPPER][' '] = 1;
-        for (int c = 'A'; c <= 'Z'; c++) {
-            CHAR_MAP[MODE_UPPER][c] = c - 'A' + 2;
-        }
-        CHAR_MAP[MODE_LOWER][' '] = 1;
-        for (int c = 'a'; c <= 'z'; c++) {
-            CHAR_MAP[MODE_LOWER][c] = c - 'a' + 2;
-        }
-        CHAR_MAP[MODE_DIGIT][' '] = 1;
-        for (int c = '0'; c <= '9'; c++) {
-            CHAR_MAP[MODE_DIGIT][c] = c - '0' + 2;
-        }
-        CHAR_MAP[MODE_DIGIT][','] = 12;
-        CHAR_MAP[MODE_DIGIT]['.'] = 13;
-
-        int[] mixedTable = {
-                '\0', ' ', '\1', '\2', '\3', '\4', '\5', '\6', '\7', '\b', '\t', '\n',
-                '\13', '\f', '\r', '\33', '\34', '\35', '\36', '\37', '@', '\\', '^',
-                '_', '`', '|', '~', '\177',
-        };
-        for (int i = 0; i < mixedTable.length; i++) {
-            CHAR_MAP[MODE_MIXED][mixedTable[i]] = i;
-        }
-
-        int[] punctTable = {
-                '\0', '\r', '\0', '\0', '\0', '\0', '!', '"', '#', '$', '%', '&', '\'',
-                '(', ')', '*', '+', ',', '-', '.', '/', ':', ';', '<', '=', '>', '?',
-                '[', ']', '{', '}',
-        };
-        for (int i = 0; i < punctTable.length; i++) {
-            if (punctTable[i] > 0) {
-                CHAR_MAP[MODE_PUNCT][punctTable[i]] = i;
-            }
-        }
-    }
-
-    /** {@code [current mode][target mode]} -> shift code, or -1 when no shift is available. */
-    static final int[][] SHIFT_TABLE = new int[6][6];
-    static {
-        for (int[] table : SHIFT_TABLE) {
-            Arrays.fill(table, -1);
-        }
-        SHIFT_TABLE[MODE_UPPER][MODE_PUNCT] = 0;
-
-        SHIFT_TABLE[MODE_LOWER][MODE_PUNCT] = 0;
-        SHIFT_TABLE[MODE_LOWER][MODE_UPPER] = 28;
-
-        SHIFT_TABLE[MODE_MIXED][MODE_PUNCT] = 0;
-
-        SHIFT_TABLE[MODE_DIGIT][MODE_PUNCT] = 0;
-        SHIFT_TABLE[MODE_DIGIT][MODE_UPPER] = 15;
-    }
-
-    private final byte[] text;
+    private final byte[] input;
     private final Charset charset;
 
-    public AztecHighLevelEncoder(byte[] text) {
-        this(text, null);
+    /** Creates an encoder for {@code input} with no ECI announcement. */
+    public AztecHighLevelEncoder(byte[] input) {
+        this(input, null);
     }
 
-    public AztecHighLevelEncoder(byte[] text, Charset charset) {
-        this.text = text;
+    /**
+     * Creates an encoder for {@code input}. When {@code charset} is non-null an ECI is emitted at
+     * the start of the stream.
+     */
+    public AztecHighLevelEncoder(byte[] input, Charset charset) {
+        this.input = input;
         this.charset = charset;
     }
 
-    /** Encodes the input into a bit buffer. */
+    /** Encodes the input into the first-level bit stream. */
     public AztecBitBuffer encode() {
-        AztecState initialState = AztecState.INITIAL_STATE;
+        AztecEncoderState initial = AztecEncoderState.initial();
         if (charset != null) {
-            initialState = initialState.appendFLGn(AztecEci.valueFor(charset));
+            initial = initial.announceCharset(AztecEci.valueFor(charset));
         }
-        List<AztecState> states = new ArrayList<>();
-        states.add(initialState);
-        for (int index = 0; index < text.length; index++) {
-            int pairCode = 0;
-            int nextChar = index + 1 < text.length ? text[index + 1] : 0;
-            switch (text[index]) {
-                case '\r':
-                    pairCode = nextChar == '\n' ? 2 : 0;
-                    break;
-                case '.':
-                    pairCode = nextChar == ' ' ? 3 : 0;
-                    break;
-                case ',':
-                    pairCode = nextChar == ' ' ? 4 : 0;
-                    break;
-                case ':':
-                    pairCode = nextChar == ' ' ? 5 : 0;
-                    break;
-                default:
-                    pairCode = 0;
-            }
-            if (pairCode > 0) {
-                // One of the four special PUNCT pairs; consume both characters at once.
-                states = updateStateListForPair(states, index, pairCode);
-                index++;
+        List<AztecEncoderState> frontier = new ArrayList<>();
+        frontier.add(initial);
+
+        int index = 0;
+        while (index < input.length) {
+            int pairCode = pairCodeAt(index);
+            if (pairCode != 0) {
+                frontier = branchOverPair(frontier, index, pairCode);
+                index += 2;
             } else {
-                states = updateStateListForChar(states, index);
+                frontier = branchOverByte(frontier, index);
+                index++;
             }
         }
-        AztecState minState = Collections.min(states, Comparator.comparingInt(AztecState::bitCount));
-        return minState.toBitArray(text);
+
+        AztecEncoderState best =
+                Collections.min(frontier, Comparator.comparingInt(AztecEncoderState::bitCount));
+        return best.toBitBuffer(input);
     }
 
-    private List<AztecState> updateStateListForChar(List<AztecState> states, int index) {
-        List<AztecState> result = new LinkedList<>();
-        for (AztecState state : states) {
-            updateStateForChar(state, index, result);
+    /**
+     * Returns the two-character punctuation code starting at {@code index}, or 0 when the byte does
+     * not begin one of the four paired symbols.
+     */
+    private int pairCodeAt(int index) {
+        int next = index + 1 < input.length ? input[index + 1] & 0xFF : -1;
+        switch (input[index]) {
+            case '\r':
+                return next == '\n' ? 2 : 0;
+            case '.':
+                return next == ' ' ? 3 : 0;
+            case ',':
+                return next == ' ' ? 4 : 0;
+            case ':':
+                return next == ' ' ? 5 : 0;
+            default:
+                return 0;
         }
-        return simplifyStates(result);
     }
 
-    private void updateStateForChar(AztecState state, int index, List<AztecState> result) {
-        char ch = (char) (text[index] & 0xFF);
-        boolean charInCurrentTable = CHAR_MAP[state.mode()][ch] > 0;
-        AztecState stateNoBinary = null;
-        for (int mode = 0; mode <= MODE_PUNCT; mode++) {
-            int charInMode = CHAR_MAP[mode][ch];
-            if (charInMode > 0) {
-                if (stateNoBinary == null) {
-                    // Close any binary shift only once, the first time it is actually required.
-                    stateNoBinary = state.endBinaryShift(index);
+    /** Adds the candidates that encode the single byte at {@code index}. */
+    private List<AztecEncoderState> branchOverByte(List<AztecEncoderState> frontier, int index) {
+        int value = input[index] & 0xFF;
+        List<AztecEncoderState> candidates = new ArrayList<>();
+        for (AztecEncoderState state : frontier) {
+            int codeInCurrentMode = AztecModeTables.characterCode(state.mode(), value);
+            boolean definedInCurrentMode = codeInCurrentMode != 0;
+
+            // The open binary shift, if any, is closed only once the first non-binary candidate is
+            // actually produced.
+            AztecEncoderState withoutShift = null;
+            for (AztecMode target : AztecMode.values()) {
+                int code = AztecModeTables.characterCode(target, value);
+                if (code == 0) {
+                    continue;
                 }
-                if (!charInCurrentTable || mode == state.mode() || mode == MODE_DIGIT) {
-                    // If the character exists in the current table, latching elsewhere could only
-                    // be justified for DIGIT, which costs fewer bits.
-                    result.add(stateNoBinary.latchAndAppend(mode, charInMode));
+                if (withoutShift == null) {
+                    withoutShift = state.closeShift(index);
                 }
-                if (!charInCurrentTable && SHIFT_TABLE[state.mode()][mode] >= 0) {
-                    // Shifting into a mode that already holds the character can never save bits.
-                    result.add(stateNoBinary.shiftAndAppend(mode, charInMode));
+                if (!definedInCurrentMode || target == state.mode() || target == AztecMode.DIGIT) {
+                    // Latching is worthwhile when the byte is absent from the current mode, when it
+                    // stays in the same mode, or when DIGIT's cheaper codes make it pay off.
+                    candidates.add(withoutShift.switchAndAppend(target, code));
+                }
+                if (!definedInCurrentMode && AztecModeTables.shiftCode(state.mode(), target) >= 0) {
+                    // A shift into a mode that already holds the byte could never save bits.
+                    candidates.add(withoutShift.appendWithShift(target, code));
                 }
             }
+
+            if (state.pendingShiftBytes() > 0 || !definedInCurrentMode) {
+                candidates.add(state.addShiftedByte(index));
+            }
         }
-        if (state.binaryShiftByteCount() > 0 || CHAR_MAP[state.mode()][ch] == 0) {
-            // Starting a binary shift is only worthwhile when already in one, or when the character
-            // is unavailable in the current mode.
-            result.add(state.addBinaryShiftChar(index));
-        }
+        return prune(candidates);
     }
 
-    private static List<AztecState> updateStateListForPair(List<AztecState> states, int index, int pairCode) {
-        List<AztecState> result = new LinkedList<>();
-        for (AztecState state : states) {
-            updateStateForPair(state, index, pairCode, result);
+    /** Adds the candidates that encode the two-character punctuation pair at {@code index}. */
+    private List<AztecEncoderState> branchOverPair(List<AztecEncoderState> frontier, int index, int pairCode) {
+        List<AztecEncoderState> candidates = new ArrayList<>();
+        for (AztecEncoderState state : frontier) {
+            AztecEncoderState withoutShift = state.closeShift(index);
+            candidates.add(withoutShift.switchAndAppend(AztecMode.PUNCT, pairCode));
+            if (state.mode() != AztecMode.PUNCT) {
+                candidates.add(withoutShift.appendWithShift(AztecMode.PUNCT, pairCode));
+            }
+            if (pairCode == 3 || pairCode == 4) {
+                // ". " and ", " are also expressible as two DIGIT codes.
+                candidates.add(withoutShift
+                        .switchAndAppend(AztecMode.DIGIT, 16 - pairCode)
+                        .switchAndAppend(AztecMode.DIGIT, 1));
+            }
+            if (state.pendingShiftBytes() > 0) {
+                candidates.add(state.addShiftedByte(index).addShiftedByte(index + 1));
+            }
         }
-        return simplifyStates(result);
+        return prune(candidates);
     }
 
-    private static void updateStateForPair(AztecState state, int index, int pairCode, List<AztecState> result) {
-        AztecState stateNoBinary = state.endBinaryShift(index);
-        // Possibility 1: latch to PUNCT and emit the pair code.
-        result.add(stateNoBinary.latchAndAppend(MODE_PUNCT, pairCode));
-        if (state.mode() != MODE_PUNCT) {
-            // Possibility 2: shift to PUNCT. Every mode but PUNCT itself can shift.
-            result.add(stateNoBinary.shiftAndAppend(MODE_PUNCT, pairCode));
-        }
-        if (pairCode == 3 || pairCode == 4) {
-            // ". " and ", " can also be written as two DIGIT characters.
-            result.add(stateNoBinary
-                    .latchAndAppend(MODE_DIGIT, 16 - pairCode)
-                    .latchAndAppend(MODE_DIGIT, 1));
-        }
-        if (state.binaryShiftByteCount() > 0) {
-            // Only worth it if the pair is already inside a binary shift run.
-            result.add(state.addBinaryShiftChar(index).addBinaryShiftChar(index + 1));
-        }
-    }
-
-    /** Removes states that are never better than another state in the list. */
-    private static List<AztecState> simplifyStates(List<AztecState> states) {
-        Deque<AztecState> result = new LinkedList<>();
-        for (AztecState newState : states) {
-            boolean add = true;
-            for (Iterator<AztecState> iterator = result.iterator(); iterator.hasNext(); ) {
-                AztecState oldState = iterator.next();
-                if (oldState.isBetterThanOrEqualTo(newState)) {
-                    add = false;
+    /** Keeps only the candidates that are not dominated by another one. */
+    private static List<AztecEncoderState> prune(List<AztecEncoderState> candidates) {
+        Deque<AztecEncoderState> kept = new LinkedList<>();
+        for (AztecEncoderState candidate : candidates) {
+            boolean survives = true;
+            for (Iterator<AztecEncoderState> iterator = kept.iterator(); iterator.hasNext(); ) {
+                AztecEncoderState existing = iterator.next();
+                if (existing.dominates(candidate)) {
+                    survives = false;
                     break;
                 }
-                if (newState.isBetterThanOrEqualTo(oldState)) {
+                if (candidate.dominates(existing)) {
                     iterator.remove();
                 }
             }
-            if (add) {
-                result.addFirst(newState);
+            if (survives) {
+                kept.addFirst(candidate);
             }
         }
-        return new ArrayList<>(result);
+        return new ArrayList<>(kept);
     }
 }
