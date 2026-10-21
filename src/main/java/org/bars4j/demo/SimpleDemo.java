@@ -280,6 +280,22 @@ public class SimpleDemo {
             String dmSvg = BarcodeGenerator.of("DATAMATRIX").toSvg(dmText);
             saveToSVG(new StringBuffer(dmSvg), "DataMatrix.svg");
             saveToPNG(dmImg, "DataMatrix.png");
+
+            //PDF417 Example (new unified API / self-contained 2D encoder)
+            System.out.println("PDF417:");
+            String pdfText = "https://github.com/ronison/bars4j";
+            BufferedImage pdfImg = BarcodeGenerator.of("PDF417").toImage(pdfText);
+            String pdfSvg = BarcodeGenerator.of("PDF417").toSvg(pdfText);
+            saveToSVG(new StringBuffer(pdfSvg), "PDF417.svg");
+            saveToPNG(pdfImg, "PDF417.png");
+
+            //Aztec Example (new unified API / self-contained 2D encoder)
+            System.out.println("Aztec:");
+            String azText = "https://github.com/ronison/bars4j";
+            BufferedImage azImg = BarcodeGenerator.of("AZTEC").toImage(azText);
+            String azSvg = BarcodeGenerator.of("AZTEC").toSvg(azText);
+            saveToSVG(new StringBuffer(azSvg), "Aztec.svg");
+            saveToPNG(azImg, "Aztec.png");
         } catch (Exception e) {
             e.printStackTrace();
         }

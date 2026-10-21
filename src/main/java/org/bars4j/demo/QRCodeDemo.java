@@ -66,6 +66,20 @@ public class QRCodeDemo {
             saveToPNG(dmImage, "DataMatrix.png");
             saveToSVG(BarcodeGenerator.of("DATAMATRIX").toSvg(dmText), "DataMatrix.svg");
             System.out.println("DATAMATRIX: " + dmImage.getWidth() + "x" + dmImage.getHeight() + "px -> images/DataMatrix.png");
+
+            // PDF417 (ISO/IEC 15438), rendered with the same unified API.
+            String pdfText = "https://github.com/ronison/bars4j";
+            BufferedImage pdfImage = BarcodeGenerator.of("PDF417").toImage(pdfText);
+            saveToPNG(pdfImage, "PDF417.png");
+            saveToSVG(BarcodeGenerator.of("PDF417").toSvg(pdfText), "PDF417.svg");
+            System.out.println("PDF417: " + pdfImage.getWidth() + "x" + pdfImage.getHeight() + "px -> images/PDF417.png");
+
+            // Aztec (ISO/IEC 24778), rendered with the same unified API.
+            String azText = "https://github.com/ronison/bars4j";
+            BufferedImage azImage = BarcodeGenerator.of("AZTEC").toImage(azText);
+            saveToPNG(azImage, "Aztec.png");
+            saveToSVG(BarcodeGenerator.of("AZTEC").toSvg(azText), "Aztec.svg");
+            System.out.println("AZTEC: " + azImage.getWidth() + "x" + azImage.getHeight() + "px -> images/Aztec.png");
         } catch (Exception e) {
             e.printStackTrace();
         }

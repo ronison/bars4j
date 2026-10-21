@@ -196,3 +196,9 @@ mvn exec:java -Dexec.mainClass=org.bars4j.demo.SwingDemo
 
 ### Data Matrix (2D)
 <img src="images/DataMatrix.svg" height="150" />
+
+### PDF417 (2D)
+<img src="images/PDF417.svg" height="100" />
+
+### Aztec (2D)
+<img src="images/Aztec.svg" height="150" />
