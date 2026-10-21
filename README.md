@@ -1,7 +1,7 @@
 # Bars4J - A simple, fast and effective way to include barcodes in java applications.
 This project aims to create a java library (framework) for barcode creation. It is a revival of an old project I had at SourceForge, called JBarcode and now it has been renamed to Bars4J. The main features are support for a wide variety of standards, simplicity of including barcodes in Java applications and high performance with low memory consumption.
 
-Barcodes Supported: EAN13, EAN8, UPCA, UPCE, Codabar, Code 11, Code 128, Code 39, Code 39 Extended, Code 93, Code 93 Extended, Standard 2of5, Interleaved 2of5, IATA 2of5, Datalogic 2of5, Matrix 2of5, MSI Plessey, PostNet, QRCode (2D) and Data Matrix (2D).
+Barcodes Supported: EAN13, EAN8, UPCA, UPCE, Codabar, Code 11, Code 128, Code 39, Code 39 Extended, Code 93, Code 93 Extended, Standard 2of5, Interleaved 2of5, IATA 2of5, Datalogic 2of5, Matrix 2of5, MSI Plessey, PostNet, QRCode (2D), Data Matrix (2D), PDF417 (2D) and Aztec (2D).
 
 ## Simple and fast
 
@@ -59,6 +59,44 @@ encodation (ISO-8859-1 input). Like the QRCode implementation it has no runtime 
 ...
 //Creates a Data Matrix barcode
 BarcodeGenerator generator = BarcodeGenerator.of("DATAMATRIX");
+
+//Export as IMG
+BufferedImage img = generator.toImage("Bars4J");
+
+//Export as SVG
+String svg = generator.toSvg("Bars4J");
+...
+```
+
+## PDF417 (2D)
+
+PDF417 (ISO/IEC 15438) is available through the unified registry. It supports the text, byte and
+numeric compaction modes (with automatic selection), error-correction levels 0-8 and the full
+range of symbol sizes. Like the other 2D formats it has no runtime dependency.
+
+```
+...
+//Creates a PDF417 barcode
+BarcodeGenerator generator = BarcodeGenerator.of("PDF417");
+
+//Export as IMG
+BufferedImage img = generator.toImage("Bars4J");
+
+//Export as SVG
+String svg = generator.toSvg("Bars4J");
+...
+```
+
+## Aztec (2D)
+
+Aztec (ISO/IEC 24778) is available through the unified registry. It supports compact and full
+symbols, all five modes of the high-level encoder, automatic error-correction selection and
+automatic layer detection. It also has no runtime dependency.
+
+```
+...
+//Creates an Aztec barcode
+BarcodeGenerator generator = BarcodeGenerator.of("AZTEC");
 
 //Export as IMG
 BufferedImage img = generator.toImage("Bars4J");

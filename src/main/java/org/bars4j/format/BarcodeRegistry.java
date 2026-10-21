@@ -5,7 +5,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.bars4j.encode.matrix.AztecEncoder;
 import org.bars4j.encode.matrix.DataMatrixEncoder;
+import org.bars4j.encode.matrix.PDF417Encoder;
 import org.bars4j.encode.matrix.QRCodeEncoder;
 import org.bars4j.encode.matrix.qr.QrEccLevel;
 import org.bars4j.render.matrix.MatrixRenderer;
@@ -73,5 +75,15 @@ public final class BarcodeRegistry {
     static BarcodeFormat dataMatrix() {
         return new MatrixBarcodeFormat(new DataMatrixEncoder(), new MatrixRenderer(),
                 matrix("DATAMATRIX", "Data Matrix"));
+    }
+
+    static BarcodeFormat pdf417() {
+        return new MatrixBarcodeFormat(new PDF417Encoder(), new MatrixRenderer(),
+                matrix("PDF417", "PDF417"));
+    }
+
+    static BarcodeFormat aztec() {
+        return new MatrixBarcodeFormat(new AztecEncoder(), new MatrixRenderer(),
+                matrix("AZTEC", "Aztec"));
     }
 }

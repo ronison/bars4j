@@ -86,6 +86,8 @@ final class BuiltinFormats {
 
         registry.register(BarcodeRegistry.qrCode());
         registry.register(BarcodeRegistry.dataMatrix());
+        registry.register(BarcodeRegistry.pdf417());
+        registry.register(BarcodeRegistry.aztec());
     }
 
     private static LinearBarcodeFormat linear(String id, String name,

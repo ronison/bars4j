@@ -30,7 +30,9 @@ public final class SampleContent {
             Map.entry("INTERLEAVED2OF5", "9876543210921"),
             Map.entry("POSTNET", "805365961"),
             Map.entry("QRCODE", "https://github.com/ronison/bars4j"),
-            Map.entry("DATAMATRIX", "https://github.com/ronison/bars4j"));
+            Map.entry("DATAMATRIX", "https://github.com/ronison/bars4j"),
+            Map.entry("PDF417", "https://github.com/ronison/bars4j"),
+            Map.entry("AZTEC", "https://github.com/ronison/bars4j"));
 
     private SampleContent() {
     }
