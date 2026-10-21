@@ -4,7 +4,7 @@
 
   <groupId>org.bars4j</groupId>
   <artifactId>bars4j</artifactId>
-  <version>0.4.1</version>
+  <version>0.5.0</version>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
