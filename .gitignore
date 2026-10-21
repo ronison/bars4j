@@ -9,3 +9,6 @@ target/
 # Demo-generated raster images (SVG samples are tracked).
 images/*.png
 images/*.jpg
+
+# Demo-only SVG not used by the README gallery.
+images/EAN13-from-new-api.svg
