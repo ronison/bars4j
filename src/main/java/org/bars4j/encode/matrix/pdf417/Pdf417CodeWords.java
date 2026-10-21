@@ -1,10 +1,11 @@
 package org.bars4j.encode.matrix.pdf417;
 
 /**
- * The 17-module bar patterns used for the three PDF417 row clusters.
+ * The 17-module symbol characters of the three PDF417 row clusters.
  *
- * <p>Each cluster holds one pattern for every codeword value (0-928). The patterns are
- * the reference data published in Annex A of ISO/IEC 15438 and are purely factual.
+ * <p>A row cluster is selected by the row number modulo three, and each cluster assigns a distinct
+ * 17-module bar pattern to every codeword value (0-928). These patterns are the factual reference
+ * data given in Annex A of ISO/IEC 15438.
  */
 public final class Pdf417CodeWords {
 
@@ -17,8 +18,8 @@ public final class Pdf417CodeWords {
     /** Number of row clusters. */
     public static final int CLUSTER_COUNT = 3;
 
-    /** [cluster][codeword] -> 17-bit module pattern. */
-    private static final int[][] PATTERNS = {
+    /** [cluster][codeword] -> 17-bit symbol character. */
+    private static final int[][] SYMBOL_CHARACTERS = {
         {
             0x1d5c0, 0x1eaf0, 0x1f57c, 0x1d4e0, 0x1ea78, 0x1f53e, 0x1a8c0, 0x1d470, 
             0x1a860, 0x15040, 0x1a830, 0x15020, 0x1adc0, 0x1d6f0, 0x1eb7c, 0x1ace0, 
@@ -379,13 +380,13 @@ public final class Pdf417CodeWords {
     };
 
     /**
-     * Returns the 17-bit pattern for a codeword in a given row cluster.
+     * Returns the 17-bit symbol character for a codeword in a given row cluster.
      *
      * @param cluster  row cluster (0-2), normally {@code row % 3}
      * @param codeword codeword value (0-928)
      * @return the pattern whose most significant bit is the first (leftmost) module
      */
     public static int pattern(int cluster, int codeword) {
-        return PATTERNS[cluster][codeword];
+        return SYMBOL_CHARACTERS[cluster][codeword];
     }
 }

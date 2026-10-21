@@ -1,60 +1,66 @@
 package org.bars4j.encode.matrix.pdf417;
 
 /**
- * The low-level module grid of a PDF417 symbol, built row by row.
+ * Module grid of a PDF417 symbol, assembled row by row from the top down.
  *
- * <p>Rows are stored top-to-bottom (row 0 is the top row). Every row is allocated with room for the
- * start pattern, the two row indicators, the data codewords and the stop pattern; in compact mode
- * the unused trailing modules stay light.
+ * <p>Every row is allocated wide enough for the start pattern, the two row indicators, all data
+ * codewords and the stop pattern. In compact mode the modules past the shortened stop sequence stay
+ * light, so the allocation is never exceeded.
  */
 public final class Pdf417BarcodeMatrix {
 
+    /** Modules in a single symbol character (codeword or row indicator). */
+    private static final int SYMBOL_CHARACTER_MODULES = 17;
+    /** Modules in the stop pattern of a full-width row. */
+    private static final int STOP_MODULES = 18;
+
     private final Pdf417BarcodeRow[] rows;
-    private final int widthInModules;
-    private int currentRow = -1;
+    private final int modulesPerRow;
+    private int nextRow = -1;
 
     /**
-     * @param height number of rows (PDF417 symbol rows, not modules)
-     * @param cols   number of codewords per row (data region width)
+     * @param height number of symbol rows
+     * @param cols   number of data codewords per row
      */
     Pdf417BarcodeMatrix(int height, int cols) {
         this.rows = new Pdf417BarcodeRow[height];
-        this.widthInModules = (cols + 4) * 17 + 1;
+        // start pattern + two indicators + data columns + stop pattern
+        this.modulesPerRow = SYMBOL_CHARACTER_MODULES * (cols + 3) + STOP_MODULES;
         for (int i = 0; i < height; i++) {
-            rows[i] = new Pdf417BarcodeRow(widthInModules);
+            rows[i] = new Pdf417BarcodeRow(modulesPerRow);
         }
     }
 
-    /** Advances to the next row to be filled. */
+    /** Moves on to the next row to be filled. */
     void startRow() {
-        currentRow++;
+        nextRow++;
     }
 
     /** Returns the row currently being filled. */
     Pdf417BarcodeRow currentRow() {
-        return rows[currentRow];
+        return rows[nextRow];
     }
 
-    /** Number of modules in each row. */
+    /** Number of modules in every row. */
     int widthInModules() {
-        return widthInModules;
+        return modulesPerRow;
     }
 
-    /** Number of rows. */
+    /** Number of symbol rows. */
     int height() {
         return rows.length;
     }
 
     /**
-     * Returns the module grid as a dense dark/light array, row 0 being the top row.
+     * Returns the grid as a dense dark/light array, row 0 being the top row.
      *
      * @return {@code [row][column]}, {@code true} meaning dark
      */
     public boolean[][] toModules() {
-        boolean[][] result = new boolean[rows.length][];
+        boolean[][] grid = new boolean[rows.length][];
         for (int i = 0; i < rows.length; i++) {
-            result[i] = rows[i].toModules();
+            grid[i] = rows[i].toModules();
         }
-        return result;
+        return grid;
     }
 }

@@ -1,27 +1,27 @@
 package org.bars4j.encode.matrix.pdf417;
 
 /**
- * A single PDF417 row under construction: a run of modules that grows from left to right as
- * codeword patterns are appended.
+ * One PDF417 row while it is being assembled: a left-to-right sequence of modules that grows as
+ * patterns are appended.
  */
 final class Pdf417BarcodeRow {
 
     private final boolean[] modules;
-    private int position;
+    private int length;
 
     /**
-     * Creates an empty row able to hold the given number of modules.
+     * Creates an empty row.
      *
-     * @param width maximum number of modules in the row
+     * @param width maximum number of modules the row can hold
      */
     Pdf417BarcodeRow(int width) {
         this.modules = new boolean[width];
     }
 
-    /** Appends a run of equal modules (a bar or a space). */
+    /** Appends a run of equal modules, either a bar or a space. */
     void addRun(boolean dark, int width) {
         for (int i = 0; i < width; i++) {
-            modules[position++] = dark;
+            modules[length++] = dark;
         }
     }
 

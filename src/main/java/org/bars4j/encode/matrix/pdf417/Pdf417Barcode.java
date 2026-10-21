@@ -6,28 +6,36 @@ import java.nio.charset.StandardCharsets;
 import org.bars4j.encode.api.UnsupportedTextException;
 
 /**
- * Core PDF417 encoder: turns a message into a low-level module grid.
+ * Core PDF417 encoder, turning a message into a grid of modules.
  *
- * <p>The pipeline follows ISO/IEC 15438: high-level encoding into codewords, choice of a symbol
- * shape, padding, Reed-Solomon error correction and finally the low-level bar patterns. The class
- * is independent of any rendering or external library.
+ * <p>The path through the encoder is the one described by ISO/IEC 15438: high-level encoding into
+ * codewords, selection of a symbol shape, padding of the data region, Reed-Solomon check codewords
+ * and finally the low-level bar patterns. Rendering and external libraries are out of scope.
  */
 public final class Pdf417Barcode {
 
-    /** 17-module start pattern found at the beginning of every row. */
-    private static final int START_PATTERN = 0x1FEA8;
-    /** 18-module stop pattern found at the end of every non-compact row. */
-    private static final int STOP_PATTERN = 0x3FA29;
+    /** Modules in the row-start pattern, which begins every row. */
+    private static final int ROW_START_MODULES = 17;
+    /** Bar pattern beginning every row. */
+    private static final int ROW_START_PATTERN = 0x1FEA8;
 
-    /** Codeword value used to fill unused data positions. */
+    /** Modules in the row-stop pattern at the end of a full-width row. */
+    private static final int ROW_STOP_MODULES = 18;
+    /** Bar pattern ending every full-width row. */
+    private static final int ROW_STOP_PATTERN = 0x3FA29;
+
+    /** Codeword filling unused positions at the right of the data region. */
     private static final int PAD_CODEWORD = 900;
 
-    /** Preferred width-to-height ratio used when choosing the symbol shape. */
-    private static final float PREFERRED_RATIO = 3.0f;
-    /** Assumed width of one module, in millimetres. */
-    private static final float MODULE_WIDTH = 0.357f;
-    /** Assumed height of one row, in millimetres. */
-    private static final float ROW_HEIGHT = 2.0f;
+    /** Width-to-height ratio a symbol shape is chosen to approximate. */
+    private static final float TARGET_ASPECT = 3.0f;
+    /** Assumed module width, in millimetres, used by the aspect estimate. */
+    private static final float MODULE_MM = 0.357f;
+    /** Assumed row height, in millimetres, used by the aspect estimate. */
+    private static final float ROW_MM = 2.0f;
+
+    /** Upper bound on the total number of codewords a PDF417 symbol can hold. */
+    private static final int MAX_CODEWORDS = 929;
 
     private final Pdf417Compaction compaction;
     private final Charset charset;
@@ -49,9 +57,9 @@ public final class Pdf417Barcode {
     }
 
     /**
-     * Encodes a message into a low-level module grid.
+     * Encodes a message into a grid of modules.
      *
-     * @param msg                the message
+     * @param msg                  the message
      * @param errorCorrectionLevel error correction level, 0-8
      * @return the module grid, row 0 being the top row
      * @throws UnsupportedTextException if the message is empty, contains characters that the
@@ -59,152 +67,155 @@ public final class Pdf417Barcode {
      */
     public Pdf417BarcodeMatrix generateBarcodeLogic(String msg, int errorCorrectionLevel)
             throws UnsupportedTextException {
-        int ecCount = Pdf417ErrorCorrection.codewordCount(errorCorrectionLevel);
+        int checkCount = Pdf417ErrorCorrection.codewordCount(errorCorrectionLevel);
         String highLevel = Pdf417HighLevelEncoder.encodeHighLevel(msg, compaction, charset);
-        int sourceCodeWords = highLevel.length();
+        int dataCount = highLevel.length();
 
-        int[] shape = determineDimensions(sourceCodeWords, ecCount);
+        int[] shape = chooseShape(dataCount, checkCount);
         int cols = shape[0];
         int rows = shape[1];
 
-        int pad = getNumberOfPadCodewords(sourceCodeWords, ecCount, cols, rows);
-
-        if (sourceCodeWords + ecCount + 1 > 929) {
+        if (dataCount + checkCount + 1 > MAX_CODEWORDS) {
             throw new UnsupportedTextException("Encoded message contains too many codewords ("
                     + msg.length() + " characters)");
         }
 
-        int n = sourceCodeWords + pad + 1;
-        int[] dataCodewords = new int[n];
-        dataCodewords[0] = n;
-        for (int i = 0; i < sourceCodeWords; i++) {
-            dataCodewords[1 + i] = highLevel.charAt(i);
+        int pad = padCount(dataCount, checkCount, cols, rows);
+        int[] data = new int[dataCount + pad + 1];
+        data[0] = data.length;
+        for (int i = 0; i < dataCount; i++) {
+            data[1 + i] = highLevel.charAt(i);
         }
         for (int i = 0; i < pad; i++) {
-            dataCodewords[1 + sourceCodeWords + i] = PAD_CODEWORD;
+            data[1 + dataCount + i] = PAD_CODEWORD;
         }
 
-        int[] errorCorrection = Pdf417ErrorCorrection.generate(dataCodewords, errorCorrectionLevel);
-
-        int[] fullCodewords = new int[dataCodewords.length + errorCorrection.length];
-        System.arraycopy(dataCodewords, 0, fullCodewords, 0, dataCodewords.length);
-        System.arraycopy(errorCorrection, 0, fullCodewords, dataCodewords.length, errorCorrection.length);
+        int[] check = Pdf417ErrorCorrection.generate(data, errorCorrectionLevel);
+        int[] allCodewords = new int[data.length + check.length];
+        System.arraycopy(data, 0, allCodewords, 0, data.length);
+        System.arraycopy(check, 0, allCodewords, data.length, check.length);
 
         Pdf417BarcodeMatrix matrix = new Pdf417BarcodeMatrix(rows, cols);
-        encodeLowLevel(fullCodewords, cols, rows, errorCorrectionLevel, matrix);
+        paintRows(allCodewords, cols, rows, errorCorrectionLevel, matrix);
         return matrix;
     }
 
-    /**
-     * Number of rows needed for the given counts, as described in Annex Q of ISO/IEC 15438.
-     */
-    private static int calculateNumberOfRows(int sourceCodeWords, int ecCount, int cols) {
-        int rows = (sourceCodeWords + 1 + ecCount) / cols + 1;
-        if (cols * rows >= sourceCodeWords + 1 + ecCount + cols) {
+    /** Rows needed to hold the data and check codewords in the given number of columns. */
+    private static int rowsFor(int dataCount, int checkCount, int cols) {
+        int rows = (dataCount + 1 + checkCount) / cols + 1;
+        if (cols * rows >= dataCount + 1 + checkCount + cols) {
             rows--;
         }
         return rows;
     }
 
-    /** Number of pad codewords as described in 4.9.2 of ISO/IEC 15438. */
-    private static int getNumberOfPadCodewords(int sourceCodeWords, int ecCount, int cols, int rows) {
-        int n = cols * rows - ecCount;
-        return n > sourceCodeWords + 1 ? n - sourceCodeWords - 1 : 0;
+    /** Number of pad codewords needed to fill the data region exactly. */
+    private static int padCount(int dataCount, int checkCount, int cols, int rows) {
+        int fill = cols * rows - checkCount;
+        return fill > dataCount + 1 ? fill - dataCount - 1 : 0;
     }
 
     /**
-     * Chooses the column/row shape whose width-to-height ratio is closest to the preferred ratio.
+     * Picks the allowed shape whose estimated aspect ratio is closest to the target ratio.
      */
-    private int[] determineDimensions(int sourceCodeWords, int ecCount) throws UnsupportedTextException {
-        float ratio = 0.0f;
-        int[] shape = null;
+    private int[] chooseShape(int dataCount, int checkCount) throws UnsupportedTextException {
+        int[] best = null;
+        float bestAspect = 0.0f;
         for (int cols = dimensions.minCols(); cols <= dimensions.maxCols(); cols++) {
-            int rows = calculateNumberOfRows(sourceCodeWords, ecCount, cols);
+            int rows = rowsFor(dataCount, checkCount, cols);
             if (rows < dimensions.minRows()) {
                 break;
             }
             if (rows > dimensions.maxRows()) {
                 continue;
             }
-            float newRatio = ((float) (17 * cols + 69) * MODULE_WIDTH) / (rows * ROW_HEIGHT);
-            if (shape != null && Math.abs(newRatio - PREFERRED_RATIO) > Math.abs(ratio - PREFERRED_RATIO)) {
+            // Full-width rows hold one 17-module symbol character per data column plus the
+            // start pattern, the two indicators and the 18-module stop (17 * cols + 69).
+            int rowModules = ROW_START_MODULES * (cols + 4) + 1;
+            float aspect = ((float) rowModules * MODULE_MM) / (rows * ROW_MM);
+            if (best != null && Math.abs(aspect - TARGET_ASPECT) > Math.abs(bestAspect - TARGET_ASPECT)) {
                 continue;
             }
-            ratio = newRatio;
-            shape = new int[] {cols, rows};
+            bestAspect = aspect;
+            best = new int[] {cols, rows};
         }
-        if (shape == null) {
-            int rows = calculateNumberOfRows(sourceCodeWords, ecCount, dimensions.minCols());
+        if (best == null) {
+            int rows = rowsFor(dataCount, checkCount, dimensions.minCols());
             if (rows < dimensions.minRows()) {
-                shape = new int[] {dimensions.minCols(), dimensions.minRows()};
+                best = new int[] {dimensions.minCols(), dimensions.minRows()};
             }
         }
-        if (shape == null) {
+        if (best == null) {
             throw new UnsupportedTextException("Unable to fit message in columns");
         }
-        return shape;
+        return best;
     }
 
     /**
-     * Appends a bar pattern to a row, alternating runs of dark and light modules.
+     * Appends a bar pattern to a row as alternating runs of dark and light modules.
      *
      * @param pattern the pattern, most significant bit first
-     * @param len     number of significant bits in the pattern
+     * @param length  number of significant bits in the pattern
      * @param row     the row being filled
      */
-    private static void encodeChar(int pattern, int len, Pdf417BarcodeRow row) {
-        int map = 1 << (len - 1);
-        boolean last = (pattern & map) != 0;
-        int width = 0;
-        for (int i = 0; i < len; i++) {
-            boolean dark = (pattern & map) != 0;
-            if (last == dark) {
-                width++;
+    private static void appendPattern(int pattern, int length, Pdf417BarcodeRow row) {
+        int bit = 1 << (length - 1);
+        boolean previousDark = (pattern & bit) != 0;
+        int run = 0;
+        for (int i = 0; i < length; i++) {
+            boolean dark = (pattern & bit) != 0;
+            if (dark == previousDark) {
+                run++;
             } else {
-                row.addRun(last, width);
-                last = dark;
-                width = 1;
+                row.addRun(previousDark, run);
+                previousDark = dark;
+                run = 1;
             }
-            map >>= 1;
+            bit >>= 1;
         }
-        row.addRun(last, width);
+        row.addRun(previousDark, run);
     }
 
-    /** Builds every row of the symbol: start pattern, row indicators, data codewords and stop. */
-    private void encodeLowLevel(int[] fullCodewords, int cols, int rows, int ecLevel,
-                                Pdf417BarcodeMatrix matrix) {
-        int idx = 0;
-        for (int y = 0; y < rows; y++) {
-            int cluster = y % 3;
+    /** Fills every row: start pattern, row indicators, data codewords and the stop pattern. */
+    private void paintRows(int[] codewords, int cols, int rows, int ecLevel,
+                           Pdf417BarcodeMatrix matrix) {
+        int index = 0;
+        for (int rowIndex = 0; rowIndex < rows; rowIndex++) {
+            int cluster = rowIndex % 3;
             matrix.startRow();
             Pdf417BarcodeRow row = matrix.currentRow();
-            encodeChar(START_PATTERN, 17, row);
+            appendPattern(ROW_START_PATTERN, ROW_START_MODULES, row);
 
-            int left;
-            int right;
-            if (cluster == 0) {
-                left = (30 * (y / 3)) + ((rows - 1) / 3);
-                right = (30 * (y / 3)) + (cols - 1);
-            } else if (cluster == 1) {
-                left = (30 * (y / 3)) + (ecLevel * 3) + ((rows - 1) % 3);
-                right = (30 * (y / 3)) + ((rows - 1) / 3);
-            } else {
-                left = (30 * (y / 3)) + (cols - 1);
-                right = (30 * (y / 3)) + (ecLevel * 3) + ((rows - 1) % 3);
+            int leftIndicator;
+            int rightIndicator;
+            int block = 30 * (rowIndex / 3);
+            switch (cluster) {
+                case 0:
+                    leftIndicator = block + (rows - 1) / 3;
+                    rightIndicator = block + (cols - 1);
+                    break;
+                case 1:
+                    leftIndicator = block + ecLevel * 3 + (rows - 1) % 3;
+                    rightIndicator = block + (rows - 1) / 3;
+                    break;
+                default:
+                    leftIndicator = block + (cols - 1);
+                    rightIndicator = block + ecLevel * 3 + (rows - 1) % 3;
+                    break;
             }
 
-            encodeChar(Pdf417CodeWords.pattern(cluster, left), 17, row);
+            appendPattern(Pdf417CodeWords.pattern(cluster, leftIndicator), ROW_START_MODULES, row);
 
-            for (int x = 0; x < cols; x++) {
-                encodeChar(Pdf417CodeWords.pattern(cluster, fullCodewords[idx]), 17, row);
-                idx++;
+            for (int col = 0; col < cols; col++) {
+                appendPattern(Pdf417CodeWords.pattern(cluster, codewords[index]), ROW_START_MODULES, row);
+                index++;
             }
 
             if (compact) {
-                encodeChar(STOP_PATTERN, 1, row);
+                appendPattern(ROW_STOP_PATTERN, 1, row);
             } else {
-                encodeChar(Pdf417CodeWords.pattern(cluster, right), 17, row);
-                encodeChar(STOP_PATTERN, 18, row);
+                appendPattern(Pdf417CodeWords.pattern(cluster, rightIndicator), ROW_START_MODULES, row);
+                appendPattern(ROW_STOP_PATTERN, ROW_STOP_MODULES, row);
             }
         }
     }
