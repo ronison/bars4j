@@ -5,8 +5,12 @@ import java.util.Arrays;
 import org.bars4j.encode.matrix.gf256.ReedSolomon;
 
 /**
- * Splits data codewords into error-correction blocks, computes their ECC and interleaves
- * everything into the final codeword sequence.
+ * Distributes the data codewords over the error-correction blocks of a symbol, computes each
+ * block's Reed-Solomon parity and returns the interleaved final codeword sequence.
+ *
+ * <p>ISO/IEC 18004 interleaves by taking the first codeword of every block, then the second of
+ * every block, and so on; blocks with fewer data codewords are simply skipped once exhausted.
+ * The parity codewords are interleaved the same way afterwards.
  */
 public final class QrDataBlocks {
 
@@ -14,43 +18,47 @@ public final class QrDataBlocks {
     }
 
     public static int[] interleave(int[] dataCodewords, QrVersion.EcBlocks ecBlocks) {
-        int numBlocks = ecBlocks.numBlocks();
-        int ecPerBlock = ecBlocks.ecCodewordsPerBlock();
+        int parityLength = ecBlocks.ecCodewordsPerBlock();
+        int[][] blocks = splitIntoBlocks(dataCodewords, ecBlocks);
 
-        int[][] data = new int[numBlocks][];
-        int[][] ecc = new int[numBlocks][];
-
-        int offset = 0;
-        int blockIndex = 0;
-        for (QrVersion.EcBlock group : ecBlocks.blocks()) {
-            for (int b = 0; b < group.count(); b++) {
-                int length = group.dataCodewords();
-                data[blockIndex] = Arrays.copyOfRange(dataCodewords, offset, offset + length);
-                offset += length;
-                ecc[blockIndex] = ReedSolomon.encode(data[blockIndex], ecPerBlock);
-                blockIndex++;
-            }
+        int[][] parity = new int[blocks.length][];
+        for (int b = 0; b < blocks.length; b++) {
+            parity[b] = ReedSolomon.encode(blocks[b], parityLength);
         }
 
-        int maxDataLength = 0;
-        for (int[] block : data) {
-            maxDataLength = Math.max(maxDataLength, block.length);
-        }
+        int[] sequence = new int[dataCodewords.length + blocks.length * parityLength];
+        int written = 0;
 
-        int[] result = new int[dataCodewords.length + numBlocks * ecPerBlock];
-        int index = 0;
-        for (int i = 0; i < maxDataLength; i++) {
-            for (int b = 0; b < numBlocks; b++) {
-                if (i < data[b].length) {
-                    result[index++] = data[b][i];
+        int longest = 0;
+        for (int[] block : blocks) {
+            longest = Math.max(longest, block.length);
+        }
+        for (int position = 0; position < longest; position++) {
+            for (int[] block : blocks) {
+                if (position < block.length) {
+                    sequence[written++] = block[position];
                 }
             }
         }
-        for (int i = 0; i < ecPerBlock; i++) {
-            for (int b = 0; b < numBlocks; b++) {
-                result[index++] = ecc[b][i];
+        for (int position = 0; position < parityLength; position++) {
+            for (int b = 0; b < parity.length; b++) {
+                sequence[written++] = parity[b][position];
             }
         }
-        return result;
+        return sequence;
+    }
+
+    /** Copies consecutive slices of {@code dataCodewords} into one array per block. */
+    private static int[][] splitIntoBlocks(int[] dataCodewords, QrVersion.EcBlocks ecBlocks) {
+        int[][] blocks = new int[ecBlocks.numBlocks()][];
+        int start = 0;
+        int b = 0;
+        for (QrVersion.EcBlock group : ecBlocks.blocks()) {
+            for (int n = 0; n < group.count(); n++) {
+                blocks[b++] = Arrays.copyOfRange(dataCodewords, start, start + group.dataCodewords());
+                start += group.dataCodewords();
+            }
+        }
+        return blocks;
     }
 }
