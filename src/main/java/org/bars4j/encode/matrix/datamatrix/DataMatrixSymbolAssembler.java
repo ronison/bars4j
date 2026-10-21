@@ -1,53 +1,67 @@
 package org.bars4j.encode.matrix.datamatrix;
 
 /**
- * Assembles the final Data Matrix symbol by surrounding each data region with its finder pattern.
+ * Draws the complete ECC200 symbol by framing every data region with its finder pattern.
  *
- * <p>Per the ECC200 standard each data region is framed by a solid dark "L" on the left and bottom
- * edges and an alternating light/dark pattern on the top and right edges.
+ * <p>An ECC200 symbol is tiled from data regions. Each region is bounded by a solid dark "L" along
+ * its left and bottom sides and by an alternating light/dark border along its top and right sides.
+ * The assembler visits the regions in row-major order, paints those borders and copies the placed
+ * data modules into the interior.
  */
 public final class DataMatrixSymbolAssembler {
 
     private DataMatrixSymbolAssembler() {
     }
 
+    /**
+     * Produces the module grid of the finished symbol.
+     *
+     * @param placement  the placed data regions
+     * @param symbolInfo the symbol geometry
+     * @return {@code symbolHeight()} rows of {@code symbolWidth()} modules, {@code true} for dark
+     */
     public static boolean[][] assemble(DataMatrixPlacement placement, DataMatrixSymbolInfo symbolInfo) {
-        int dataWidth = symbolInfo.symbolDataWidth();
-        int dataHeight = symbolInfo.symbolDataHeight();
-        int matrixWidth = symbolInfo.matrixWidth();
-        int matrixHeight = symbolInfo.matrixHeight();
-        int symbolWidth = symbolInfo.symbolWidth();
+        int regionRows = symbolInfo.matrixHeight();
+        int regionColumns = symbolInfo.matrixWidth();
+        int regionsDown = symbolInfo.symbolDataHeight() / regionRows;
+        int regionsAcross = symbolInfo.symbolDataWidth() / regionColumns;
 
-        boolean[][] matrix = new boolean[symbolInfo.symbolHeight()][symbolWidth];
-        int matrixY = 0;
+        boolean[][] symbol = new boolean[symbolInfo.symbolHeight()][symbolInfo.symbolWidth()];
 
-        for (int y = 0; y < dataHeight; y++) {
-            if (y % matrixHeight == 0) {
-                // Top edge of each data region: alternating modules, starting dark.
-                for (int x = 0; x < symbolWidth; x++) {
-                    matrix[matrixY][x] = (x % 2) == 0;
-                }
-                matrixY++;
-            }
-            int matrixX = 0;
-            for (int x = 0; x < dataWidth; x++) {
-                if (x % matrixWidth == 0) {
-                    matrix[matrixY][matrixX++] = true; // left edge: solid dark
-                }
-                matrix[matrixY][matrixX++] = placement.getBit(x, y);
-                if (x % matrixWidth == matrixWidth - 1) {
-                    matrix[matrixY][matrixX++] = (y % 2) == 0; // right edge: alternating
-                }
-            }
-            matrixY++;
-            if (y % matrixHeight == matrixHeight - 1) {
-                // Bottom edge of each data region: solid dark.
-                for (int x = 0; x < symbolWidth; x++) {
-                    matrix[matrixY][x] = true;
-                }
-                matrixY++;
+        for (int tileRow = 0; tileRow < regionsDown; tileRow++) {
+            for (int tileColumn = 0; tileColumn < regionsAcross; tileColumn++) {
+                drawRegion(symbol, placement, tileRow, tileColumn, regionRows, regionColumns);
             }
         }
-        return matrix;
+        return symbol;
+    }
+
+    private static void drawRegion(boolean[][] symbol, DataMatrixPlacement placement,
+                                   int tileRow, int tileColumn, int regionRows, int regionColumns) {
+        int originRow = tileRow * (regionRows + 2);
+        int originColumn = tileColumn * (regionColumns + 2);
+        int span = regionColumns + 2;
+
+        // Top border: alternating modules, dark at even offsets.
+        for (int offset = 0; offset < span; offset++) {
+            symbol[originRow][originColumn + offset] = (offset % 2) == 0;
+        }
+
+        for (int localRow = 0; localRow < regionRows; localRow++) {
+            int dataRow = tileRow * regionRows + localRow;
+            int symbolRow = originRow + 1 + localRow;
+
+            symbol[symbolRow][originColumn] = true; // left border: solid dark
+            for (int localColumn = 0; localColumn < regionColumns; localColumn++) {
+                int dataColumn = tileColumn * regionColumns + localColumn;
+                symbol[symbolRow][originColumn + 1 + localColumn] = placement.getBit(dataColumn, dataRow);
+            }
+            symbol[symbolRow][originColumn + span - 1] = (dataRow % 2) == 0; // right border
+        }
+
+        // Bottom border: solid dark.
+        for (int offset = 0; offset < span; offset++) {
+            symbol[originRow + regionRows + 1][originColumn + offset] = true;
+        }
     }
 }
