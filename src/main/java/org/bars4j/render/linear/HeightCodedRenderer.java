@@ -1,6 +1,5 @@
 package org.bars4j.render.linear;
 
-import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
@@ -24,17 +23,16 @@ public final class HeightCodedRenderer implements LinearRenderer {
 
         BufferedImage result = new BufferedImage(width, barHeight, BufferedImage.TYPE_INT_RGB);
         Graphics2D g2d = result.createGraphics();
-        g2d.setBackground(Color.WHITE);
-        g2d.setColor(Color.WHITE);
+        g2d.setColor(spec.background());
+        g2d.fillRect(0, 0, width, barHeight);
+        g2d.setColor(spec.foreground());
         int x = 0;
         for (boolean bit : bits) {
-            if (!bit) {
-                g2d.fillRect(x, 0, barWidth, barHeight / 2);
-            }
-            x += barWidth;
-            g2d.fillRect(x, 0, barWidth, barHeight);
-            x += barWidth;
+            int barUnit = bit ? barHeight : barHeight / 2;
+            g2d.fillRect(x, barHeight - barUnit, barWidth, barUnit);
+            x += 2 * barWidth;
         }
+        g2d.dispose();
         return result;
     }
 

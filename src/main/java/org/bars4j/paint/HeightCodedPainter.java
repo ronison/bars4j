@@ -57,17 +57,15 @@ public class HeightCodedPainter implements BarcodePainter {
         BufferedImage result = new BufferedImage(width, barHeight, BufferedImage.TYPE_INT_RGB);
         Graphics2D g2d = result.createGraphics();
         
-        g2d.setBackground(Color.WHITE);
         g2d.setColor(Color.WHITE);
+        g2d.fillRect(0, 0, width, barHeight);
+        g2d.setColor(Color.BLACK);
         int x = 0;
         for (int i = 0; i < barcode.length; i++) {
             for (int j = 0; j < barcode[i].length(); j++) {
-                if(!barcode[i].get(j)){
-                    g2d.fillRect(x, 0, barWidth, barHeight/2);
-                }                
-                x += barWidth;
-                g2d.fillRect(x,0, barWidth, barHeight);
-                x += barWidth;
+                int barUnit = barcode[i].get(j) ? barHeight : barHeight/2;
+                g2d.fillRect(x, barHeight - barUnit, barWidth, barUnit);
+                x += 2 * barWidth;
             }
         }        
         return result;
