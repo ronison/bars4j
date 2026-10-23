@@ -11,10 +11,10 @@ Image Format:
 ```
 ...
 //Creates a EAN13 barcode
-Barcode b4j = BarcodeFactory.getInstance().createEAN13();
-String code = "079357367940";
+BarcodeGenerator generator = BarcodeGenerator.of("EAN13");
+
 //Export as IMG
-BufferedImage img = b4j.createBarcode(code);
+BufferedImage img = generator.toImage("079357367940");
 ...
 ```
 
@@ -22,10 +22,10 @@ SVG Format:
 ```
 ...
 //Creates a Code128 barcode
-Barcode b4j = BarcodeFactory.getInstance().createCode128();
-String code = "Bars4J Code 128";
+BarcodeGenerator generator = BarcodeGenerator.of("CODE128");
+
 //Export as SVG
-StringBuffer svg = b4j.createBarcodeSVG(code);
+String svg = generator.toSvg("Bars4J Code 128");
 ...
 ```
 
