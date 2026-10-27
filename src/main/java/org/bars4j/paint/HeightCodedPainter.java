@@ -60,7 +60,7 @@ public class HeightCodedPainter implements BarcodePainter {
         g2d.setColor(Color.WHITE);
         g2d.fillRect(0, 0, width, barHeight);
         g2d.setColor(Color.BLACK);
-        int x = 0;
+        int x = 10 * barWidth; //10 x Xdimension is leading quiet zone
         for (int i = 0; i < barcode.length; i++) {
             for (int j = 0; j < barcode[i].length(); j++) {
                 int barUnit = barcode[i].get(j) ? barHeight : barHeight/2;
@@ -76,7 +76,7 @@ public class HeightCodedPainter implements BarcodePainter {
 StringBuffer res = new StringBuffer();
 		
 		int totalWidth = calcTotalWidth(barcode, barWidth, barHeight, wideRatio);
-		int pos = 2;
+		int pos = 10 * barWidth;
 		
 		res.append("<path fill=\"#fff\" d=\"M0 0h");
 		res.append(totalWidth);
@@ -125,7 +125,7 @@ StringBuffer res = new StringBuffer();
         for (int i = 0; i < barcode.length; i++) {
             width += barcode[i].length();
         }
-        return (width*barWidth*2) - barWidth+(4*barWidth);
+        return (width*barWidth*2) - barWidth+(20*barWidth);
 	}
 
 }
