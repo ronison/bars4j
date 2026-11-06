@@ -18,6 +18,11 @@ public final class Interleaved2of5Encoder implements LinearEncoder {
         if (text.length() < 1) {
             throw new InvalidSymbolException("[Interleaved2of5] Invalid text length (" + text.length() + ").");
         }
+        for (int i = 0; i < text.length(); i++) {
+            if (!Character.isDigit(text.charAt(i))) {
+                throw new InvalidSymbolException("[Interleaved2of5] Only numbers suported.");
+            }
+        }
         StringBuilder bits = new StringBuilder();
         try {
             bits.append(START_CHAR);
@@ -38,6 +43,10 @@ public final class Interleaved2of5Encoder implements LinearEncoder {
 
     @Override
     public String computeCheckSum(String text) throws InvalidSymbolException {
-        return ToFSupport.checkSum(text);
+        try {
+            return ToFSupport.checkSum(text);
+        } catch (NumberFormatException e) {
+            throw new InvalidSymbolException("[Interleaved2of5] Only numbers suported.");
+        }
     }
 }

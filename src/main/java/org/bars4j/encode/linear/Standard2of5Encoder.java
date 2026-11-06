@@ -44,6 +44,10 @@ public class Standard2of5Encoder implements LinearEncoder {
 
     @Override
     public String computeCheckSum(String text) throws InvalidSymbolException {
-        return ToFSupport.checkSum(text);
+        try {
+            return ToFSupport.checkSum(text);
+        } catch (NumberFormatException e) {
+            throw new InvalidSymbolException("[Standard2of5] Only numbers suported.");
+        }
     }
 }

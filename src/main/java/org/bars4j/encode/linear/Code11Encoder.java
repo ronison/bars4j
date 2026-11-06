@@ -60,7 +60,12 @@ public final class Code11Encoder implements LinearEncoder {
         return result.toString();
     }
 
-    private int getCharIndex(char val) {
-        return val == '-' ? 10 : val - '0';
+    private int getCharIndex(char val) throws InvalidSymbolException {
+        if (val >= '0' && val <= '9') {
+            return val - '0';
+        } else if (val == '-') {
+            return 10;
+        }
+        throw new InvalidSymbolException("[Code11] The text contains unsuported chars.");
     }
 }

@@ -4,9 +4,12 @@ package org.bars4j.encode.matrix.qr;
  * Renders a QRCode symbol: function patterns, codeword placement, data masking and the
  * BCH-protected format/version markers.
  *
- * <p>Modules are addressed as {@code [row][column]} and a {@code true} entry is a dark module.
- * The layout, the eight data-mask formulas, the penalty scoring and the BCH generator
- * polynomials follow ISO/IEC 18004.
+ * <p>A {@code true} entry is a dark module. The layout, the eight data-mask formulas, the penalty
+ * scoring and the BCH generator polynomials follow ISO/IEC 18004.
+ *
+ * <p>The working state is kept in flat {@code boolean[]} arrays ({@code row * size + col}) for
+ * cache locality, and the same raster buffer is reused for every candidate mask so a full symbol
+ * is only allocated twice (working buffer + winner) instead of once per mask.
  */
 public final class QrMatrixBuilder {
 
@@ -21,14 +24,14 @@ public final class QrMatrixBuilder {
     private static final int FORMAT_XOR_MASK = 0x5412;
     private static final int VERSION_GENERATOR = 0x1F25;
 
-    /** The 1:1:3:1:1 module sequence that penalty rule 3 looks for. */
-    private static final boolean[] FINDER_LIKE = {true, false, true, true, true, false, true};
+    private static final int MASK_COUNT = 8;
 
     private QrMatrixBuilder() {
     }
 
     public static boolean[][] build(QrVersion version, QrEccLevel eccLevel, int[] codewords) {
-        Board board = new Board(version.size());
+        int size = version.size();
+        Board board = new Board(size);
         stampFinders(board);
         stampTiming(board);
         stampAlignment(board, version);
@@ -37,17 +40,25 @@ public final class QrMatrixBuilder {
         reserveVersionAreas(board, version);
         placeCodewords(board, codewords);
 
-        boolean[][] best = null;
+        boolean[] work = new boolean[size * size];
+        int bestMask = 0;
         int bestScore = Integer.MAX_VALUE;
-        for (int mask = 0; mask < 8; mask++) {
-            boolean[][] candidate = masked(board, version, eccLevel, mask);
-            int score = penalty(candidate);
+        for (int mask = 0; mask < MASK_COUNT; mask++) {
+            maskedInto(work, board, version, eccLevel, mask);
+            int score = penalty(work, size);
             if (score < bestScore) {
                 bestScore = score;
-                best = candidate;
+                bestMask = mask;
             }
         }
-        return best;
+
+        boolean[] winner = new boolean[size * size];
+        maskedInto(winner, board, version, eccLevel, bestMask);
+        boolean[][] grid = new boolean[size][size];
+        for (int row = 0; row < size; row++) {
+            System.arraycopy(winner, row * size, grid[row], 0, size);
+        }
+        return grid;
     }
 
     // ----- function patterns ----------------------------------------------------------------
@@ -184,7 +195,7 @@ public final class QrMatrixBuilder {
                 int row = rowStep < 0 ? size - 1 - step : step;
                 for (int side = 0; side < 2; side++) {
                     int c = col - side;
-                    if (board.fixed[row][c]) {
+                    if (board.fixed(row, c)) {
                         continue;
                     }
                     boolean bit = false;
@@ -192,7 +203,7 @@ public final class QrMatrixBuilder {
                         bit = ((codewords[placed >> 3] >>> (7 - (placed & 7))) & 1) != 0;
                         placed++;
                     }
-                    board.dark[row][c] = bit;
+                    board.setDark(row, c, bit);
                 }
             }
             rowStep = -rowStep;
@@ -202,22 +213,25 @@ public final class QrMatrixBuilder {
 
     // ----- masking and information markers ---------------------------------------------------
 
-    /** Returns a copy with data modules masked and both information markers written. */
-    private static boolean[][] masked(Board board, QrVersion version, QrEccLevel eccLevel, int mask) {
+    /** Fills {@code out} from the board's data modules, applies {@code mask} and writes markers. */
+    private static void maskedInto(boolean[] out, Board board, QrVersion version,
+                                   QrEccLevel eccLevel, int mask) {
         int size = board.size;
-        boolean[][] grid = new boolean[size][size];
+        boolean[] dark = board.dark;
+        boolean[] fixed = board.fixed;
         for (int row = 0; row < size; row++) {
+            int base = row * size;
             for (int col = 0; col < size; col++) {
-                boolean value = board.dark[row][col];
-                if (!board.fixed[row][col] && maskFlips(mask, row, col)) {
+                int i = base + col;
+                boolean value = dark[i];
+                if (!fixed[i] && maskFlips(mask, row, col)) {
                     value = !value;
                 }
-                grid[row][col] = value;
+                out[i] = value;
             }
         }
-        writeFormatInfo(grid, eccLevel, mask);
-        writeVersionInfo(grid, version);
-        return grid;
+        writeFormatInfo(out, size, eccLevel, mask);
+        writeVersionInfo(out, size, version);
     }
 
     /** Data-mask condition: {@code true} where the module colour must be inverted. */
@@ -239,8 +253,7 @@ public final class QrMatrixBuilder {
      * Writes the 15 format bits (ECC level plus mask, BCH-protected and XOR-masked) around the
      * top-left finder and again along the top-right / bottom-left edges.
      */
-    private static void writeFormatInfo(boolean[][] grid, QrEccLevel eccLevel, int mask) {
-        int size = grid.length;
+    private static void writeFormatInfo(boolean[] grid, int size, QrEccLevel eccLevel, int mask) {
         int summary = (eccLevel.formatBits() << 3) | mask;
         int check = bchRemainder(summary, FORMAT_GENERATOR);
         int word = ((summary << 10) | check) ^ FORMAT_XOR_MASK;
@@ -248,38 +261,37 @@ public final class QrMatrixBuilder {
         int bit = 0;
         for (int row = 0; row <= 8; row++) {
             if (row != 6) {
-                grid[row][8] = bitAt(word, bit++);
+                grid[row * size + 8] = bitAt(word, bit++);
             }
         }
         for (int col = 7; col >= 0; col--) {
             if (col != 6) {
-                grid[8][col] = bitAt(word, bit++);
+                grid[8 * size + col] = bitAt(word, bit++);
             }
         }
 
         bit = 0;
         for (int i = 0; i < 8; i++) {
-            grid[8][size - 1 - i] = bitAt(word, bit++);
+            grid[8 * size + size - 1 - i] = bitAt(word, bit++);
         }
         for (int i = 0; i < 7; i++) {
-            grid[size - 7 + i][8] = bitAt(word, bit++);
+            grid[(size - 7 + i) * size + 8] = bitAt(word, bit++);
         }
     }
 
     /** Writes the 18 version bits into the two 6x3 blocks for versions 7 and above. */
-    private static void writeVersionInfo(boolean[][] grid, QrVersion version) {
+    private static void writeVersionInfo(boolean[] grid, int size, QrVersion version) {
         int number = version.versionNumber();
         if (number < 7) {
             return;
         }
-        int size = grid.length;
         int word = (number << 12) | bchRemainder(number, VERSION_GENERATOR);
         int bit = 0;
         for (int i = 0; i < 6; i++) {
             for (int j = 0; j < 3; j++) {
                 boolean value = bitAt(word, bit++);
-                grid[size - 11 + j][i] = value;
-                grid[i][size - 11 + j] = value;
+                grid[(size - 11 + j) * size + i] = value;
+                grid[i * size + size - 11 + j] = value;
             }
         }
     }
@@ -306,147 +318,142 @@ public final class QrMatrixBuilder {
 
     // ----- penalty scoring ------------------------------------------------------------------
 
-    private static int penalty(boolean[][] grid) {
-        return runPenalty(grid)
-                + blockPenalty(grid)
-                + finderLikePenalty(grid)
-                + balancePenalty(grid);
-    }
-
-    /** Penalty rule 1: runs of five or more same-colour modules in any row or column. */
-    private static int runPenalty(boolean[][] grid) {
-        int size = grid.length;
+    /**
+     * All four penalty rules in a few flat passes. The dark-module count needed by rule 4 is
+     * gathered for free during the row pass of rule 1.
+     */
+    private static int penalty(boolean[] grid, int size) {
         int total = 0;
+        int dark = 0;
+
+        // Rule 1, horizontal runs (+ dark count).
         for (int row = 0; row < size; row++) {
+            int base = row * size;
+            boolean prev = grid[base];
+            if (prev) {
+                dark++;
+            }
             int run = 1;
             for (int col = 1; col < size; col++) {
-                if (grid[row][col] == grid[row][col - 1]) {
+                boolean value = grid[base + col];
+                if (value) {
+                    dark++;
+                }
+                if (value == prev) {
                     run++;
                 } else {
                     total += runScore(run);
                     run = 1;
+                    prev = value;
                 }
             }
             total += runScore(run);
         }
+
+        // Rule 1, vertical runs.
         for (int col = 0; col < size; col++) {
+            boolean prev = grid[col];
             int run = 1;
             for (int row = 1; row < size; row++) {
-                if (grid[row][col] == grid[row - 1][col]) {
+                boolean value = grid[row * size + col];
+                if (value == prev) {
                     run++;
                 } else {
                     total += runScore(run);
                     run = 1;
+                    prev = value;
                 }
             }
             total += runScore(run);
         }
-        return total;
+
+        // Rule 2: 2x2 same-colour blocks.
+        for (int row = 0; row < size - 1; row++) {
+            int base = row * size;
+            for (int col = 0; col < size - 1; col++) {
+                int i = base + col;
+                boolean value = grid[i];
+                if (value == grid[i + 1] && value == grid[i + size] && value == grid[i + size + 1]) {
+                    total += BLOCK_WEIGHT;
+                }
+            }
+        }
+
+        // Rule 3: finder-like 1:1:3:1:1 sequences (pattern T F T T T F T).
+        for (int row = 0; row < size; row++) {
+            int base = row * size;
+            for (int col = 0; col + 7 <= size; col++) {
+                int i = base + col;
+                if (grid[i] && !grid[i + 1] && grid[i + 2] && grid[i + 3] && grid[i + 4]
+                        && !grid[i + 5] && grid[i + 6]
+                        && ((col >= 4 && light(grid, i - 4, i - 1, 1))
+                                || (col + 11 <= size && light(grid, i + 7, i + 10, 1)))) {
+                    total += FINDER_WEIGHT;
+                }
+            }
+        }
+        for (int col = 0; col < size; col++) {
+            for (int row = 0; row + 7 <= size; row++) {
+                int i = row * size + col;
+                if (grid[i] && !grid[i + size] && grid[i + 2 * size] && grid[i + 3 * size]
+                        && grid[i + 4 * size] && !grid[i + 5 * size] && grid[i + 6 * size]
+                        && ((row >= 4 && light(grid, i - 4 * size, i - size, size))
+                                || (row + 11 <= size && light(grid, i + 7 * size, i + 10 * size, size)))) {
+                    total += FINDER_WEIGHT;
+                }
+            }
+        }
+
+        // Rule 4: deviation of the dark-module proportion from 50%.
+        int modules = size * size;
+        int excess = Math.abs(dark * 2 - modules) * 10 / modules;
+        return total + excess * BALANCE_WEIGHT;
     }
 
     private static int runScore(int run) {
         return run >= 5 ? RUN_WEIGHT + (run - 5) : 0;
     }
 
-    /** Penalty rule 2: every 2x2 square of a single colour. */
-    private static int blockPenalty(boolean[][] grid) {
-        int size = grid.length;
-        int total = 0;
-        for (int row = 0; row < size - 1; row++) {
-            for (int col = 0; col < size - 1; col++) {
-                boolean value = grid[row][col];
-                if (value == grid[row][col + 1]
-                        && value == grid[row + 1][col]
-                        && value == grid[row + 1][col + 1]) {
-                    total += BLOCK_WEIGHT;
-                }
-            }
-        }
-        return total;
-    }
-
-    /** Penalty rule 3: the finder-like 1:1:3:1:1 sequence with four light modules on a side. */
-    private static int finderLikePenalty(boolean[][] grid) {
-        int size = grid.length;
-        int total = 0;
-        for (int row = 0; row < size; row++) {
-            for (int col = 0; col + FINDER_LIKE.length <= size; col++) {
-                if (isFinderLike(grid, row, col, true)) {
-                    total += FINDER_WEIGHT;
-                }
-            }
-        }
-        for (int col = 0; col < size; col++) {
-            for (int row = 0; row + FINDER_LIKE.length <= size; row++) {
-                if (isFinderLike(grid, row, col, false)) {
-                    total += FINDER_WEIGHT;
-                }
-            }
-        }
-        return total;
-    }
-
-    private static boolean isFinderLike(boolean[][] grid, int row, int col, boolean horizontal) {
-        for (int i = 0; i < FINDER_LIKE.length; i++) {
-            if (module(grid, row, col, horizontal, i) != FINDER_LIKE[i]) {
+    /** True when every module in the flat range {@code [from,to]} (step {@code stride}) is light. */
+    private static boolean light(boolean[] grid, int from, int to, int stride) {
+        for (int i = from; i <= to; i += stride) {
+            if (grid[i]) {
                 return false;
             }
         }
-        int start = horizontal ? col : row;
-        boolean lightBefore = start >= 4 && !anyDark(grid, row, col, horizontal, -4, -1);
-        boolean lightAfter = start + 11 <= grid.length && !anyDark(grid, row, col, horizontal, 7, 10);
-        return lightBefore || lightAfter;
-    }
-
-    private static boolean anyDark(boolean[][] grid, int row, int col, boolean horizontal, int from, int to) {
-        for (int offset = from; offset <= to; offset++) {
-            if (module(grid, row, col, horizontal, offset)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private static boolean module(boolean[][] grid, int row, int col, boolean horizontal, int offset) {
-        return horizontal ? grid[row][col + offset] : grid[row + offset][col];
-    }
-
-    /** Penalty rule 4: deviation of the dark-module proportion from 50%. */
-    private static int balancePenalty(boolean[][] grid) {
-        int dark = 0;
-        for (boolean[] line : grid) {
-            for (boolean value : line) {
-                if (value) {
-                    dark++;
-                }
-            }
-        }
-        int modules = grid.length * grid.length;
-        int excess = Math.abs(dark * 2 - modules) * 10 / modules;
-        return excess * BALANCE_WEIGHT;
+        return true;
     }
 
     // -----------------------------------------------------------------------------------------
 
     /** Symbol under construction: module colours plus a marker for locked (function) modules. */
     private static final class Board {
-        private final boolean[][] dark;
-        private final boolean[][] fixed;
+        private final boolean[] dark;
+        private final boolean[] fixed;
         private final int size;
 
         Board(int size) {
             this.size = size;
-            this.dark = new boolean[size][size];
-            this.fixed = new boolean[size][size];
+            this.dark = new boolean[size * size];
+            this.fixed = new boolean[size * size];
         }
 
         void fix(int row, int col, boolean value) {
-            dark[row][col] = value;
-            fixed[row][col] = true;
+            int i = row * size + col;
+            dark[i] = value;
+            fixed[i] = true;
         }
 
         void reserve(int row, int col) {
-            fixed[row][col] = true;
+            fixed[row * size + col] = true;
+        }
+
+        void setDark(int row, int col, boolean value) {
+            dark[row * size + col] = value;
+        }
+
+        boolean fixed(int row, int col) {
+            return fixed[row * size + col];
         }
     }
 }

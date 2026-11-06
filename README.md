@@ -110,6 +110,22 @@ The same `BarcodeGenerator.of("<format id>")` entry point works for every regist
 e.g. `BarcodeGenerator.of("EAN13").toSvg("789100031550")`. The list of ids is available from
 `BarcodeRegistry.getInstance().ids()`.
 
+### Check digits
+
+For the formats with an external check digit (EAN-13, EAN-8, UPC-A, UPC-E) the input may be given
+either as the payload alone or as the complete code including its check digit:
+
+* **payload only** — the check digit is computed and appended before encoding
+  (`EAN13`: 12 digits, `EAN8`: 7, `UPCA`: 11, `UPCE`: 7);
+* **complete code** — the supplied check digit is validated and kept verbatim
+  (13, 8, 12 and 8 digits respectively); a wrong check digit is rejected with an
+  `InvalidSymbolException`.
+
+The `BarcodeGenerator` facade accepts both forms. The raw encoders (`Ean13Encoder`, `Ean8Encoder`,
+`UpcaEncoder`, `UpceEncoder`) accept the complete code and validate it; `EAN13` (12) and `UPCA` (11)
+also accept the payload alone, while `EAN8`/`UPCE` raw encoders expect the complete 8-digit code
+(the facade is what appends their check digit). Each exposes `completeLength()` for the full length.
+
 ## Building and running the demos
 
 Build and run the tests:
@@ -117,6 +133,18 @@ Build and run the tests:
 ```
 mvn test
 ```
+
+Run the full verification, including the automated performance gate:
+
+```
+mvn verify
+```
+
+`mvn verify` also runs `PerformanceIT`, which measures image throughput and tail latency
+(p50/p99) for every registered format and fails the build if any format falls below a conservative
+budget. The measured numbers are printed to the build log. The gate is intentionally generous so it
+catches large regressions (e.g. losing the bulk-raster path in `MatrixRenderer`) without being flaky
+on slower CI machines; see `src/test/java/org/bars4j/PerformanceIT.java` to tune the thresholds.
 
 Run the demos (output is written to `./images`). `mvn exec:java` runs `QRCodeDemo` by default;
 pass `-Dexec.mainClass=...` to run another one:

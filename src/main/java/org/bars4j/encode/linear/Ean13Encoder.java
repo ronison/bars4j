@@ -16,16 +16,34 @@ public final class Ean13Encoder implements LinearEncoder {
     };
 
     @Override
+    public int completeLength() {
+        return 13;
+    }
+
+    @Override
     public LinearSymbol encode(String text) throws InvalidSymbolException {
         if (text.length() < 12 || text.length() > 13) {
             throw new InvalidSymbolException("[EAN13] Invalid text length (" + text.length() + ").");
         }
+        // A 12-digit input is the data part: complete it with its check digit. A 13-digit input is
+        // already complete, so its check digit is validated and the text is encoded verbatim.
+        String digits;
+        try {
+            if (text.length() == 13) {
+                EanSupport.validateCheckDigit("EAN13", text.charAt(12), EanSupport.checkSum(text.substring(0, 12)));
+                digits = text;
+            } else {
+                digits = text + computeCheckSum(text);
+            }
+        } catch (NumberFormatException e) {
+            throw new InvalidSymbolException("[EAN13] Only numbers suported.");
+        }
         StringBuilder bits = new StringBuilder();
         try {
-            int primeiro = LinearBits.digit(text.charAt(0));
+            int primeiro = LinearBits.digit(digits.charAt(0));
             bits.append(EanSupport.LEFT_GUARD);
             for (int i = 1; i <= 6; i++) {
-                int atual = LinearBits.digit(text.charAt(i));
+                int atual = LinearBits.digit(digits.charAt(i));
                 if (DIGIT_PARITY[primeiro].charAt(i - 1) == '1') {
                     bits.append(LinearBits.reverse(EanSupport.CODES[atual]));
                 } else {
@@ -34,7 +52,7 @@ public final class Ean13Encoder implements LinearEncoder {
             }
             bits.append(EanSupport.CENTER_GUARD);
             for (int i = 7; i <= 12; i++) {
-                bits.append(EanSupport.CODES[LinearBits.digit(text.charAt(i))]);
+                bits.append(EanSupport.CODES[LinearBits.digit(digits.charAt(i))]);
             }
             bits.append(EanSupport.RIGHT_GUARD);
         } catch (NumberFormatException e) {
@@ -45,6 +63,10 @@ public final class Ean13Encoder implements LinearEncoder {
 
     @Override
     public String computeCheckSum(String text) throws InvalidSymbolException {
-        return EanSupport.checkSum(text);
+        try {
+            return EanSupport.checkSum(text);
+        } catch (NumberFormatException e) {
+            throw new InvalidSymbolException("[EAN13] Only numbers suported.");
+        }
     }
 }

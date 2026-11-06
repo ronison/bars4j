@@ -46,6 +46,27 @@ public final class WideRatioCodedRenderer implements LinearRenderer {
     }
 
     @Override
+    public void renderInto(BufferedImage target, int offsetX, int offsetY, BarcodeSymbol symbol, RenderSpec spec) {
+        boolean[] bits = SymbolBits.wide((LinearSymbol) symbol);
+        int barWidth = spec.barWidth();
+        int barHeight = spec.barHeight();
+        int wideWidth = (int) Math.round(barWidth * spec.wideRatio());
+
+        Graphics2D g2d = target.createGraphics();
+        g2d.setColor(Color.BLACK);
+        int x = offsetX + 10 * barWidth; // 10 x Xdimension is leading quiet zone
+        boolean flag = true;
+        for (boolean bit : bits) {
+            int w = bit ? wideWidth : barWidth;
+            g2d.fillRect(x, offsetY, w, barHeight);
+            g2d.setColor(flag ? Color.WHITE : Color.BLACK);
+            flag = !flag;
+            x += w;
+        }
+        g2d.dispose();
+    }
+
+    @Override
     public String toSvg(BarcodeSymbol symbol, RenderSpec spec) {
         boolean[] bits = SymbolBits.wide((LinearSymbol) symbol);
         int barWidth = spec.barWidth();

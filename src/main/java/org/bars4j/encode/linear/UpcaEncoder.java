@@ -13,9 +13,23 @@ public final class UpcaEncoder implements LinearEncoder {
     private final Ean13Encoder ean13 = new Ean13Encoder();
 
     @Override
+    public int completeLength() {
+        return 12;
+    }
+
+    @Override
     public LinearSymbol encode(String text) throws InvalidSymbolException {
         if (text.length() < 11 || text.length() > 12) {
             throw new InvalidSymbolException("[UPCA] Invalid text length (" + text.length() + ").");
+        }
+        if (text.length() == 12) {
+            try {
+                // UPC-A shares the EAN-13 arithmetic with a leading zero.
+                EanSupport.validateCheckDigit("UPCA", text.charAt(11),
+                        EanSupport.checkSum("0" + text.substring(0, 11)));
+            } catch (NumberFormatException e) {
+                throw new InvalidSymbolException("[UPCA] Only numbers suported.");
+            }
         }
         try {
             return ean13.encode("0" + text);
@@ -26,6 +40,10 @@ public final class UpcaEncoder implements LinearEncoder {
 
     @Override
     public String computeCheckSum(String text) throws InvalidSymbolException {
-        return EanSupport.checkSum("0" + text);
+        try {
+            return EanSupport.checkSum("0" + text);
+        } catch (NumberFormatException e) {
+            throw new InvalidSymbolException("[UPCA] Only numbers suported.");
+        }
     }
 }

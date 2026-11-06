@@ -37,10 +37,14 @@ public final class Code39ExtEncoder extends Code39Encoder {
         return super.computeCheckSum(convertText(text));
     }
 
-    private static String convertText(String str) {
+    private static String convertText(String str) throws InvalidSymbolException {
         StringBuilder tmp = new StringBuilder();
         for (int i = 0; i < str.length(); i++) {
-            tmp.append(CODES_TABLE[str.charAt(i)]);
+            char c = str.charAt(i);
+            if (c >= CODES_TABLE.length) {
+                throw new InvalidSymbolException("[Code39] The text contains unsuported chars.");
+            }
+            tmp.append(CODES_TABLE[c]);
         }
         return tmp.toString();
     }

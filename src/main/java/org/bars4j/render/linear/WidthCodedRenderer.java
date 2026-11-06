@@ -38,6 +38,22 @@ public final class WidthCodedRenderer implements LinearRenderer {
     }
 
     @Override
+    public void renderInto(BufferedImage target, int offsetX, int offsetY, BarcodeSymbol symbol, RenderSpec spec) {
+        boolean[] bits = SymbolBits.dark((LinearSymbol) symbol);
+        int barWidth = spec.barWidth();
+        int barHeight = spec.barHeight();
+
+        Graphics2D g2d = target.createGraphics();
+        int x = offsetX + 10 * barWidth; // 10 x Xdimension is leading quiet zone
+        for (boolean bit : bits) {
+            g2d.setColor(bit ? Color.BLACK : Color.WHITE);
+            g2d.fillRect(x, offsetY, barWidth, barHeight);
+            x += barWidth;
+        }
+        g2d.dispose();
+    }
+
+    @Override
     public String toSvg(BarcodeSymbol symbol, RenderSpec spec) {
         boolean[] bits = SymbolBits.dark((LinearSymbol) symbol);
         int barWidth = spec.barWidth();

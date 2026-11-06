@@ -41,7 +41,14 @@ public final class DataMatrixEncoder implements MatrixEncoder {
     @Override
     public MatrixSymbol encode(String text) throws UnsupportedTextException {
         int[] message = DataMatrixHighLevelEncoder.encodeToCodewords(text);
-        DataMatrixSymbolInfo symbolInfo = DataMatrixSymbolInfo.lookup(message.length, shape);
+        DataMatrixSymbolInfo symbolInfo;
+        try {
+            symbolInfo = DataMatrixSymbolInfo.lookup(message.length, shape);
+        } catch (IllegalArgumentException e) {
+            // A too-large message is an input problem, not a configuration error: surface it as a
+            // checked UnsupportedTextException like the other encoding failures.
+            throw new UnsupportedTextException(e.getMessage());
+        }
         int[] codewords = protect(message, symbolInfo);
         boolean[][] modules = placeAndFrame(codewords, symbolInfo);
         return new MatrixSymbol(modules, QUIET_ZONE);

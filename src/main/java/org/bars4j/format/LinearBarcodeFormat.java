@@ -6,6 +6,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 
 import org.bars4j.encode.api.BarcodeException;
+import org.bars4j.encode.api.InvalidSymbolException;
 import org.bars4j.encode.api.LinearEncoder;
 import org.bars4j.render.RenderSpec;
 import org.bars4j.render.linear.LinearRenderer;
@@ -98,10 +99,19 @@ public final class LinearBarcodeFormat implements BarcodeFormat {
 
     /** Effective code (with check digit when applicable) and the text label to draw. */
     private String[] resolve(String text) throws BarcodeException {
+        if (text == null || text.isEmpty()) {
+            throw new InvalidSymbolException("[" + spec.id() + "] Invalid text length (0).");
+        }
         String code = text;
         String label = text;
         if (checkDigit) {
-            code = text + encoder.computeCheckSum(text);
+            if (text.length() == encoder.completeLength()) {
+                // The caller already supplied the complete code (payload + check digit): keep it
+                // verbatim. The encoder validates the check digit and rejects a wrong one.
+                code = text;
+            } else {
+                code = text + encoder.computeCheckSum(text);
+            }
             if (showCheckDigit) {
                 label = code;
             }
@@ -117,18 +127,31 @@ public final class LinearBarcodeFormat implements BarcodeFormat {
     public BufferedImage toImage(String text, RenderSpec renderSpec) throws BarcodeException {
         String[] resolved = resolve(text);
         LinearSymbol symbol = encoder.encode(resolved[0]);
-        BufferedImage img = renderer.toImage(symbol, internalSpec());
+        RenderSpec internal = internalSpec();
+        double scale = module / MIN_XDIMENSION;
 
+        int unscaledWidth = renderer.calcTotalWidth(symbol, internal.barWidth(), internal.barHeight(),
+                internal.wideRatio());
         BufferedImage result = new BufferedImage(
-                (int) (img.getWidth() * (module / MIN_XDIMENSION)) + 1,
-                barHeight + 8, BufferedImage.TYPE_INT_RGB);
-        AffineTransform at = new AffineTransform(
-                (module / MIN_XDIMENSION), 0.0, 0.0, (double) barHeight / img.getHeight(), 0.0, 4.0);
+                (int) (unscaledWidth * scale) + 1, barHeight + 8, BufferedImage.TYPE_INT_RGB);
         Graphics2D g2d = result.createGraphics();
         g2d.setBackground(Color.WHITE);
         g2d.setColor(Color.WHITE);
         g2d.fillRect(0, 0, result.getWidth(), result.getHeight());
-        g2d.drawRenderedImage(img, at);
+        g2d.dispose();
+
+        if (Math.abs(scale - 1.0) < 1e-9) {
+            // No horizontal scaling required: draw straight into the destination, avoiding an
+            // intermediate full-size image and the drawRenderedImage transform pipeline.
+            renderer.renderInto(result, 0, 4, symbol, internal);
+        } else {
+            BufferedImage img = renderer.toImage(symbol, internal);
+            g2d = result.createGraphics();
+            AffineTransform at = new AffineTransform(
+                    scale, 0.0, 0.0, (double) barHeight / img.getHeight(), 0.0, 4.0);
+            g2d.drawRenderedImage(img, at);
+            g2d.dispose();
+        }
 
         if (showText) {
             textRenderer.paintText(result, resolved[1], 1);

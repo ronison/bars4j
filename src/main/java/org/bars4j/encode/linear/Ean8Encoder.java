@@ -11,12 +11,18 @@ import org.bars4j.symbol.LinearSymbol;
 public final class Ean8Encoder implements LinearEncoder {
 
     @Override
+    public int completeLength() {
+        return 8;
+    }
+
+    @Override
     public LinearSymbol encode(String text) throws InvalidSymbolException {
         if (text.length() != 8) {
             throw new InvalidSymbolException("[EAN8] Invalid text length (" + text.length() + ").");
         }
         StringBuilder bits = new StringBuilder();
         try {
+            EanSupport.validateCheckDigit("EAN8", text.charAt(7), EanSupport.checkSum(text.substring(0, 7)));
             bits.append(EanSupport.LEFT_GUARD);
             for (int i = 0; i < 4; i++) {
                 bits.append(LinearBits.invert(EanSupport.CODES[LinearBits.digit(text.charAt(i))]));
@@ -34,6 +40,10 @@ public final class Ean8Encoder implements LinearEncoder {
 
     @Override
     public String computeCheckSum(String text) throws InvalidSymbolException {
-        return EanSupport.checkSum(text);
+        try {
+            return EanSupport.checkSum(text);
+        } catch (NumberFormatException e) {
+            throw new InvalidSymbolException("[EAN8] Only numbers suported.");
+        }
     }
 }

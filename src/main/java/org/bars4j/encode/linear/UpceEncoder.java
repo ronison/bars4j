@@ -19,10 +19,16 @@ public final class UpceEncoder implements LinearEncoder {
     private static final String RIGHT_GUARD_EXT = "010101";
 
     @Override
+    public int completeLength() {
+        return 8;
+    }
+
+    @Override
     public LinearSymbol encode(String text) throws InvalidSymbolException {
         if (text.length() != 8) {
             throw new InvalidSymbolException("[UPCE] Invalid text length (" + text.length() + ").");
         }
+        EanSupport.validateCheckDigit("UPCE", text.charAt(7), computeCheckSum(text.substring(0, 7)));
         StringBuilder bits = new StringBuilder();
         try {
             int check = LinearBits.digit(text.charAt(7));
@@ -52,7 +58,11 @@ public final class UpceEncoder implements LinearEncoder {
         if (text.length() != 7) {
             throw new InvalidSymbolException("[UPCE] Invalid text length (" + text.length() + ").");
         }
-        return EanSupport.checkSum(convertUPCEtoUPCA(text));
+        try {
+            return EanSupport.checkSum(convertUPCEtoUPCA(text));
+        } catch (NumberFormatException e) {
+            throw new InvalidSymbolException("[UPCE] O padrao suporta apenas numeros.");
+        }
     }
 
     public String convertUPCEtoUPCA(String upce) throws InvalidSymbolException {

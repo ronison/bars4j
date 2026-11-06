@@ -48,13 +48,17 @@ public final class Ean5Encoder implements LinearEncoder {
     public String computeCheckSum(String text) throws InvalidSymbolException {
         int sum = 0;
         boolean odd = true;
-        for (int charPos = 0; charPos < text.length(); charPos++) {
-            if (odd) {
-                sum += 3 * LinearBits.digit(text.charAt(charPos));
-            } else {
-                sum += 9 * LinearBits.digit(text.charAt(charPos));
+        try {
+            for (int charPos = 0; charPos < text.length(); charPos++) {
+                if (odd) {
+                    sum += 3 * LinearBits.digit(text.charAt(charPos));
+                } else {
+                    sum += 9 * LinearBits.digit(text.charAt(charPos));
+                }
+                odd = !odd;
             }
-            odd = !odd;
+        } catch (NumberFormatException e) {
+            throw new InvalidSymbolException("[EAN5] Only numbers suported.");
         }
         return Integer.toString(sum % 10);
     }

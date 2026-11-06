@@ -1,6 +1,9 @@
 package org.bars4j.render.matrix;
 
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
+import java.awt.image.SinglePixelPackedSampleModel;
+import java.util.Arrays;
 
 import org.bars4j.render.BarcodeRenderer;
 import org.bars4j.render.RenderSpec;
@@ -23,23 +26,38 @@ public final class MatrixRenderer implements BarcodeRenderer {
 
         int background = spec.background().getRGB();
         int foreground = spec.foreground().getRGB();
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                image.setRGB(x, y, background);
-            }
+        // Build the whole raster in a plain int[] (background first, dark modules on top). For the
+        // common TYPE_INT_RGB case we write straight into the image's backing DataBufferInt, so no
+        // per-pixel setRGB and no final full-image copy are needed.
+        DataBufferInt direct = null;
+        if (image.getRaster().getDataBuffer() instanceof DataBufferInt db
+                && image.getRaster().getSampleModel() instanceof SinglePixelPackedSampleModel sm
+                && sm.getScanlineStride() == width) {
+            direct = db;
         }
+        int[] pixels;
+        if (direct != null && direct.getData().length >= width * height) {
+            pixels = direct.getData();
+        } else {
+            pixels = new int[width * height];
+        }
+        Arrays.fill(pixels, 0, width * height, background);
+        int quiet = matrix.quietZone();
         for (int row = 0; row < matrix.heightInModules(); row++) {
+            int y0 = (row + quiet) * moduleSize;
+            int rowBase = y0 * width;
             for (int col = 0; col < matrix.widthInModules(); col++) {
                 if (matrix.module(row, col)) {
-                    int x0 = (col + matrix.quietZone()) * moduleSize;
-                    int y0 = (row + matrix.quietZone()) * moduleSize;
-                    for (int y = y0; y < y0 + moduleSize; y++) {
-                        for (int x = x0; x < x0 + moduleSize; x++) {
-                            image.setRGB(x, y, foreground);
-                        }
+                    int x0 = (col + quiet) * moduleSize;
+                    for (int y = 0; y < moduleSize; y++) {
+                        int start = rowBase + y * width + x0;
+                        Arrays.fill(pixels, start, start + moduleSize, foreground);
                     }
                 }
             }
+        }
+        if (direct == null) {
+            image.setRGB(0, 0, width, height, pixels, 0, width);
         }
         return image;
     }

@@ -39,8 +39,12 @@ public final class PostNetEncoder implements LinearEncoder {
     @Override
     public String computeCheckSum(String text) throws InvalidSymbolException {
         int check = 0;
-        for (int i = 0; i < text.length(); i++) {
-            check += Integer.parseInt(String.valueOf(text.charAt(i)));
+        try {
+            for (int i = 0; i < text.length(); i++) {
+                check += Integer.parseInt(String.valueOf(text.charAt(i)));
+            }
+        } catch (NumberFormatException e) {
+            throw new InvalidSymbolException("[PostNet] O padrao suporta apenas numeros.");
         }
         int result = check % 10;
         if (result == 0) {

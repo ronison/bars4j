@@ -1,5 +1,7 @@
 package org.bars4j.encode.linear;
 
+import org.bars4j.encode.api.InvalidSymbolException;
+
 /**
  * Shared EAN/UPC tables and arithmetic (ported from the legacy {@code EANEncoder}).
  */
@@ -29,5 +31,21 @@ final class EanSupport {
         }
         int result = sum % 10;
         return result == 0 ? "0" : Integer.toString(10 - result);
+    }
+
+    /**
+     * Rejects a supplied check digit that does not match the one computed from the payload.
+     *
+     * @param format   format tag used in the error message (e.g. {@code "EAN13"})
+     * @param provided the check digit carried by the caller's input
+     * @param expected the check digit computed from the payload (never empty)
+     * @throws InvalidSymbolException when the two differ
+     */
+    static void validateCheckDigit(String format, char provided, String expected) throws InvalidSymbolException {
+        char expectedChar = expected.charAt(0);
+        if (provided != expectedChar) {
+            throw new InvalidSymbolException("[" + format + "] Invalid check digit '" + provided
+                    + "' (expected '" + expectedChar + "').");
+        }
     }
 }

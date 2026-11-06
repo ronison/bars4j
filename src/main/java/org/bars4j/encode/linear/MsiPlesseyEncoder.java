@@ -20,6 +20,9 @@ public final class MsiPlesseyEncoder implements LinearEncoder {
 
     @Override
     public LinearSymbol encode(String text) throws InvalidSymbolException {
+        if (text.length() < 1) {
+            throw new InvalidSymbolException("[MSIPlessey] Invalid text length (" + text.length() + ").");
+        }
         StringBuilder bits = new StringBuilder();
         try {
             bits.append(START_CHAR);
@@ -35,6 +38,14 @@ public final class MsiPlesseyEncoder implements LinearEncoder {
 
     @Override
     public String computeCheckSum(String text) throws InvalidSymbolException {
+        if (text.length() < 1) {
+            throw new InvalidSymbolException("[MSIPlessey] Invalid text length (" + text.length() + ").");
+        }
+        for (int i = 0; i < text.length(); i++) {
+            if (!Character.isDigit(text.charAt(i))) {
+                throw new InvalidSymbolException("[MSIPlessey] Only numbers suported.");
+            }
+        }
         StringBuilder newNumber = new StringBuilder();
         StringBuilder numTotal = new StringBuilder();
         for (int i = text.length() - 1; i >= 0; i -= 2) {
@@ -43,7 +54,7 @@ public final class MsiPlesseyEncoder implements LinearEncoder {
                 numTotal.append(text.charAt(i - 1));
             }
         }
-        numTotal.append(2 * Integer.parseInt(newNumber.toString()));
+        numTotal.append(doubleDigits(newNumber.toString()));
 
         int sum = 0;
         String num = numTotal.toString();
@@ -52,6 +63,24 @@ public final class MsiPlesseyEncoder implements LinearEncoder {
         }
 
         return Integer.toString(10 - (sum % 10 == 0 ? 10 : sum % 10));
+    }
+
+    /**
+     * Doubles a decimal digit string, returning the result as a digit string. Implemented without
+     * {@code Integer.parseInt} so that arbitrarily long inputs cannot overflow.
+     */
+    private static String doubleDigits(String digits) {
+        StringBuilder doubled = new StringBuilder(digits.length() + 1);
+        int carry = 0;
+        for (int i = digits.length() - 1; i >= 0; i--) {
+            int value = (digits.charAt(i) - '0') * 2 + carry;
+            doubled.append((char) ('0' + value % 10));
+            carry = value / 10;
+        }
+        if (carry > 0) {
+            doubled.append((char) ('0' + carry));
+        }
+        return doubled.reverse().toString();
     }
 
     private static int charToInt(char val) {

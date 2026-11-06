@@ -110,7 +110,10 @@ public final class Code128Encoder implements LinearEncoder {
         return b >= '0' && b <= '9';
     }
 
-    private static int getCode(byte s) {
+    private static int getCode(byte s) throws InvalidSymbolException {
+        if (s < 32 || s > 126) {
+            throw new InvalidSymbolException("[Code128] The text contains unsuported chars.");
+        }
         return s - 32;
     }
 }
