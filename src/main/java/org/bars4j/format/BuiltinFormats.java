@@ -14,6 +14,7 @@ import org.bars4j.encode.linear.Ean5Encoder;
 import org.bars4j.encode.linear.Ean8Encoder;
 import org.bars4j.encode.linear.Iata2of5Encoder;
 import org.bars4j.encode.linear.Interleaved2of5Encoder;
+import org.bars4j.encode.linear.Itf14Encoder;
 import org.bars4j.encode.linear.Matrix2of5Encoder;
 import org.bars4j.encode.linear.MsiPlesseyEncoder;
 import org.bars4j.encode.linear.PostNetEncoder;
@@ -24,6 +25,8 @@ import org.bars4j.render.linear.BaseLineTextRenderer;
 import org.bars4j.render.linear.Ean13TextRenderer;
 import org.bars4j.render.linear.Ean8TextRenderer;
 import org.bars4j.render.linear.HeightCodedRenderer;
+import org.bars4j.render.linear.Itf14Renderer;
+import org.bars4j.render.linear.Itf14TextRenderer;
 import org.bars4j.render.linear.LinearRenderer;
 import org.bars4j.render.linear.LinearTextRenderer;
 import org.bars4j.render.linear.UpcaTextRenderer;
@@ -40,6 +43,12 @@ final class BuiltinFormats {
     private static final double XD_1 = 0.264583333;
     /** x-dimension used by the wide-ratio and larger formats (2 modules). */
     private static final double XD_2 = 0.5291666;
+
+    /**
+     * Extra vertical space (px) reserved below the bars for the ITF-14 human-readable text, so the
+     * label does not overlap the bottom bearer bar.
+     */
+    private static final int TEXT_GAP = 8;
 
     private BuiltinFormats() {
     }
@@ -77,6 +86,11 @@ final class BuiltinFormats {
                 new BaseLineTextRenderer(), XD_2, 17, 2.0, true, false, true));
         registry.register(linear("INTERLEAVED2OF5", "Interleaved 2 of 5", new Interleaved2of5Encoder(), new WideRatioCodedRenderer(),
                 new BaseLineTextRenderer(), XD_2, 17, 2.0, true, false, true));
+        registry.register(new LinearBarcodeFormat(new Itf14Encoder(), new Itf14Renderer(),
+                new Itf14TextRenderer(),
+                BarcodeRegistry.linear("ITF14", "ITF-14", true, true, true),
+                XD_2, 20, 2.5, true, true, true,
+                TEXT_GAP));
         registry.register(linear("MATRIX2OF5", "Matrix 2 of 5", new Matrix2of5Encoder(), new WideRatioCodedRenderer(),
                 new BaseLineTextRenderer(), XD_1, 17, 2.0, true, false, true));
         registry.register(linear("DATALOGIC2OF5", "Datalogic 2 of 5", new Datalogic2of5Encoder(), new WideRatioCodedRenderer(),

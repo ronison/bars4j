@@ -1,7 +1,7 @@
 # Bars4J - A simple, fast and effective way to include barcodes in java applications.
 This project aims to create a java library (framework) for barcode creation. It is a revival of an old project I had at SourceForge, called JBarcode and now it has been renamed to Bars4J. The main features are support for a wide variety of standards, simplicity of including barcodes in Java applications and high performance with low memory consumption.
 
-Barcodes Supported: EAN13, EAN8, UPCA, UPCE, Codabar, Code 11, Code 128, Code 39, Code 39 Extended, Code 93, Code 93 Extended, Standard 2of5, Interleaved 2of5, IATA 2of5, Datalogic 2of5, Matrix 2of5, MSI Plessey, PostNet, QRCode (2D), Data Matrix (2D), PDF417 (2D) and Aztec (2D).
+Barcodes Supported: EAN13, EAN8, UPCA, UPCE, Codabar, Code 11, Code 128, Code 39, Code 39 Extended, Code 93, Code 93 Extended, Standard 2of5, Interleaved 2of5, ITF-14, IATA 2of5, Datalogic 2of5, Matrix 2of5, MSI Plessey, PostNet, QRCode (2D), Data Matrix (2D), PDF417 (2D) and Aztec (2D).
 
 ## Simple and fast
 
@@ -110,21 +110,49 @@ The same `BarcodeGenerator.of("<format id>")` entry point works for every regist
 e.g. `BarcodeGenerator.of("EAN13").toSvg("789100031550")`. The list of ids is available from
 `BarcodeRegistry.getInstance().ids()`.
 
+## ITF-14 (GS1 GTIN-14)
+
+ITF-14 encodes the 14-digit GS1 Identification Key (13 data digits followed by the GS1 mod-10 check
+digit) with the Interleaved 2 of 5 symbology, framed by the mandatory GS1 bearer bars (a horizontal
+bar above and below the symbol spanning the whole symbol, including the quiet zones). The
+human-readable label uses the ITF-14 HRI mask `0 00 00000 00000 0` (e.g. `1 54 00141 28876 3`).
+
+```
+...
+//Creates an ITF-14 barcode
+BarcodeGenerator generator = BarcodeGenerator.of("ITF14");
+
+//Export as IMG (13 data digits: the check digit is computed and appended)
+BufferedImage img = generator.toImage("1540014128876");
+
+//Export as SVG (complete 14-digit code: the check digit is validated)
+String svg = generator.toSvg("15400141288763");
+...
+```
+
+The input may be either the 13 data digits or the complete 14-digit code; a wrong check digit or an
+invalid length is rejected with an `InvalidSymbolException`.
+
 ### Check digits
 
-For the formats with an external check digit (EAN-13, EAN-8, UPC-A, UPC-E) the input may be given
-either as the payload alone or as the complete code including its check digit:
+For the formats with an external check digit (EAN-13, EAN-8, UPC-A, UPC-E and ITF-14) the input may
+be given either as the payload alone or as the complete code including its check digit:
 
 * **payload only** — the check digit is computed and appended before encoding
-  (`EAN13`: 12 digits, `EAN8`: 7, `UPCA`: 11, `UPCE`: 7);
+  (`EAN13`: 12 digits, `EAN8`: 7, `UPCA`: 11, `UPCE`: 7, `ITF14`: 13);
 * **complete code** — the supplied check digit is validated and kept verbatim
-  (13, 8, 12 and 8 digits respectively); a wrong check digit is rejected with an
+  (13, 8, 12, 8 and 14 digits respectively); a wrong check digit is rejected with an
   `InvalidSymbolException`.
 
 The `BarcodeGenerator` facade accepts both forms. The raw encoders (`Ean13Encoder`, `Ean8Encoder`,
-`UpcaEncoder`, `UpceEncoder`) accept the complete code and validate it; `EAN13` (12) and `UPCA` (11)
-also accept the payload alone, while `EAN8`/`UPCE` raw encoders expect the complete 8-digit code
-(the facade is what appends their check digit). Each exposes `completeLength()` for the full length.
+`UpcaEncoder`, `UpceEncoder`, `Itf14Encoder`) accept the complete code and validate it; `EAN13` (12),
+`UPCA` (11) and `ITF14` (13) also accept the payload alone, while `EAN8`/`UPCE` raw encoders expect
+the complete 8-digit code (the facade is what appends their check digit). Each exposes
+`completeLength()` for the full length.
+
+> Note: the shared 2-of-5 check digit is computed with the GS1 weights anchored to the right of the
+> payload. This matches the previous behaviour for even-length payloads and fixes the odd-length
+> case (e.g. the 13 data digits of an ITF-14/GTIN-14).
 
 ## Building and running the demos
 
@@ -208,9 +236,9 @@ mvn exec:java -Dexec.mainClass=org.bars4j.demo.SwingDemo
 
 ### ITF
 
-| Standard 2of5 | Interleaved 2of5 |
-|----------|-------------|
-| <img src="images/Standard2of5.svg" height="100" /> | <img src="images/Interleaved2of5.svg" height="100" /> | 
+| Standard 2of5 | Interleaved 2of5 | ITF-14 |
+|----------|-------------|-------------|
+| <img src="images/Standard2of5.svg" height="100" /> | <img src="images/Interleaved2of5.svg" height="100" /> | <img src="images/ITF14.svg" height="100" /> | 
 
 | IATA 2of5 | Matrix 2of5 | Datalogic 2of5 |
 |----------|-------------|----------|

@@ -256,6 +256,14 @@ public class SimpleDemo {
             svg = b4j.createBarcodeSVG(code);
             saveToSVG(svg, "Interleaved2of5.svg");
             saveToPNG(img, "Interleaved2of5.png");
+
+            //ITF-14 Code Example (new unified API; GS1 GTIN-14 with bearer bars)
+            System.out.println("ITF-14:");
+            String itf14Text = "1540014128876"; // 13 data digits; check digit appended
+            BufferedImage itf14Img = BarcodeGenerator.of("ITF14").toImage(itf14Text);
+            String itf14Svg = BarcodeGenerator.of("ITF14").toSvg(itf14Text);
+            saveToSVG(new StringBuffer(itf14Svg), "ITF14.svg");
+            saveToPNG(itf14Img, "ITF14.png");
             
             //PostNet Code Example
             b4j = BarcodeFactory.getInstance().createPostNet();

@@ -58,9 +58,19 @@ public final class LinearBarcodeFormat implements BarcodeFormat {
     private final boolean showCheckDigit;
     private final boolean showText;
 
+    /** Extra vertical space (px) reserved below the bars so the human-readable text does not overlap. */
+    private final int textGap;
+
     public LinearBarcodeFormat(LinearEncoder encoder, LinearRenderer renderer, LinearTextRenderer textRenderer,
                                FormatSpec spec, double xDimension, double barHeightMm, double wideRatio,
                                boolean checkDigit, boolean showCheckDigit, boolean showText) {
+        this(encoder, renderer, textRenderer, spec, xDimension, barHeightMm, wideRatio,
+                checkDigit, showCheckDigit, showText, 0);
+    }
+
+    public LinearBarcodeFormat(LinearEncoder encoder, LinearRenderer renderer, LinearTextRenderer textRenderer,
+                               FormatSpec spec, double xDimension, double barHeightMm, double wideRatio,
+                               boolean checkDigit, boolean showCheckDigit, boolean showText, int textGap) {
         this.encoder = encoder;
         this.renderer = renderer;
         this.textRenderer = textRenderer;
@@ -73,6 +83,7 @@ public final class LinearBarcodeFormat implements BarcodeFormat {
         this.checkDigit = checkDigit;
         this.showCheckDigit = showCheckDigit;
         this.showText = showText;
+        this.textGap = textGap;
     }
 
     /** Returns the current configuration of this format. */
@@ -84,7 +95,7 @@ public final class LinearBarcodeFormat implements BarcodeFormat {
     public LinearBarcodeFormat withOptions(LinearOptions options) {
         return new LinearBarcodeFormat(encoder, renderer, textRenderer, spec,
                 options.xDimensionMm(), options.barHeightMm(), options.wideRatio(),
-                options.checkDigit(), options.showCheckDigit(), options.showText());
+                options.checkDigit(), options.showCheckDigit(), options.showText(), textGap);
     }
 
     @Override
@@ -133,7 +144,8 @@ public final class LinearBarcodeFormat implements BarcodeFormat {
         int unscaledWidth = renderer.calcTotalWidth(symbol, internal.barWidth(), internal.barHeight(),
                 internal.wideRatio());
         BufferedImage result = new BufferedImage(
-                (int) (unscaledWidth * scale) + 1, barHeight + 8, BufferedImage.TYPE_INT_RGB);
+                (int) (unscaledWidth * scale) + 1, barHeight + 8 + (showText ? textGap : 0),
+                BufferedImage.TYPE_INT_RGB);
         Graphics2D g2d = result.createGraphics();
         g2d.setBackground(Color.WHITE);
         g2d.setColor(Color.WHITE);
@@ -169,8 +181,9 @@ public final class LinearBarcodeFormat implements BarcodeFormat {
 
         StringBuilder pcode = new StringBuilder(renderer.toSvg(symbol, internalSpec()));
         if (showText) {
-            pcode.append(textRenderer.paintTextSvg(resolved[1], barHeight, totalWidth));
-            totalHeight = textRenderer.calcTotalHeight(barHeight, FONT_SIZE);
+            int textTop = barHeight + textGap;
+            pcode.append(textRenderer.paintTextSvg(resolved[1], textTop, totalWidth));
+            totalHeight = textRenderer.calcTotalHeight(textTop, FONT_SIZE);
         }
 
         StringBuilder res = new StringBuilder("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>\n"

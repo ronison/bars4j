@@ -39,6 +39,7 @@ class BarcodeGeneratorGoldenTest {
             new Case("MATRIX2OF5", "Matrix2of5", "123456"),
             new Case("DATALOGIC2OF5", "Datalogic2of5", "123456"),
             new Case("INTERLEAVED2OF5", "Interleaved2of5", "9876543210921"),
+            new Case("ITF14", "ITF14", "1540014128876"),
             new Case("POSTNET", "PostNet", "805365961"),
     };
 

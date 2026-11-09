@@ -28,6 +28,7 @@ public final class SampleContent {
             Map.entry("MATRIX2OF5", "123456"),
             Map.entry("DATALOGIC2OF5", "123456"),
             Map.entry("INTERLEAVED2OF5", "9876543210921"),
+            Map.entry("ITF14", "1540014128876"),
             Map.entry("POSTNET", "805365961"),
             Map.entry("QRCODE", "https://github.com/ronison/bars4j"),
             Map.entry("DATAMATRIX", "https://github.com/ronison/bars4j"),

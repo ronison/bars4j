@@ -30,6 +30,7 @@ import org.bars4j.encode.linear.Ean5Encoder;
 import org.bars4j.encode.linear.Ean8Encoder;
 import org.bars4j.encode.linear.Iata2of5Encoder;
 import org.bars4j.encode.linear.Interleaved2of5Encoder;
+import org.bars4j.encode.linear.Itf14Encoder;
 import org.bars4j.encode.linear.Matrix2of5Encoder;
 import org.bars4j.encode.linear.MsiPlesseyEncoder;
 import org.bars4j.encode.linear.PostNetEncoder;
@@ -85,6 +86,7 @@ class LinearBoundaryTest {
                 Map.entry("MATRIX2OF5", new Matrix2of5Encoder()),
                 Map.entry("DATALOGIC2OF5", new Datalogic2of5Encoder()),
                 Map.entry("INTERLEAVED2OF5", new Interleaved2of5Encoder()),
+                Map.entry("ITF14", new Itf14Encoder()),
                 Map.entry("POSTNET", new PostNetEncoder()));
     }
 
@@ -108,13 +110,14 @@ class LinearBoundaryTest {
             Map.entry("MATRIX2OF5", "12345A"),
             Map.entry("DATALOGIC2OF5", "12345A"),
             Map.entry("INTERLEAVED2OF5", "12345A"),
+            Map.entry("ITF14", "154001412887A"),
             Map.entry("POSTNET", "80536596A"));
 
     /** Formats whose checksum is a real value (Code128/Codabar return an empty checksum). */
     private static final List<String> IDS_WITH_REAL_CHECKSUM = List.of(
             "EAN13", "EAN8", "EAN5", "UPCA", "UPCE", "CODE39", "CODE39EXT", "CODE93", "CODE93EXT",
             "CODE11", "MSIPLESSEY", "STANDARD2OF5", "IATA2OF5", "MATRIX2OF5", "DATALOGIC2OF5",
-            "INTERLEAVED2OF5", "POSTNET");
+            "INTERLEAVED2OF5", "ITF14", "POSTNET");
 
     private static void assertCheckedOrSuccess(String id, String text) {
         try {
@@ -270,6 +273,25 @@ class LinearBoundaryTest {
         Interleaved2of5Encoder encoder = new Interleaved2of5Encoder();
         encoder.encode("123"); // odd digit length is accepted (trailing digit dropped)
         assertThrows(InvalidSymbolException.class, () -> encoder.encode("12A"));
+    }
+
+    @Test
+    void itf14RawLengthAndCheckDigitBoundaries() throws Exception {
+        Itf14Encoder encoder = new Itf14Encoder();
+        encoder.encode("1540014128876");    // 13 data digits (check digit computed)
+        encoder.encode("15400141288763");   // 14 digits (valid check digit)
+        assertThrows(InvalidSymbolException.class, () -> encoder.encode("154001412887"));    // 12
+        assertThrows(InvalidSymbolException.class, () -> encoder.encode("154001412887630")); // 15
+        assertThrows(InvalidSymbolException.class, () -> encoder.encode("15400141288764"));  // wrong check digit
+    }
+
+    @Test
+    void itf14ApiAcceptsPayloadOrCompleteCode() throws Exception {
+        BarcodeGenerator generator = BarcodeGenerator.of("ITF14");
+        generator.toImage("1540014128876");   // 13 data digits -> check digit appended
+        generator.toImage("15400141288763");  // 14 digits: complete code, valid check digit
+        assertThrows(BarcodeException.class, () -> generator.toImage("154001412887"));   // 12
+        assertThrows(BarcodeException.class, () -> generator.toImage("15400141288764")); // wrong check digit
     }
 
     @Test

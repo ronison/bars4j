@@ -42,12 +42,15 @@ public abstract class ToFEncoder implements BarcodeEncoder {
 	 */
 	@Override
 	public String computeCheckSum(String text) throws InvalidAtributeException {
-        int sum = 0; 
-        for(int charPos = 0; charPos < text.length(); charPos++) {
-            if( charPos % 2 == 0 ){
-                sum += charToInt(text.charAt(charPos));
-            } else {
+        int sum = 0;
+        int length = text.length();
+        for(int charPos = 0; charPos < length; charPos++) {
+            // Weights are anchored to the right (GS1 mod-10): the rightmost data digit gets
+            // weight 3, alternating 1/3 towards the left.
+            if( (length - charPos) % 2 == 1 ){
                 sum += charToInt(text.charAt(charPos))*3;
+            } else {
+                sum += charToInt(text.charAt(charPos));
             }   
         }
 

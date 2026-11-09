@@ -12,7 +12,7 @@ import org.bars4j.symbol.LinearSymbol;
  * Wide-to-narrow ratio rendering strategy (bit = wide element, colour alternates starting dark),
  * natively reproducing the legacy {@code WideRatioCodedPainter} for both raster and SVG output.
  */
-public final class WideRatioCodedRenderer implements LinearRenderer {
+public class WideRatioCodedRenderer implements LinearRenderer {
 
     @Override
     public BufferedImage toImage(BarcodeSymbol symbol, RenderSpec spec) {
