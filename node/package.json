@@ -17,7 +17,7 @@
     "./package.json": "./package.json"
   },
   "bin": {
-    "bars4j": "./bin/bars4j.ts"
+    "bars4j": "bin/bars4j.ts"
   },
   "sideEffects": false,
   "files": [
