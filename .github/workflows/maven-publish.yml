@@ -1,12 +1,20 @@
-# This workflow will build a package using Maven and then publish it to GitHub packages when a release is created
+# This workflow will build a package using Maven and then publish it to GitHub packages when a
+# release is published (not on draft creation) or when run manually.
 # For more information see: https://github.com/actions/setup-java/blob/main/docs/advanced-usage.md#apache-maven-with-a-settings-path
 
 name: Maven Package
 
 on:
   release:
-    types: [published, created]
+    types: [published]
   workflow_dispatch:
+
+# A single release only needs one deploy; serialize runs of the same ref so two of them cannot
+# race to push the same artifact version (which GitHub Packages rejects with 409 Conflict).
+concurrency:
+  group: maven-publish-${{ github.ref }}
+  cancel-in-progress: false
+
 
 jobs:
   build:
