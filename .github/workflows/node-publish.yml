@@ -6,8 +6,8 @@
 # Authentication (pick one):
 #
 #   1. npm "trusted publishing" (recommended, no long-lived secret).
-#      - The package must already exist on npm (create it once, e.g. by publishing 0.0.0 with a
-#        temporary token, or by registering it from the npm website).
+#      - The package must already exist on npm (register it once, or publish a placeholder with a
+#        temporary token).
 #      - On https://www.npmjs.com/package/@bars4j/core -> Settings -> Trusted Publisher, add a
 #        GitHub Actions publisher with:
 #          Organization/User: ronison
@@ -18,7 +18,7 @@
 #
 #   2. Classic token.
 #      - Add an NPM_TOKEN repository secret (an npm "Automation"/granular token with publish
-#        rights for @bars4j and bypass-2FA). The workflow uses it automatically when present.
+#        rights for @bars4j and 2FA bypass). The workflow uses it automatically when present.
 #
 # The publish step uses --provenance so the release is signed with GitHub Actions build metadata.
 
@@ -48,7 +48,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "22"
-          registry-url: "https://registry.npmjs.org"
           cache: npm
           cache-dependency-path: node/package-lock.json
 
@@ -58,14 +57,13 @@ jobs:
       - name: Type-check and test
         run: npm run check
 
-      # Trusted publishing (OIDC): used when no NPM_TOKEN secret is configured.
-      - name: Publish to npm (trusted publishing)
-        if: ${{ secrets.NPM_TOKEN == '' }}
-        run: npm publish --provenance --access public
-
-      # Classic token: used when the NPM_TOKEN secret is present.
-      - name: Publish to npm (NPM_TOKEN)
-        if: ${{ secrets.NPM_TOKEN != '' }}
-        run: npm publish --provenance --access public
+      # Uses the NPM_TOKEN secret when configured; otherwise falls back to npm trusted publishing
+      # (OIDC), which needs no token.
+      - name: Publish to npm
+        run: |
+          if [ -n "${NPM_TOKEN:-}" ]; then
+            echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> "${HOME}/.npmrc"
+          fi
+          npm publish --provenance --access public
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
