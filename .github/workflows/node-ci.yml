@@ -1,0 +1,46 @@
+name: Node CI
+
+on:
+  push:
+    paths:
+      - "node/**"
+      - "src/test/resources/golden/**"
+      - ".github/workflows/node-ci.yml"
+  pull_request:
+    paths:
+      - "node/**"
+      - "src/test/resources/golden/**"
+      - ".github/workflows/node-ci.yml"
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: ["22", "24"]
+    defaults:
+      run:
+        working-directory: node
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: "${{ matrix.node-version }}"
+          cache: npm
+          cache-dependency-path: node/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type-check and test
+        run: npm run check
+
+      - name: Smoke-test the package contents
+        run: npm pack --dry-run
+
+      - name: Smoke-test the demos
+        run: npm run demo -- .tmp-demo

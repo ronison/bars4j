@@ -1,0 +1,74 @@
+{
+  "name": "@bars4j/core",
+  "version": "0.7.0",
+  "description": "Node.js/TypeScript port of the Bars4J barcode library (1D + 2D, SVG and raster).",
+  "type": "module",
+  "license": "LGPL-2.1-or-later",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./package.json": "./package.json"
+  },
+  "bin": {
+    "bars4j": "./bin/bars4j.ts"
+  },
+  "sideEffects": false,
+  "files": [
+    "src",
+    "bin",
+    "examples",
+    "README.md"
+  ],
+  "keywords": [
+    "barcode",
+    "barcodes",
+    "ean13",
+    "ean8",
+    "upca",
+    "upce",
+    "code128",
+    "code39",
+    "itf14",
+    "postnet",
+    "qrcode",
+    "datamatrix",
+    "pdf417",
+    "aztec",
+    "svg",
+    "png"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ronison/bars4j.git",
+    "directory": "node"
+  },
+  "homepage": "https://github.com/ronison/bars4j",
+  "bugs": {
+    "url": "https://github.com/ronison/bars4j/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "test": "node --test",
+    "test:golden": "node --test test/",
+    "typecheck": "tsc --noEmit",
+    "check": "npm run typecheck && npm test",
+    "demo": "node examples/all-formats.ts",
+    "demo:qrcode": "node examples/qrcode-demo.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "typescript": "^7.0.2"
+  },
+  "optionalDependencies": {
+    "@napi-rs/canvas": "^1.1.0"
+  }
+}

@@ -1,0 +1,48 @@
+# Builds and publishes the Node.js package (@bars4j/core) to the public npm registry.
+#
+# Published when a GitHub release is published (aligned with the Maven workflow) or when a
+# `node-v*` tag is pushed. Can also be run manually.
+#
+# Authentication uses npm "trusted publishing" (OIDC), so no long-lived token is required in the
+# repository. Configure the trusted publisher for @bars4j/core on npmjs.com pointing at this
+# workflow. If you prefer a classic token, add an NPM_TOKEN secret and set
+# NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} on the publish step.
+
+name: Node Package
+
+on:
+  release:
+    types: [published]
+  push:
+    tags:
+      - "node-v*"
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    defaults:
+      run:
+        working-directory: node
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          registry-url: "https://registry.npmjs.org"
+          cache: npm
+          cache-dependency-path: node/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type-check and test
+        run: npm run check
+
+      - name: Publish to npm
+        run: npm publish --provenance --access public

@@ -3,6 +3,10 @@ This project aims to create a java library (framework) for barcode creation. It 
 
 Barcodes Supported: EAN13, EAN8, UPCA, UPCE, Codabar, Code 11, Code 128, Code 39, Code 39 Extended, Code 93, Code 93 Extended, Standard 2of5, Interleaved 2of5, ITF-14, IATA 2of5, Datalogic 2of5, Matrix 2of5, MSI Plessey, PostNet, QRCode (2D), Data Matrix (2D), PDF417 (2D) and Aztec (2D).
 
+## Node.js / TypeScript
+
+A Node.js/TypeScript port that mirrors this library (same formats and behaviour, verified against the same golden fixtures) lives in [`node/`](node/) and is published as [`@bars4j/core`](https://www.npmjs.com/package/@bars4j/core). It requires Node.js 22.18+ and needs no build step. See [`node/README.md`](node/README.md).
+
 ## Simple and fast
 
 To use the library just import the jar and follow the examples below:
