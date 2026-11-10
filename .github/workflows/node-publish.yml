@@ -1,12 +1,26 @@
 # Builds and publishes the Node.js package (@bars4j/core) to the public npm registry.
 #
-# Published when a GitHub release is published (aligned with the Maven workflow) or when a
-# `node-v*` tag is pushed. Can also be run manually.
+# Triggered when a GitHub release is published (aligned with the Maven workflow), when a
+# `node-v*` tag is pushed, or manually.
 #
-# Authentication uses npm "trusted publishing" (OIDC), so no long-lived token is required in the
-# repository. Configure the trusted publisher for @bars4j/core on npmjs.com pointing at this
-# workflow. If you prefer a classic token, add an NPM_TOKEN secret and set
-# NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} on the publish step.
+# Authentication (pick one):
+#
+#   1. npm "trusted publishing" (recommended, no long-lived secret).
+#      - The package must already exist on npm (create it once, e.g. by publishing 0.0.0 with a
+#        temporary token, or by registering it from the npm website).
+#      - On https://www.npmjs.com/package/@bars4j/core -> Settings -> Trusted Publisher, add a
+#        GitHub Actions publisher with:
+#          Organization/User: ronison
+#          Repository:        bars4j
+#          Workflow filename: node-publish.yml
+#          Environment:       (leave empty)
+#      - The workflow then authenticates via OIDC (id-token: write) with no secret configured.
+#
+#   2. Classic token.
+#      - Add an NPM_TOKEN repository secret (an npm "Automation"/granular token with publish
+#        rights for @bars4j and bypass-2FA). The workflow uses it automatically when present.
+#
+# The publish step uses --provenance so the release is signed with GitHub Actions build metadata.
 
 name: Node Package
 
@@ -23,7 +37,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      id-token: write
+      id-token: write # required for npm provenance / trusted publishing
     defaults:
       run:
         working-directory: node
@@ -44,5 +58,14 @@ jobs:
       - name: Type-check and test
         run: npm run check
 
-      - name: Publish to npm
+      # Trusted publishing (OIDC): used when no NPM_TOKEN secret is configured.
+      - name: Publish to npm (trusted publishing)
+        if: ${{ secrets.NPM_TOKEN == '' }}
         run: npm publish --provenance --access public
+
+      # Classic token: used when the NPM_TOKEN secret is present.
+      - name: Publish to npm (NPM_TOKEN)
+        if: ${{ secrets.NPM_TOKEN != '' }}
+        run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

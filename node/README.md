@@ -82,9 +82,35 @@ also smoke-tested for SVG and PNG output with the shared demo payloads.
 The package ships the TypeScript sources (`src/`, `bin/`, `examples/`) and runs directly on
 Node.js 22.18+; there is no build step. Consumers therefore need Node.js 22.18+ (native type
 stripping) or a bundler that understands TypeScript; TypeScript projects may need
-`allowImportingTsExtensions` (or `moduleResolution: "bundler"`). Publishing is automated by
-`.github/workflows/node-publish.yml` (npm trusted publishing) and the package contents are checked
+`allowImportingTsExtensions` (or `moduleResolution: "bundler"`). The package contents are checked
 with `npm pack --dry-run` in CI.
+
+### Publishing to npm
+
+Publishing is automated by [`.github/workflows/node-publish.yml`](../.github/workflows/node-publish.yml),
+triggered when a GitHub release is published (aligned with the Maven workflow), when a `node-v*` tag
+is pushed, or manually. It runs the test suite first and then publishes with `--provenance`.
+
+Authentication picks one of two paths:
+
+- **Trusted publishing (recommended, no secret).** The npm package must already exist. Create it once
+  (e.g. publish a placeholder, or register `@bars4j/core` on npmjs.com), then on the package's
+  **Settings → Trusted Publisher** add a GitHub Actions publisher:
+  - Organization/User: `ronison`
+  - Repository: `bars4j`
+  - Workflow filename: `node-publish.yml`
+  - Environment: *(empty)*
+
+  With that configured, the workflow authenticates via OIDC (`id-token: write`).
+- **Classic token.** Add an `NPM_TOKEN` repository secret (npm *Automation*/granular token with
+  publish rights for `@bars4j` and 2FA bypass). The workflow uses it automatically when present.
+
+To validate the package locally before publishing:
+
+```sh
+npm publish --dry-run --access public
+```
+
 
 ## License
 
