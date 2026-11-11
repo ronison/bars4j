@@ -3,9 +3,68 @@ This project aims to create a java library (framework) for barcode creation. It 
 
 Barcodes Supported: EAN13, EAN8, UPCA, UPCE, Codabar, Code 11, Code 128, Code 39, Code 39 Extended, Code 93, Code 93 Extended, Standard 2of5, Interleaved 2of5, ITF-14, IATA 2of5, Datalogic 2of5, Matrix 2of5, MSI Plessey, PostNet, QRCode (2D), Data Matrix (2D), PDF417 (2D) and Aztec (2D).
 
-## Node.js / TypeScript
+## Quick Start
 
-A Node.js/TypeScript port that mirrors this library (same formats and behaviour, verified against the same golden fixtures) lives in [`node/`](node/) and is published as [`@bars4j/core`](https://www.npmjs.com/package/@bars4j/core). It requires Node.js 22.18+ and needs no build step. See [`node/README.md`](node/README.md).
+Bars4J is available for **Java** (this repository) and for **Node.js / TypeScript**
+([`@bars4j/core`](https://www.npmjs.com/package/@bars4j/core) on npm). Both expose the same unified
+entry point — `BarcodeGenerator.of("<format id>")` — and render to SVG or to a raster image.
+
+### Java
+
+Requires **JDK 17+**.
+
+Download the jar from the [releases page](https://github.com/ronison/bars4j/releases)
+(`bars4j-<version>.jar`, plus the `-sources` jar) and add it to your classpath, or build it from
+source:
+
+```
+git clone https://github.com/ronison/bars4j.git
+cd bars4j
+mvn package      # produces target/bars4j-<version>.jar and target/bars4j-<version>-sources.jar
+```
+
+It is also published to GitHub Packages (`maven.pkg.github.com/ronison/bars4j`):
+
+```xml
+<dependency>
+  <groupId>org.bars4j</groupId>
+  <artifactId>bars4j</artifactId>
+  <version>0.7.2</version>
+</dependency>
+```
+
+```java
+import java.awt.image.BufferedImage;
+import org.bars4j.api.BarcodeGenerator;
+
+BarcodeGenerator generator = BarcodeGenerator.of("EAN13");
+String svg = generator.toSvg("789100031550");           // SVG markup
+BufferedImage image = generator.toImage("789100031550"); // AWT image
+```
+
+### Node.js / TypeScript
+
+Requires **Node.js 22.18+** — it runs the TypeScript sources directly, with no build step.
+
+```sh
+npm install @bars4j/core
+```
+
+Human-readable labels on raster images use an optional font backend:
+
+```sh
+npm install @napi-rs/canvas
+```
+
+```ts
+import { BarcodeGenerator, encodePng } from "@bars4j/core";
+
+const svg = BarcodeGenerator.of("EAN13").toSvg("789100031550");
+const image = BarcodeGenerator.of("EAN13").toImage("789100031550"); // ARGB image buffer
+const png = encodePng(image);                                       // Uint8Array (no native dependency)
+```
+
+See [`node/README.md`](node/README.md) for the full format list, the `bars4j` CLI and the demos.
 
 ## Simple and fast
 
