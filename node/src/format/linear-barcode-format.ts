@@ -186,7 +186,9 @@ export class LinearBarcodeFormat implements BarcodeFormat {
     const [code, label] = this.resolve(text);
     const symbol: LinearSymbol = this.encoder.encode(code);
 
-    const totalWidth = this.renderer.calcTotalWidth(symbol, this.xdimension, this.barHeightValue, this.wideToNarrow);
+    // The SVG paths are drawn in barWidth=1 units; compute the canvas width with the same
+    // unit so the document is not over-sized for x-dimensions above the minimum.
+    const totalWidth = this.renderer.calcTotalWidth(symbol, 1, this.barHeightValue, this.wideToNarrow);
     let totalHeight = this.barHeightValue + 4;
 
     let pcode = this.renderer.toSvg(symbol, this.internalSpec());

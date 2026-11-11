@@ -2,6 +2,7 @@ import type { BarcodeSymbol } from "../../symbol/barcode-symbol.ts";
 import type { LinearSymbol } from "../../symbol/linear-symbol.ts";
 import { createRasterImage, fillRect, parseArgb, type RasterImage } from "../raster-image.ts";
 import type { RenderSpec } from "../render-spec.ts";
+import { hexColour } from "./colour-util.ts";
 import { AbstractLinearRenderer } from "./abstract-linear-renderer.ts";
 import { dark } from "./symbol-bits.ts";
 
@@ -61,8 +62,8 @@ export class HeightCodedRenderer extends AbstractLinearRenderer {
     const totalWidth = this.calcTotalWidth(symbol as LinearSymbol, barWidth, barHeight, spec.wideRatio);
     let pos = 10 * barWidth;
 
-    let res = `<path fill="#fff" d="M0 0h${totalWidth}v${barHeight + 15}H0z"/>`;
-    res += `<path d="`;
+    let res = `<path fill="${hexColour(spec.background)}" d="M0 0h${totalWidth}v${barHeight + 4}H0z"/>`;
+    res += `<path fill="${hexColour(spec.foreground)}" d="`;
 
     let relPos = 0;
     let relY = 10;

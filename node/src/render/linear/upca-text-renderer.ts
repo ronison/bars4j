@@ -1,5 +1,6 @@
 import { ARGB_BLACK, ARGB_WHITE, type RasterImage } from "../raster-image.ts";
 import { drawText } from "../canvas-backend.ts";
+import { escapeText } from "../../util/escapes.ts";
 import { HUMAN_TEXT_GAP_PX, type LinearTextRenderer } from "./linear-text-renderer.ts";
 
 /**
@@ -52,10 +53,10 @@ export class UpcaTextRenderer implements LinearTextRenderer {
     let res = "";
     res += `<path fill="#fff" d="M0 ${barHeight}h${totalWidth}v8H0z"/>`;
     res += `<path fill="#fff" d="M20 ${posY}h36v14H20zm39 0h36v14H59z"/>`;
-    res += `<text x="0" y="${posY + 10}" class="small" textLength="8">${t1}</text>`;
-    res += `<text x="20" y="${posY + 10}" class="small" textLength="36">${t2}</text>`;
-    res += `<text x="59" y="${posY + 10}" class="small" textLength="36">${t3}</text>`;
-    res += `<text x="106" y="${posY + 10}" class="small" textLength="8">${t4}</text>`;
+    res += `<text x="0" y="${posY + 10}" class="small" textLength="8">${escapeText(t1)}</text>`;
+    res += `<text x="20" y="${posY + 10}" class="small" textLength="36">${escapeText(t2)}</text>`;
+    res += `<text x="59" y="${posY + 10}" class="small" textLength="36">${escapeText(t3)}</text>`;
+    res += `<text x="106" y="${posY + 10}" class="small" textLength="8">${escapeText(t4)}</text>`;
     return res;
   }
 

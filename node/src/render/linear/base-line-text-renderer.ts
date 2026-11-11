@@ -1,5 +1,6 @@
 import { ARGB_BLACK, ARGB_WHITE, type RasterImage } from "../raster-image.ts";
 import { drawText } from "../canvas-backend.ts";
+import { escapeText } from "../../util/escapes.ts";
 import { HUMAN_TEXT_GAP_PX, type LinearTextRenderer } from "./linear-text-renderer.ts";
 
 const FONT_SIZE = 14;
@@ -31,7 +32,7 @@ export class BaseLineTextRenderer implements LinearTextRenderer {
     // TEXT AREA
     res += `<path fill="#fff" d="M0 ${barHeight}h${totalWidth}v${FONT_SIZE}H0z"/>`;
     // TEXT
-    res += `<text x="${Math.trunc(totalWidth / 2)}" y="${barHeight + FONT_SIZE - 2}" class="small" text-anchor="middle">${text}</text>`;
+    res += `<text x="${Math.trunc(totalWidth / 2)}" y="${barHeight + FONT_SIZE - 2}" class="small" text-anchor="middle">${escapeText(text)}</text>`;
     return res;
   }
 
