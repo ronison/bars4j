@@ -84,7 +84,9 @@ const image = BarcodeGenerator.of("EAN13").toImage("789100031550"); // ARGB imag
 const png = encodePng(image);                                       // Uint8Array (no native dependency)
 ```
 
-See [`node/README.md`](node/README.md) for the full format list, the `bars4j` CLI and the demos.
+See [`node/README.md`](node/README.md) for the full format list, the `bars4j` CLI and the demos,
+and [`docs/performance.md`](docs/performance.md) for the performance and load-capacity analysis
+(latency, concurrency model, sizing profiles and deployment recommendations).
 
 ## Simple and fast
 

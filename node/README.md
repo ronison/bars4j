@@ -56,6 +56,9 @@ npm run typecheck # type-check with tsc
 npm run check     # both
 ```
 
+For the performance and load-capacity analysis (latency, concurrency model, why the Node version
+differs from Java, sizing profiles), see [`../docs/performance.md`](../docs/performance.md).
+
 ## Demos and CLI
 
 ```sh
