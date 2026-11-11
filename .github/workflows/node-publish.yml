@@ -3,22 +3,13 @@
 # Triggered when a GitHub release is published (aligned with the Maven workflow), when a
 # `node-v*` tag is pushed, or manually.
 #
-# Authentication (pick one):
-#
-#   1. npm "trusted publishing" (recommended, no long-lived secret).
-#      - The package must already exist on npm (register it once, or publish a placeholder with a
-#        temporary token).
-#      - On https://www.npmjs.com/package/@bars4j/core -> Settings -> Trusted Publisher, add a
-#        GitHub Actions publisher with:
-#          Organization/User: ronison
-#          Repository:        bars4j
-#          Workflow filename: node-publish.yml
-#          Environment:       (leave empty)
-#      - The workflow then authenticates via OIDC (id-token: write) with no secret configured.
-#
-#   2. Classic token.
-#      - Add an NPM_TOKEN repository secret (an npm "Automation"/granular token with publish
-#        rights for @bars4j and 2FA bypass). The workflow uses it automatically when present.
+# Authentication uses npm "trusted publishing" (OIDC) — no long-lived token is stored in the
+# repository. The package must exist on npm with a configured trusted publisher:
+#   https://www.npmjs.com/package/@bars4j/core -> Settings -> Trusted Publisher -> GitHub Actions
+#     Organization/User: ronison
+#     Repository:        bars4j
+#     Workflow filename: node-publish.yml
+#     Environment:       (empty)
 #
 # The publish step uses --provenance so the release is signed with GitHub Actions build metadata.
 
@@ -57,13 +48,5 @@ jobs:
       - name: Type-check and test
         run: npm run check
 
-      # Uses the NPM_TOKEN secret when configured; otherwise falls back to npm trusted publishing
-      # (OIDC), which needs no token.
       - name: Publish to npm
-        run: |
-          if [ -n "${NPM_TOKEN:-}" ]; then
-            echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> "${HOME}/.npmrc"
-          fi
-          npm publish --provenance --access public
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --provenance --access public
