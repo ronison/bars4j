@@ -52,12 +52,5 @@ jobs:
       - name: Type-check and test
         run: npm run check
 
-      - name: Diagnostics
-        run: |
-          echo "node: $(node -v)"
-          echo "npm: $(npm -v)"
-          if [ -n "${ACTIONS_ID_TOKEN_REQUEST_URL:-}" ]; then echo "OIDC env: present"; else echo "OIDC env: MISSING"; fi
-          echo "repository.url: $(node -e "console.log(JSON.parse(require('fs').readFileSync('package.json','utf8')).repository.url)")"
-
       - name: Publish to npm
         run: npm publish --provenance --access public
