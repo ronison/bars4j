@@ -20,8 +20,10 @@ import org.bars4j.symbol.LinearSymbol;
  * zone, x-dimension scaling, margins and human-readable text) byte-for-byte, while depending only on
  * the new {@code encode.linear} / {@code render.linear} packages.
  *
- * <p>The provided {@link RenderSpec} is ignored for linear formats: like the legacy facade they use
- * their own per-format defaults for x-dimension, bar height and wide ratio.
+ * <p>The provided {@link RenderSpec} supplies the bar/module and background colours for linear
+ * formats ({@code null} components fall back to black on white). Like the legacy facade they use
+ * their own per-format defaults for x-dimension, bar height and wide ratio, which the spec does
+ * not override.
  */
 public final class LinearBarcodeFormat implements BarcodeFormat {
 
@@ -131,14 +133,26 @@ public final class LinearBarcodeFormat implements BarcodeFormat {
     }
 
     private RenderSpec internalSpec() {
-        return new RenderSpec(1, barHeight, wideToNarrow, 1, Color.BLACK, Color.WHITE);
+        return internalSpec(null);
+    }
+
+    /**
+     * Builds the internal render spec from this format's geometry, taking the colours from the
+     * user-provided spec when given.
+     */
+    private RenderSpec internalSpec(RenderSpec userSpec) {
+        Color foreground = userSpec != null && userSpec.foreground() != null
+                ? userSpec.foreground() : Color.BLACK;
+        Color background = userSpec != null && userSpec.background() != null
+                ? userSpec.background() : Color.WHITE;
+        return new RenderSpec(1, barHeight, wideToNarrow, 1, foreground, background);
     }
 
     @Override
     public BufferedImage toImage(String text, RenderSpec renderSpec) throws BarcodeException {
         String[] resolved = resolve(text);
         LinearSymbol symbol = encoder.encode(resolved[0]);
-        RenderSpec internal = internalSpec();
+        RenderSpec internal = internalSpec(renderSpec);
         double scale = module / MIN_XDIMENSION;
 
         int unscaledWidth = renderer.calcTotalWidth(symbol, internal.barWidth(), internal.barHeight(),
@@ -147,8 +161,8 @@ public final class LinearBarcodeFormat implements BarcodeFormat {
                 (int) (unscaledWidth * scale) + 1, barHeight + 8 + (showText ? textGap : 0),
                 BufferedImage.TYPE_INT_RGB);
         Graphics2D g2d = result.createGraphics();
-        g2d.setBackground(Color.WHITE);
-        g2d.setColor(Color.WHITE);
+        g2d.setBackground(internal.background());
+        g2d.setColor(internal.background());
         g2d.fillRect(0, 0, result.getWidth(), result.getHeight());
         g2d.dispose();
 
@@ -166,7 +180,7 @@ public final class LinearBarcodeFormat implements BarcodeFormat {
         }
 
         if (showText) {
-            textRenderer.paintText(result, resolved[1], 1);
+            textRenderer.paintText(result, resolved[1], 1, internal);
         }
         return result;
     }
@@ -176,10 +190,12 @@ public final class LinearBarcodeFormat implements BarcodeFormat {
         String[] resolved = resolve(text);
         LinearSymbol symbol = encoder.encode(resolved[0]);
 
-        int totalWidth = renderer.calcTotalWidth(symbol, xdimension, barHeight, wideToNarrow);
+        // The SVG paths are drawn in barWidth=1 units; compute the canvas width with the same
+        // unit so the document is not over-sized for x-dimensions above the minimum.
+        int totalWidth = renderer.calcTotalWidth(symbol, 1, barHeight, wideToNarrow);
         int totalHeight = barHeight + 4;
 
-        StringBuilder pcode = new StringBuilder(renderer.toSvg(symbol, internalSpec()));
+        StringBuilder pcode = new StringBuilder(renderer.toSvg(symbol, internalSpec(renderSpec)));
         if (showText) {
             int textTop = barHeight + textGap;
             pcode.append(textRenderer.paintTextSvg(resolved[1], textTop, totalWidth));

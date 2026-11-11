@@ -62,7 +62,9 @@ import org.bars4j.paint.WidthCodedPainter;
 @Deprecated(since = "0.4.0", forRemoval = false)
 public class BarcodeFactory {
 	
-	private static BarcodeFactory instance;
+	private static class Holder {
+		static final BarcodeFactory INSTANCE = new BarcodeFactory();
+	}
 	
 	private BarcodeFactory(){	
 	}
@@ -73,10 +75,7 @@ public class BarcodeFactory {
 	 * @return JBarcodeFactory instance.
 	 */
 	public static BarcodeFactory getInstance(){
-		if(instance == null){
-			instance = new BarcodeFactory();
-		}
-		return instance;
+		return Holder.INSTANCE;
 	}
 	
 	/**
@@ -170,9 +169,9 @@ public class BarcodeFactory {
 	 * @return JBarcode instance.
 	 */
 	public Barcode createCodabar(){
-		Barcode jbc = new Barcode(CodabarEncoder.getInstance(), WideRatioCodedPainter.getInstance(), BaseLineTextPainter.getInstance());	
+		Barcode jbc = new Barcode(CodabarEncoder.getInstance(), WideRatioCodedPainter.getInstance(), BaseLineTextPainter.getInstance());
+		jbc.setBarHeight(17);
 		try {
-			jbc.setBarHeight(17);
 			jbc.setWideRatio(3.0);
 			jbc.setXDimension(0.5291666);
 		} catch (InvalidAtributeException e) {}

@@ -38,7 +38,9 @@ import org.bars4j.encode.BarSet;
  */
 public class WidthCodedPainter implements BarcodePainter {
     
-    private static BarcodePainter instance;
+    private static class Holder {
+        static final BarcodePainter INSTANCE = new WidthCodedPainter();
+    }
     
     private Color fgColor;
     
@@ -50,10 +52,7 @@ public class WidthCodedPainter implements BarcodePainter {
     }
     
     public static BarcodePainter getInstance(){
-        if(instance == null){
-            instance = new WidthCodedPainter();
-        }
-        return instance;
+        return Holder.INSTANCE;
     }
     
     /* (non-Javadoc)
@@ -85,6 +84,7 @@ public class WidthCodedPainter implements BarcodePainter {
                 x += barWidth;
             }
         }
+        g2d.dispose();
 		return result;
 	}
 
@@ -94,13 +94,13 @@ public class WidthCodedPainter implements BarcodePainter {
 		
 		int totalWidth = calcTotalWidth(barcode, barWidth, barHeight, wideRatio);
 		
-        res.append("<path fill=\"#fff\" d=\"M0 0h");
+        res.append("<path fill=\"#ffffff\" d=\"M0 0h");
 		res.append(totalWidth);
 		res.append("v");
 		res.append(barHeight + 4);
 		res.append("H0z\"/>");
 
-		res.append("<path d=\"M");
+		res.append("<path fill=\"#000000\" d=\"M");
 		res.append(10*barWidth);
 		
 		int width=0,white = 0, relY=2;
@@ -111,6 +111,7 @@ public class WidthCodedPainter implements BarcodePainter {
 					white+=barWidth;
 				} else {
 					if(white > 0 && width > 0) {
+						// The relY token completes the implicit relative moveto pair (m dx dy).
 						res.append(" ");
 						res.append(relY);
 						res.append("h");

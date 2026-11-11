@@ -73,9 +73,12 @@ public class Code39ExtEncoder extends Code39Encoder {
         return "CODE 39 (EXT)";
     }
     
-    protected static String convertText(String str){
+    protected static String convertText(String str) throws InvalidAtributeException{
         StringBuffer tmp = new StringBuffer();
         for (int i = 0; i < str.length(); i++) {
+            if (str.charAt(i) >= 128) {
+                throw new InvalidAtributeException("[Code39] The text contains unsuported chars.");
+            }
             tmp.append(CODES_TABLE[str.charAt(i)]);
         }
         return tmp.toString();

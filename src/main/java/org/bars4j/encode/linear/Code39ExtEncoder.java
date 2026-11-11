@@ -38,6 +38,9 @@ public final class Code39ExtEncoder extends Code39Encoder {
     }
 
     private static String convertText(String str) throws InvalidSymbolException {
+        if (str == null) {
+            throw new InvalidSymbolException("[Code39Ext] Text must not be null.");
+        }
         StringBuilder tmp = new StringBuilder();
         for (int i = 0; i < str.length(); i++) {
             char c = str.charAt(i);

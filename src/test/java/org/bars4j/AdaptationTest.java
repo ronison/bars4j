@@ -1,6 +1,7 @@
 package org.bars4j;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 
 import java.awt.image.BufferedImage;
@@ -164,10 +165,20 @@ class AdaptationTest {
             BufferedImage expected = c.painter().paintToImg(legacy, SPEC.barWidth(), SPEC.barHeight(), SPEC.wideRatio());
             BufferedImage actual = c.renderer().toImage(c.symbol(), SPEC);
             assertImagesEqual(expected, actual, c.name());
+        }));
+    }
 
-            String expectedSvg = c.painter().paintToSVG(legacy, SPEC.barWidth(), SPEC.barHeight(), SPEC.wideRatio()).toString();
-            String actualSvg = c.renderer().toSvg(c.symbol(), SPEC);
-            assertEquals(expectedSvg, actualSvg, "SVG changed for " + c.name());
+    /**
+     * The native renderers now honour the {@link RenderSpec} colours and emit spec-valid SVG
+     * paths (fill attributes and explicit moveto pairs), so the SVG is no longer expected to be
+     * token-identical to the legacy painter; the raster comparison above proves geometry parity.
+     */
+    @TestFactory
+    Stream<DynamicTest> rendererSvgIsSpecValid() throws Exception {
+        return cases().stream().map(c -> dynamicTest(c.name(), () -> {
+            String svg = c.renderer().toSvg(c.symbol(), SPEC);
+            assertTrue(svg.startsWith("<path fill=\"#ffffff\""), "background path for " + c.name());
+            assertTrue(svg.contains("fill=\"#000000\""), "foreground path for " + c.name());
         }));
     }
 

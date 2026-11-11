@@ -140,6 +140,7 @@ public class Barcode {
         g2d.setColor(Color.WHITE);
         g2d.fillRect(0, 0, result.getWidth(), result.getHeight());
         g2d.drawRenderedImage(img, at);
+        g2d.dispose();
         
         if(isShowText()){
         	textpainter.paintText(result, tmp, 1);
@@ -167,7 +168,7 @@ public class Barcode {
         }
         BarSet [] encoded = bcencoder.encode(tmp.toString());
         
-        int totalWidth = bcpainter.calcTotalWidth(encoded, xdimension, barHeight, wideToNarrow);
+        int totalWidth = bcpainter.calcTotalWidth(encoded, 1, barHeight, wideToNarrow);
         int totalHeight = barHeight+4; //2px top margin + 2px bottom margin
         
         StringBuffer pcode = bcpainter.paintToSVG(encoded, 1, barHeight, wideToNarrow);

@@ -35,17 +35,16 @@ import java.awt.image.BufferedImage;
  */
 public class EAN8TextPainter implements TextPainter {
     
-    private static TextPainter instance;
+    private static class Holder {
+        static final TextPainter INSTANCE = new EAN8TextPainter();
+    }
     
     private EAN8TextPainter(){
         
     }
     
     public static TextPainter getInstance(){
-        if(instance == null){
-            instance = new EAN8TextPainter();
-        }
-        return instance;
+        return Holder.INSTANCE;
     }
 
     public void paintText(BufferedImage barcode, String text, int nWidth) {
@@ -83,6 +82,7 @@ public class EAN8TextPainter implements TextPainter {
         //texto segundo quadrante
         g2d.setColor(Color.black);
         g2d.drawString(text.substring(4), x+textXShift, textYPos);
+        g2d.dispose();
     }
 
 	@Override

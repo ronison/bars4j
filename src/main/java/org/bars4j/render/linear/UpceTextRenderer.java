@@ -6,6 +6,8 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 
+import org.bars4j.util.Escapes;
+
 /**
  * UPC-E specific text layout (number system + 6-digit group + check digit).
  */
@@ -38,6 +40,7 @@ public final class UpceTextRenderer implements LinearTextRenderer {
 
         // check digit
         g2d.drawString(text.substring(7), barcode.getWidth() - (8 * nWidth), textYPos);
+        g2d.dispose();
     }
 
     @Override
@@ -61,17 +64,17 @@ public final class UpceTextRenderer implements LinearTextRenderer {
         res.append("<text x=\"0\" y=\"");
         res.append(posY + 10);
         res.append("\" class=\"small\" textLength=\"8\">");
-        res.append(t1);
+        res.append(Escapes.text(t1));
         res.append("</text>");
         res.append("<text x=\"13\" y=\"");
         res.append(posY + 10);
         res.append("\" class=\"small\" textLength=\"43\">");
-        res.append(t2);
+        res.append(Escapes.text(t2));
         res.append("</text>");
         res.append("<text x=\"61\" y=\"");
         res.append(posY + 10);
         res.append("\" class=\"small\" textLength=\"8\">");
-        res.append(t3);
+        res.append(Escapes.text(t3));
         res.append("</text>");
         return res.toString();
     }

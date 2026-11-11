@@ -54,17 +54,21 @@ public class Code11Encoder implements BarcodeEncoder {
 
 
 	public String computeCheckSum(String text) throws InvalidAtributeException {
-		// Calc 'C' checkdigit char
+		if (text == null) {
+			throw new InvalidAtributeException("[Code11] Text must not be null.");
+		}
+		// Calc 'C' checkdigit char (modulo 11, weights 1..10 from the right)
 		int check = 0;
 		for (int i = text.length() - 1; i >= 0; i--) {
 			int weight = (text.length() - i) % 10;
 			weight = weight == 0 ? 10 : weight;
 			check += getCharIndex(text.charAt(i)) * weight;
 		}
-		String result = Integer.toString(check % 11);
-		
-		if (text.length() + result.length() >= 10) {
-			// Calc 'K' checkdigit char
+		String result = checkDigitToString(check % 11);
+
+		if (text.length() >= 10) {
+			// Calc 'K' checkdigit char (modulo 11, weights 1..9 from the right, with the C
+			// check digit included as the right-most character).
 			check = 0;
 			String temp = text + result;
 			for (int i = temp.length() - 1; i >= 0; i--) {
@@ -72,14 +76,22 @@ public class Code11Encoder implements BarcodeEncoder {
 				weight = weight == 0 ? 9 : weight;
 				check += getCharIndex(temp.charAt(i)) * weight;
 			}
-			result += Integer.toString(check % 9);
+			result += checkDigitToString(check % 11);
 		}
 		return result;
 	}
 
+	/**
+	 * Renders a check digit value: the value 10 is the dash character, per the Code 11
+	 * specification.
+	 */
+	private static String checkDigitToString(int value) {
+		return value == 10 ? "-" : Integer.toString(value);
+	}
+
 	public BarSet[] encode(String text) throws InvalidAtributeException {
-		if( text.length() < 1  ){
-            throw new InvalidAtributeException("[Code11] Invalid text length (" + text.length() + ").");
+		if( text == null || text.length() < 1  ){
+            throw new InvalidAtributeException("[Code11] Invalid text length (" + (text == null ? "null" : text.length()) + ").");
         }
         
         BarSet [] result = new BarSet[(text.length()*2) + 3];
@@ -93,8 +105,13 @@ public class Code11Encoder implements BarcodeEncoder {
         return result;
 	}
 
-	private int getCharIndex(char val) {
-		return (val == '-' ? 10 : val - '0');
+	private int getCharIndex(char val) throws InvalidAtributeException {
+		if (val >= '0' && val <= '9') {
+			return val - '0';
+		} else if (val == '-') {
+			return 10;
+		}
+		throw new InvalidAtributeException("[Code11] The text contains unsuported chars.");
 	}
 	
 	public String toString(){

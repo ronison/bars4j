@@ -11,6 +11,9 @@ import org.bars4j.symbol.LinearSymbol;
 /**
  * Width-coded rendering strategy (bit = dark module), natively reproducing the legacy
  * {@code WidthCodedPainter} for both raster and SVG output.
+ *
+ * <p>Colours come from the {@link RenderSpec} (foreground for dark modules, background for the
+ * light modules and the canvas).
  */
 public final class WidthCodedRenderer implements LinearRenderer {
 
@@ -25,15 +28,16 @@ public final class WidthCodedRenderer implements LinearRenderer {
 
         BufferedImage result = new BufferedImage(width, barHeight, BufferedImage.TYPE_INT_RGB);
         Graphics2D g2d = result.createGraphics();
-        g2d.setBackground(Color.WHITE);
+        g2d.setBackground(spec.background());
         g2d.clearRect(0, 0, width, barHeight);
 
         int x = 10 * barWidth; // 10 x Xdimension is leading quiet zone
         for (boolean bit : bits) {
-            g2d.setColor(bit ? Color.BLACK : Color.WHITE);
+            g2d.setColor(bit ? spec.foreground() : spec.background());
             g2d.fillRect(x, 0, barWidth, barHeight);
             x += barWidth;
         }
+        g2d.dispose();
         return result;
     }
 
@@ -46,7 +50,7 @@ public final class WidthCodedRenderer implements LinearRenderer {
         Graphics2D g2d = target.createGraphics();
         int x = offsetX + 10 * barWidth; // 10 x Xdimension is leading quiet zone
         for (boolean bit : bits) {
-            g2d.setColor(bit ? Color.BLACK : Color.WHITE);
+            g2d.setColor(bit ? spec.foreground() : spec.background());
             g2d.fillRect(x, offsetY, barWidth, barHeight);
             x += barWidth;
         }
@@ -62,13 +66,17 @@ public final class WidthCodedRenderer implements LinearRenderer {
 
         int totalWidth = calcTotalWidth((LinearSymbol) symbol, barWidth, barHeight, spec.wideRatio());
 
-        res.append("<path fill=\"#fff\" d=\"M0 0h");
+        res.append("<path fill=\"");
+        res.append(ColorUtil.hex(spec.background()));
+        res.append("\" d=\"M0 0h");
         res.append(totalWidth);
         res.append("v");
         res.append(barHeight + 4);
         res.append("H0z\"/>");
 
-        res.append("<path d=\"M");
+        res.append("<path fill=\"");
+        res.append(ColorUtil.hex(spec.foreground()));
+        res.append("\" d=\"M");
         res.append(10 * barWidth);
 
         int width = 0;
@@ -79,6 +87,7 @@ public final class WidthCodedRenderer implements LinearRenderer {
                 white += barWidth;
             } else {
                 if (white > 0 && width > 0) {
+                    // The relY token completes the implicit relative moveto pair (m dx dy).
                     res.append(" ");
                     res.append(relY);
                     res.append("h");
@@ -97,7 +106,9 @@ public final class WidthCodedRenderer implements LinearRenderer {
             }
         }
         if (width > 0) {
-            res.append(" 0h");
+            res.append(" ");
+            res.append(relY);
+            res.append("h");
             res.append(width);
             res.append("v");
             res.append(barHeight);

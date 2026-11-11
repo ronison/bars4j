@@ -12,8 +12,10 @@ import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
 
 /**
- * Phase 2: the unified registry/generator API must reproduce the legacy 1D SVG output
- * (verified against the Phase 0 goldens).
+ * Phase 2: the unified registry/generator API must reproduce the legacy 1D SVG output. The
+ * goldens were regenerated when the native renderers started honouring the {@code RenderSpec}
+ * colours and emitting spec-valid SVG paths; run with {@code -Dbars4j.updateGolden=true} to
+ * regenerate them.
  */
 class BarcodeGeneratorGoldenTest {
 
@@ -47,9 +49,13 @@ class BarcodeGeneratorGoldenTest {
     Stream<DynamicTest> generatorMatchesGoldenSvg() {
         return Stream.of(CASES).map(c -> dynamicTest(c.id(), () -> {
             String actual = BarcodeGenerator.of(c.id()).toSvg(c.code());
-            String expected = Files.readString(
-                    Path.of("src", "test", "resources", "golden", c.goldenName() + ".svg"));
-            assertEquals(expected, actual, "SVG mismatch for " + c.id());
+            Path file = Path.of("src", "test", "resources", "golden", c.goldenName() + ".svg");
+            if (Boolean.getBoolean("bars4j.updateGolden")) {
+                Files.createDirectories(file.getParent());
+                Files.writeString(file, actual);
+                return;
+            }
+            assertEquals(Files.readString(file), actual, "SVG mismatch for " + c.id());
         }));
     }
 }

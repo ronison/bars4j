@@ -35,7 +35,9 @@ import java.awt.image.BufferedImage;
  */
 public class BaseLineTextPainter implements TextPainter {
     
-    private static TextPainter instance; 
+    private static class Holder {
+        static final TextPainter INSTANCE = new BaseLineTextPainter();
+    }
     
     private Color textColor;
     
@@ -50,10 +52,7 @@ public class BaseLineTextPainter implements TextPainter {
     }
     
     public static TextPainter getInstance(){
-        if(instance == null){
-            instance = new BaseLineTextPainter();
-        }
-        return instance;
+        return Holder.INSTANCE;
     }
 
     public void paintText(BufferedImage barcode, String text, int nWidth) {
@@ -75,6 +74,7 @@ public class BaseLineTextPainter implements TextPainter {
         g2d.setColor(getTextColor());
         //texto primeiro quadrante
         g2d.drawString(text, center, barcode.getHeight() - (h/10));
+        g2d.dispose();
     }
 
 	@Override

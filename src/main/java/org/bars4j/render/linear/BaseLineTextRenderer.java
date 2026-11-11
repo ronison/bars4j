@@ -6,6 +6,9 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 
+import org.bars4j.render.RenderSpec;
+import org.bars4j.util.Escapes;
+
 /**
  * Draws a single centred line of text under the barcode (default for most linear formats).
  */
@@ -15,6 +18,13 @@ public final class BaseLineTextRenderer implements LinearTextRenderer {
 
     @Override
     public void paintText(BufferedImage barcode, String text, int nWidth) {
+        paintText(barcode, text, nWidth, null);
+    }
+
+    @Override
+    public void paintText(BufferedImage barcode, String text, int nWidth, RenderSpec spec) {
+        Color background = spec != null && spec.background() != null ? spec.background() : Color.WHITE;
+        Color foreground = spec != null && spec.foreground() != null ? spec.foreground() : Color.BLACK;
         Graphics g2d = barcode.getGraphics();
         Font f = new Font("monospace", Font.PLAIN, 10 * nWidth);
         g2d.setFont(f);
@@ -22,14 +32,15 @@ public final class BaseLineTextRenderer implements LinearTextRenderer {
         int h = fm.getHeight();
         int center = (barcode.getWidth() - fm.stringWidth(text)) / 2;
 
-        g2d.setColor(Color.WHITE);
+        g2d.setColor(background);
         // clear a line at the top
         g2d.fillRect(0, 0, barcode.getWidth(), barcode.getHeight() * 1 / 20);
         // clear a line at the bottom
         g2d.fillRect(0, barcode.getHeight() - (h * 9 / 10), barcode.getWidth(), (h * 9 / 10));
 
-        g2d.setColor(Color.BLACK);
+        g2d.setColor(foreground);
         g2d.drawString(text, center, barcode.getHeight() - (h / 10));
+        g2d.dispose();
     }
 
     @Override
@@ -49,7 +60,7 @@ public final class BaseLineTextRenderer implements LinearTextRenderer {
         res.append("\" y=\"");
         res.append(barHeight + FONT_SIZE - 2);
         res.append("\" class=\"small\" text-anchor=\"middle\">");
-        res.append(text);
+        res.append(Escapes.text(text));
         res.append("</text>");
         return res.toString();
     }

@@ -1,5 +1,7 @@
 package org.bars4j.encode.linear;
 
+import org.bars4j.encode.api.InvalidSymbolException;
+
 /**
  * Shared 2-of-5 tables and arithmetic (ported from the legacy {@code ToFEncoder}).
  */
@@ -22,7 +24,10 @@ final class ToFSupport {
      * payloads and would produce a wrong digit for odd lengths (e.g. the 13 data digits of an
      * ITF-14/GTIN-14).
      */
-    static String checkSum(String text) {
+    static String checkSum(String text) throws InvalidSymbolException {
+        if (text == null) {
+            throw new InvalidSymbolException("[2of5] Text must not be null.");
+        }
         int sum = 0;
         int length = text.length();
         for (int charPos = 0; charPos < length; charPos++) {

@@ -63,9 +63,9 @@ public abstract class EANEncoder implements BarcodeEncoder {
 		}
 	}
     
-    protected static int charToInt(char val) throws NumberFormatException{
+    protected static int charToInt(char val) throws InvalidAtributeException{
     	if(!Character.isDigit(val)){
-    		throw new NumberFormatException("Invalid number");
+    		throw new InvalidAtributeException("[EAN] Only numbers supported.");
     	}
         return val - '0';
     }

@@ -45,8 +45,8 @@ public class UPCAEncoder extends EANEncoder {
 	
 	
 	public BarSet[] encode(String texto) throws InvalidAtributeException {
-		if( texto.length() < 11 || texto.length() > 12  ){
-			throw new InvalidAtributeException("[UPCA] Invalid text length (" + texto.length() + ").");
+		if( texto == null || texto.length() != 12 ){
+			throw new InvalidAtributeException("[UPCA] Invalid text length (" + (texto == null ? "null" : texto.length()) + "): 12 digits are required.");
 		}
 		try{
 			return EAN13Encoder.getInstance().encode("0" + texto);
@@ -63,22 +63,34 @@ public class UPCAEncoder extends EANEncoder {
 	}
     
     public String convertUPCAtoUPCE(String upca) throws InvalidAtributeException{
-        if(upca.length() != 11 && upca.length() != 12){
-            throw new InvalidAtributeException("[UPCA] Invalid text length (" + upca.length() + ").");
+        if(upca == null || (upca.length() != 11 && upca.length() != 12)){
+            throw new InvalidAtributeException("[UPCA] Invalid text length (" + (upca == null ? "null" : upca.length()) + ").");
         }
         StringBuffer result = new StringBuffer();
         result.append(upca.charAt(0));
         if( upca.charAt(0) != '0' && upca.charAt(0) != '1' ){
             throw new InvalidAtributeException("[UPCA] Invalid Number System,  only 0 & 1 are valid (" + upca.charAt(0) + ").");
         } else if( "000".equals(upca.substring(3, 6)) || "100".equals(upca.substring(3, 6)) || "200".equals(upca.substring(3, 6)) ){
+            // Compression case 0/1/2 additionally requires product digits I1 and I2 to be zero.
+            if( upca.charAt(6) != '0' || upca.charAt(7) != '0' ){
+                throw new InvalidAtributeException("[UPCA] Code cannot be compressed to UPC-E: product digits I1/I2 must be 00.");
+            }
             result.append(upca.substring(1, 3));
             result.append(upca.substring(8, 11));
             result.append(upca.charAt(3));
         } else if( "00".equals(upca.substring(4, 6)) ){
+            // Compression case 3 additionally requires product digits I1..I3 to be zero.
+            if( upca.charAt(6) != '0' || upca.charAt(7) != '0' || upca.charAt(8) != '0' ){
+                throw new InvalidAtributeException("[UPCA] Code cannot be compressed to UPC-E: product digits I1..I3 must be 000.");
+            }
             result.append(upca.substring(1, 4));
             result.append(upca.substring(9, 11));
             result.append('3');
         } else if( upca.charAt(5) == '0' ){
+            // Compression case 4 additionally requires product digits I1..I4 to be zero.
+            if( upca.charAt(6) != '0' || upca.charAt(7) != '0' || upca.charAt(8) != '0' || upca.charAt(9) != '0' ){
+                throw new InvalidAtributeException("[UPCA] Code cannot be compressed to UPC-E: product digits I1..I4 must be 0000.");
+            }
             result.append(upca.substring(1, 5));
             result.append(upca.charAt(10));
             result.append('4');

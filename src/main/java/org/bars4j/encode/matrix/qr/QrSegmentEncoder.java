@@ -2,6 +2,7 @@ package org.bars4j.encode.matrix.qr;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Locale;
 
 /**
  * Turns input text into a {@link QrSegment}, choosing the densest single data mode able to
@@ -54,12 +55,64 @@ public final class QrSegmentEncoder {
         return StandardCharsets.ISO_8859_1;
     }
 
+    /**
+     * Returns the ECI assignment number for the given byte-mode character set, or {@code null}
+     * when the character set is the default (ISO-8859-1) and needs no announcement.
+     *
+     * @throws IllegalArgumentException if the character set has no ECI assignment
+     */
+    public static Integer eciDesignatorFor(Charset charset) {
+        if (charset == null || StandardCharsets.ISO_8859_1.equals(charset)) {
+            return null;
+        }
+        if (StandardCharsets.UTF_8.equals(charset)) {
+            return 26;
+        }
+        if (StandardCharsets.US_ASCII.equals(charset)) {
+            return 27;
+        }
+        if (StandardCharsets.UTF_16BE.equals(charset)) {
+            return 25;
+        }
+        String name = charset.name().toUpperCase(Locale.ROOT);
+        switch (name) {
+            case "SHIFT_JIS":
+            case "SJIS":
+                return 20;
+            case "WINDOWS-1250":
+            case "CP1250":
+                return 21;
+            case "WINDOWS-1251":
+            case "CP1251":
+                return 22;
+            case "WINDOWS-1252":
+            case "CP1252":
+                return 23;
+            case "WINDOWS-1256":
+            case "CP1256":
+                return 24;
+            case "BIG5":
+                return 28;
+            case "GB18030":
+            case "GB2312":
+            case "GBK":
+                return 29;
+            case "EUC-KR":
+            case "EUCKR":
+                return 30;
+            default:
+                throw new IllegalArgumentException("No ECI code for character set " + charset);
+        }
+    }
+
     private static boolean isAllDigits(String text) {
         if (text.isEmpty()) {
             return false;
         }
         for (int i = 0; i < text.length(); i++) {
-            if (!Character.isDigit(text.charAt(i))) {
+            // ISO 18004 restricts numeric mode to ASCII 0-9; other Unicode digit characters
+            // (e.g. fullwidth digits) must go through byte mode to round-trip correctly.
+            if (text.charAt(i) < '0' || text.charAt(i) > '9') {
                 return false;
             }
         }
@@ -118,7 +171,7 @@ public final class QrSegmentEncoder {
             int to = Math.min(from + 3, length);
             int packed = 0;
             for (int i = from; i < to; i++) {
-                packed = packed * 10 + Character.digit(text.charAt(i), 10);
+                packed = packed * 10 + (text.charAt(i) - '0');
             }
             int digits = to - from;
             values[g] = packed;

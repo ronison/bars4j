@@ -35,17 +35,16 @@ import java.awt.image.BufferedImage;
  */
 public class EAN13TextPainter implements TextPainter {
     
-    private static TextPainter instance;
+    private static class Holder {
+        static final TextPainter INSTANCE = new EAN13TextPainter();
+    }
     
     private EAN13TextPainter(){
         
     }
     
     public static TextPainter getInstance(){
-        if(instance == null){
-            instance = new EAN13TextPainter();
-        }
-        return instance;
+        return Holder.INSTANCE;
     }
 
     public void paintText(BufferedImage barcode, String text, int nWidth) {
@@ -85,6 +84,7 @@ public class EAN13TextPainter implements TextPainter {
         //texto segundo quadrante
         g2d.setColor(Color.black);
         g2d.drawString(text.substring(7), x+textXShift, textYPos);
+        g2d.dispose();
     }
     
     public StringBuffer paintTextSVG(StringBuffer barcode, String text, int barHeight, int nWidth) {
@@ -117,9 +117,7 @@ public class EAN13TextPainter implements TextPainter {
     	res.append(posY+10);
     	res.append("\" class=\"small\" textLength=\"43\">");
     	res.append(t3);
-    	res.append("</text><text x=\"106\" y=\"");
-    	res.append(posY+10);
-    	res.append("\" class=\"small\" textLength=\"8\">></text>");
+    	res.append("</text>");
     	return res;
     	
     }

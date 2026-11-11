@@ -6,6 +6,8 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 
+import org.bars4j.util.Escapes;
+
 /**
  * EAN-13 specific text layout (guard bars left visible, three text groups).
  */
@@ -41,6 +43,7 @@ public final class Ean13TextRenderer implements LinearTextRenderer {
         g2d.fillRect(x, y, textWidht, textHeight);
         g2d.setColor(Color.BLACK);
         g2d.drawString(text.substring(7), x + textXShift, textYPos);
+        g2d.dispose();
     }
 
     @Override
@@ -63,20 +66,18 @@ public final class Ean13TextRenderer implements LinearTextRenderer {
         res.append("<text x=\"0\" y=\"");
         res.append(posY + 10);
         res.append("\" class=\"small\" textLength=\"8\">");
-        res.append(t1);
+        res.append(Escapes.text(t1));
         res.append("</text>");
         res.append("<text x=\"13\" y=\"");
         res.append(posY + 10);
         res.append("\" class=\"small\" textLength=\"43\">");
-        res.append(t2);
+        res.append(Escapes.text(t2));
         res.append("</text>");
         res.append("<text x=\"59\" y=\"");
         res.append(posY + 10);
         res.append("\" class=\"small\" textLength=\"43\">");
-        res.append(t3);
-        res.append("</text><text x=\"106\" y=\"");
-        res.append(posY + 10);
-        res.append("\" class=\"small\" textLength=\"8\">></text>");
+        res.append(Escapes.text(t3));
+        res.append("</text>");
         return res.toString();
     }
 

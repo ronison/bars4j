@@ -38,17 +38,16 @@ import org.bars4j.encode.BarSet;
  */
 public class WideRatioCodedPainter implements BarcodePainter {
     
-    private static BarcodePainter instance; 
+    private static class Holder {
+        static final BarcodePainter INSTANCE = new WideRatioCodedPainter();
+    }
     
     private WideRatioCodedPainter(){
         
     }
     
     public static BarcodePainter getInstance(){
-        if(instance == null){
-            instance = new WideRatioCodedPainter();
-        }
-        return instance;
+        return Holder.INSTANCE;
     }
     
     /* (non-Javadoc)
@@ -95,6 +94,7 @@ public class WideRatioCodedPainter implements BarcodePainter {
                 x += width;
             }
         }
+        g2d.dispose();
         return result;
     }
     
@@ -105,13 +105,13 @@ public class WideRatioCodedPainter implements BarcodePainter {
 		int totalWidth = calcTotalWidth(barcode, barWidth, barHeight, wideRatio);
 		int wideWidth = (int)Math.round(barWidth*wideRatio);
 		
-		res.append("<path fill=\"#fff\" d=\"M0 0h");
+		res.append("<path fill=\"#ffffff\" d=\"M0 0h");
 		res.append(totalWidth);
 		res.append("v");
-		res.append(barHeight + 15);
+		res.append(barHeight + 4);
 		res.append("H0z\"/>");
 
-		res.append("<path d=\"");
+		res.append("<path fill=\"#000000\" d=\"");
 		//res.append(10*barWidth);
         
 		int pos = 10*barWidth;

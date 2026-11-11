@@ -9,6 +9,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.bars4j.encode.api.UnsupportedTextException;
+
 /**
  * First level of Aztec encoding: converts the raw input bytes into the bit stream of mode codes,
  * temporary shifts and binary-shift runs.
@@ -41,7 +43,7 @@ public final class AztecHighLevelEncoder {
     }
 
     /** Encodes the input into the first-level bit stream. */
-    public AztecBitBuffer encode() {
+    public AztecBitBuffer encode() throws UnsupportedTextException {
         AztecEncoderState initial = AztecEncoderState.initial();
         if (charset != null) {
             initial = initial.announceCharset(AztecEci.valueFor(charset));

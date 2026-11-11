@@ -19,8 +19,8 @@ public final class UpcaEncoder implements LinearEncoder {
 
     @Override
     public LinearSymbol encode(String text) throws InvalidSymbolException {
-        if (text.length() < 11 || text.length() > 12) {
-            throw new InvalidSymbolException("[UPCA] Invalid text length (" + text.length() + ").");
+        if (text == null || text.length() < 11 || text.length() > 12) {
+            throw new InvalidSymbolException("[UPCA] Invalid text length (" + (text == null ? "null" : text.length()) + ").");
         }
         if (text.length() == 12) {
             try {

@@ -6,6 +6,8 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 
+import org.bars4j.util.Escapes;
+
 /**
  * EAN-8 specific text layout (two 4-digit groups).
  */
@@ -40,6 +42,7 @@ public final class Ean8TextRenderer implements LinearTextRenderer {
         g2d.fillRect(x, y, textWidht, textHeight);
         g2d.setColor(Color.BLACK);
         g2d.drawString(text.substring(4), x + textXShift, textYPos);
+        g2d.dispose();
     }
 
     @Override
@@ -61,12 +64,12 @@ public final class Ean8TextRenderer implements LinearTextRenderer {
         res.append("<text x=\"13\" y=\"");
         res.append(posY + 10);
         res.append("\" class=\"small\" textLength=\"29\">");
-        res.append(t1);
+        res.append(Escapes.text(t1));
         res.append("</text>");
         res.append("<text x=\"45\" y=\"");
         res.append(posY + 10);
         res.append("\" class=\"small\" textLength=\"29\">");
-        res.append(t2);
+        res.append(Escapes.text(t2));
         res.append("</text>");
 
         return res.toString();

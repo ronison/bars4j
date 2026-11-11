@@ -19,8 +19,14 @@ public final class PostNetEncoder implements LinearEncoder {
 
     @Override
     public LinearSymbol encode(String text) throws InvalidSymbolException {
-        if (text.length() < 1) {
-            throw new InvalidSymbolException("[PostNet] Tamanho de texto invalido (" + text.length() + ").");
+        if (text == null || text.length() < 1) {
+            throw new InvalidSymbolException("[PostNet] Tamanho de texto invalido (" + (text == null ? "null" : text.length()) + ").");
+        }
+        // The USPS POSTNET pattern only defines ZIP (5 data + check digit = 6), ZIP+4
+        // (9 data + check digit = 10) and delivery point (11 data + check digit = 12)
+        // barcodes; the encoder receives the complete code including the check digit.
+        if (text.length() != 6 && text.length() != 10 && text.length() != 12) {
+            throw new InvalidSymbolException("[PostNet] Invalid text length (" + text.length() + "): only 6, 10 or 12 digits are supported.");
         }
         StringBuilder bits = new StringBuilder();
         try {

@@ -54,14 +54,18 @@ public class UPCEEncoder extends EANEncoder {
     }
 	
 	public BarSet[] encode(String texto) throws InvalidAtributeException {
-		if( texto.length() != 8  ){
-			throw new InvalidAtributeException("[UPCE] Invalid text length (" + texto.length() + ").");
+		if( texto == null || texto.length() != 8  ){
+			throw new InvalidAtributeException("[UPCE] Invalid text length (" + (texto == null ? "null" : texto.length()) + ").");
 		}
 		
 		BarSet [] result = new BarSet[8];
 		try{		
 			int check = charToInt(texto.charAt(7));
 			int primeiro = charToInt(texto.charAt(0));
+			// UPC-E is restricted to number system 0 or 1.
+			if( primeiro != 0 && primeiro != 1 ){
+				throw new InvalidAtributeException("[UPCE] Invalid Number System, only 0 & 1 are valid (" + primeiro + ").");
+			}
 			BarSet par = (primeiro == 0 ? DIGIT_PARITY[check] : DIGIT_PARITY[check].xorTrue()); 
 			
             //tres barras iniciais

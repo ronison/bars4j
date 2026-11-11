@@ -96,6 +96,17 @@ public final class QrVersion {
         return VERSIONS.length;
     }
 
+    /**
+     * Returns the smallest version whose data capacity fits {@code dataBits} at the given ECC
+     * level.
+     *
+     * @deprecated This method is a capacity trap: the character-count indicator width grows with
+     *             the version, so a caller that computes {@code dataBits} using a smaller
+     *             version's indicator width may receive a version whose real capacity (after the
+     *             indicators) does not fit the data. Compute the version with the segment as a
+     *             whole instead (as {@code QRCodeEncoder.chooseVersion} does).
+     */
+    @Deprecated(since = "0.7.4", forRemoval = true)
     public static QrVersion smallestVersionForData(int dataBits, QrEccLevel level) {
         for (QrVersion version : VERSIONS) {
             if (version.ecBlocks(level).totalDataCodewords() * 8 >= dataBits) {

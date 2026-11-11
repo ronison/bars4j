@@ -57,8 +57,14 @@ public class PostNetEncoder implements BarcodeEncoder {
 	 * @see org.jbarcode.BarcodeEncoder#gerarCodigo(java.lang.String)
 	 */
 	public BarSet[] encode(String texto) throws InvalidAtributeException {
-		if( texto.length() < 1 ){
-			throw new InvalidAtributeException("[PostNet] Tamanho de texto invalido (" + texto.length() + ").");
+		if( texto == null || texto.length() < 1 ){
+			throw new InvalidAtributeException("[PostNet] Tamanho de texto invalido (" + (texto == null ? "null" : texto.length()) + ").");
+		}
+		// The USPS POSTNET pattern only defines ZIP (5 data + check digit = 6), ZIP+4
+		// (9 data + check digit = 10) and delivery point (11 data + check digit = 12)
+		// barcodes; the encoder receives the complete code including the check digit.
+		if( texto.length() != 6 && texto.length() != 10 && texto.length() != 12 ){
+			throw new InvalidAtributeException("[PostNet] Invalid text length (" + texto.length() + "): only 6, 10 or 12 digits are supported.");
 		}
 
 		BarSet [] result = new BarSet[texto.length() + 2];

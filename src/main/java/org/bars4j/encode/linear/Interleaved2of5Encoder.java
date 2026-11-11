@@ -15,8 +15,13 @@ public final class Interleaved2of5Encoder implements LinearEncoder {
 
     @Override
     public LinearSymbol encode(String text) throws InvalidSymbolException {
-        if (text.length() < 1) {
-            throw new InvalidSymbolException("[Interleaved2of5] Invalid text length (" + text.length() + ").");
+        if (text == null || text.length() < 1) {
+            throw new InvalidSymbolException("[Interleaved2of5] Invalid text length (" + (text == null ? "null" : text.length()) + ").");
+        }
+        if (text.length() % 2 != 0) {
+            // Interleaved 2 of 5 encodes digit pairs; an odd-length input would silently drop
+            // its last digit.
+            throw new InvalidSymbolException("[Interleaved2of5] Invalid text length (" + text.length() + "): an even number of digits is required.");
         }
         for (int i = 0; i < text.length(); i++) {
             if (!Character.isDigit(text.charAt(i))) {

@@ -29,8 +29,8 @@ public class WideRatioCodedRenderer implements LinearRenderer {
 
         BufferedImage result = new BufferedImage(width, barHeight, BufferedImage.TYPE_INT_RGB);
         Graphics2D g2d = result.createGraphics();
-        g2d.setBackground(Color.WHITE);
-        g2d.setColor(Color.BLACK);
+        g2d.setBackground(spec.background());
+        g2d.setColor(spec.foreground());
         g2d.clearRect(0, 0, width, barHeight);
 
         int x = 10 * barWidth; // 10 x Xdimension is leading quiet zone
@@ -38,10 +38,11 @@ public class WideRatioCodedRenderer implements LinearRenderer {
         for (boolean bit : bits) {
             int w = bit ? wideWidth : barWidth;
             g2d.fillRect(x, 0, w, barHeight);
-            g2d.setColor(flag ? Color.WHITE : Color.BLACK);
+            g2d.setColor(flag ? spec.background() : spec.foreground());
             flag = !flag;
             x += w;
         }
+        g2d.dispose();
         return result;
     }
 
@@ -53,13 +54,13 @@ public class WideRatioCodedRenderer implements LinearRenderer {
         int wideWidth = (int) Math.round(barWidth * spec.wideRatio());
 
         Graphics2D g2d = target.createGraphics();
-        g2d.setColor(Color.BLACK);
+        g2d.setColor(spec.foreground());
         int x = offsetX + 10 * barWidth; // 10 x Xdimension is leading quiet zone
         boolean flag = true;
         for (boolean bit : bits) {
             int w = bit ? wideWidth : barWidth;
             g2d.fillRect(x, offsetY, w, barHeight);
-            g2d.setColor(flag ? Color.WHITE : Color.BLACK);
+            g2d.setColor(flag ? spec.background() : spec.foreground());
             flag = !flag;
             x += w;
         }
@@ -77,13 +78,17 @@ public class WideRatioCodedRenderer implements LinearRenderer {
         int totalWidth = calcTotalWidth((LinearSymbol) symbol, barWidth, barHeight, wideRatio);
         int wideWidth = (int) Math.round(barWidth * wideRatio);
 
-        res.append("<path fill=\"#fff\" d=\"M0 0h");
+        res.append("<path fill=\"");
+        res.append(ColorUtil.hex(spec.background()));
+        res.append("\" d=\"M0 0h");
         res.append(totalWidth);
         res.append("v");
-        res.append(barHeight + 15);
+        res.append(barHeight + 4);
         res.append("H0z\"/>");
 
-        res.append("<path d=\"");
+        res.append("<path fill=\"");
+        res.append(ColorUtil.hex(spec.foreground()));
+        res.append("\" d=\"");
 
         int pos = 10 * barWidth;
         int relPos = 0;

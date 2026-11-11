@@ -24,8 +24,8 @@ public final class CodabarEncoder implements LinearEncoder {
 
     @Override
     public LinearSymbol encode(String text) throws InvalidSymbolException {
-        if (text.length() < 1) {
-            throw new InvalidSymbolException("[Codabar] Invalid text length (" + text.length() + ").");
+        if (text == null || text.length() < 1) {
+            throw new InvalidSymbolException("[Codabar] Invalid text length (" + (text == null ? "null" : text.length()) + ").");
         }
         StringBuilder bits = new StringBuilder();
         bits.append(CODES_WIDTH[START_CHAR_A]);

@@ -14,8 +14,9 @@ import org.bars4j.encode.matrix.qr.QrVersion;
 import org.bars4j.symbol.MatrixSymbol;
 
 /**
- * Self-contained QRCode encoder (versions 1-10, ECC levels L/M/Q/H, numeric/alphanumeric/byte
- * modes). No runtime dependency on any external QR library.
+ * Self-contained QRCode encoder (versions 1-40, ECC levels L/M/Q/H, numeric/alphanumeric/byte
+ * modes, with ECI announcement for non-default character sets). No runtime dependency on any
+ * external QR library.
  */
 public final class QRCodeEncoder implements MatrixEncoder {
 
@@ -45,11 +46,19 @@ public final class QRCodeEncoder implements MatrixEncoder {
 
     @Override
     public MatrixSymbol encode(String text) throws UnsupportedTextException {
+        if (text == null) {
+            throw new UnsupportedTextException("Text must not be null");
+        }
         QrSegment segment = QrSegmentEncoder.encode(text, charset);
-        QrVersion version = chooseVersion(segment);
+        QrVersion version = chooseVersion(segment, eciDesignator());
         QrVersion.EcBlocks ecBlocks = version.ecBlocks(eccLevel);
 
         QrBitStream stream = new QrBitStream();
+        if (eciDesignator() != null) {
+            // ECI segment: mode 0000, 8-bit assignment number (ISO/IEC 18004 §F).
+            stream.append(0, 4);
+            stream.append(eciDesignator(), 8);
+        }
         segment.appendTo(stream, version.versionNumber());
         stream.padToCapacity(ecBlocks.totalDataCodewords());
 
@@ -59,16 +68,23 @@ public final class QRCodeEncoder implements MatrixEncoder {
         return new MatrixSymbol(modules, QUIET_ZONE);
     }
 
+    /** The ECI designator announced before the data segments, or {@code null} for none. */
+    private Integer eciDesignator() {
+        return QrSegmentEncoder.eciDesignatorFor(charset);
+    }
+
     @Override
     public String computeCheckSum(String text) {
         // QRCode error correction is computed internally, there is no external check digit.
         return "";
     }
 
-    private QrVersion chooseVersion(QrSegment segment) throws UnsupportedTextException {
+    private QrVersion chooseVersion(QrSegment segment, Integer eciDesignator) throws UnsupportedTextException {
+        int eciBits = eciDesignator != null ? 12 : 0;
         if (forcedVersion != null) {
             QrVersion version = QrVersion.getVersionForNumber(forcedVersion);
-            if (requiredBits(segment, version.versionNumber()) > version.ecBlocks(eccLevel).totalDataCodewords() * 8) {
+            if (requiredBits(segment, version.versionNumber()) + eciBits
+                    > version.ecBlocks(eccLevel).totalDataCodewords() * 8) {
                 throw new UnsupportedTextException(
                         "Data does not fit in forced version " + forcedVersion + " at level " + eccLevel);
             }
@@ -76,7 +92,8 @@ public final class QRCodeEncoder implements MatrixEncoder {
         }
         for (int number = 1; number <= QrVersion.maxVersion(); number++) {
             QrVersion version = QrVersion.getVersionForNumber(number);
-            if (requiredBits(segment, number) <= version.ecBlocks(eccLevel).totalDataCodewords() * 8) {
+            if (requiredBits(segment, number) + eciBits
+                    <= version.ecBlocks(eccLevel).totalDataCodewords() * 8) {
                 return version;
             }
         }

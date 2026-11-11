@@ -35,17 +35,16 @@ import java.awt.image.BufferedImage;
  */
 public class UPCATextPainter implements TextPainter {
     
-    private static TextPainter instance; 
+    private static class Holder {
+        static final TextPainter INSTANCE = new UPCATextPainter();
+    }
     
     private UPCATextPainter(){
         
     }
     
     public static TextPainter getInstance(){
-        if(instance == null){
-            instance = new UPCATextPainter();
-        }
-        return instance;
+        return Holder.INSTANCE;
     }
 
     public void paintText(BufferedImage barcode, String text, int nWidth) {
@@ -88,6 +87,7 @@ public class UPCATextPainter implements TextPainter {
         
         //digito verificador
         g2d.drawString(text.substring(11), barcode.getWidth() - (8*nWidth), textYPos);
+        g2d.dispose();
     }
 
 	@Override

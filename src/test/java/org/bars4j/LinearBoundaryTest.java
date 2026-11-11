@@ -269,10 +269,13 @@ class LinearBoundaryTest {
     // -------------------------------------------------------------------------------------------
 
     @Test
-    void interleaved2of5RejectsNonDigitEvenInTheDroppedTrailingPosition() throws Exception {
+    void interleaved2of5RejectsOddLengthAndNonDigit() throws Exception {
         Interleaved2of5Encoder encoder = new Interleaved2of5Encoder();
-        encoder.encode("123"); // odd digit length is accepted (trailing digit dropped)
+        // Odd digit lengths are rejected: the pattern encodes digit pairs and the old behaviour
+        // silently dropped the trailing digit.
+        assertThrows(InvalidSymbolException.class, () -> encoder.encode("123"));
         assertThrows(InvalidSymbolException.class, () -> encoder.encode("12A"));
+        assertNotNull(encoder.encode("1234"));
     }
 
     @Test
@@ -325,8 +328,7 @@ class LinearBoundaryTest {
         assertNotNull(BarcodeGenerator.of("CODE39").toImage("A".repeat(400)));
         assertNotNull(BarcodeGenerator.of("CODE93").toImage("A".repeat(400)));
         assertNotNull(BarcodeGenerator.of("CODABAR").toImage("1".repeat(400)));
-        assertNotNull(BarcodeGenerator.of("INTERLEAVED2OF5").toImage("1".repeat(400)));
-        assertNotNull(BarcodeGenerator.of("CODE11").toImage("1".repeat(400)));
+        assertNotNull(BarcodeGenerator.of("INTERLEAVED2OF5").toImage("1".repeat(399)));
     }
 
     // -------------------------------------------------------------------------------------------

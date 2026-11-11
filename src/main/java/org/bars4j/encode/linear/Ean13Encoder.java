@@ -22,8 +22,8 @@ public final class Ean13Encoder implements LinearEncoder {
 
     @Override
     public LinearSymbol encode(String text) throws InvalidSymbolException {
-        if (text.length() < 12 || text.length() > 13) {
-            throw new InvalidSymbolException("[EAN13] Invalid text length (" + text.length() + ").");
+        if (text == null || text.length() < 12 || text.length() > 13) {
+            throw new InvalidSymbolException("[EAN13] Invalid text length (" + (text == null ? "null" : text.length()) + ").");
         }
         // A 12-digit input is the data part: complete it with its check digit. A 13-digit input is
         // already complete, so its check digit is validated and the text is encoded verbatim.

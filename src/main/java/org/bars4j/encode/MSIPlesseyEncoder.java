@@ -55,6 +55,14 @@ public class MSIPlesseyEncoder implements BarcodeEncoder {
     }
 
 	public String computeCheckSum(String text) throws InvalidAtributeException {
+		if (text == null) {
+			throw new InvalidAtributeException("[MSIPlessey] Invalid text length (null).");
+		}
+		for (int i = 0; i < text.length(); i++) {
+			if (text.charAt(i) < '0' || text.charAt(i) > '9') {
+				throw new InvalidAtributeException("[MSIPlessey] Only numbers suported.");
+			}
+		}
 		StringBuffer newNumber = new StringBuffer();
 		StringBuffer numTotal = new StringBuffer(); 
 		for (int i = text.length() - 1; i >= 0; i-=2) {
@@ -63,7 +71,8 @@ public class MSIPlesseyEncoder implements BarcodeEncoder {
 				numTotal.append(text.charAt(i-1));
 			}
 		}
-		numTotal.append(2 * Integer.parseInt(newNumber.toString()));
+		// Doubled without Integer.parseInt so that arbitrarily long inputs cannot overflow.
+		numTotal.append(doubleDigits(newNumber.toString()));
 		
 		int sum = 0;
 		String num = numTotal.toString();
@@ -74,18 +83,39 @@ public class MSIPlesseyEncoder implements BarcodeEncoder {
 		return Integer.toString(10 - (sum%10 == 0 ? 10 : sum%10));
 	}
 
+	/**
+	 * Doubles a decimal digit string, returning the result as a digit string. Implemented without
+	 * {@code Integer.parseInt} so that arbitrarily long inputs cannot overflow.
+	 */
+	private static String doubleDigits(String digits) {
+		StringBuffer doubled = new StringBuffer(digits.length() + 1);
+		int carry = 0;
+		for (int i = digits.length() - 1; i >= 0; i--) {
+			int value = (digits.charAt(i) - '0') * 2 + carry;
+			doubled.append((char) ('0' + value % 10));
+			carry = value / 10;
+		}
+		if (carry > 0) {
+			doubled.append((char) ('0' + carry));
+		}
+		return doubled.reverse().toString();
+	}
+
 
 	public BarSet[] encode(String text) throws InvalidAtributeException {
-		BarSet [] result = new BarSet[text.length() + 2];
-		try{
-			result[0] = START_CHAR;
-			for (int i = 0; i < text.length(); i++) {
-				result[i+1] = CODES_WIDTH[charToInt(text.charAt(i))];
-			}
-			result[result.length - 1] = STOP_CHAR;
-		}catch ( Exception e) {
-			throw new InvalidAtributeException("[MSIPlessey] Only numbers suported.");
+		if (text == null || text.length() < 1) {
+			throw new InvalidAtributeException("[MSIPlessey] Invalid text length (" + (text == null ? "null" : text.length()) + ").");
 		}
+		BarSet [] result = new BarSet[text.length() + 2];
+		result[0] = START_CHAR;
+		for (int i = 0; i < text.length(); i++) {
+			char c = text.charAt(i);
+			if (c < '0' || c > '9') {
+				throw new InvalidAtributeException("[MSIPlessey] Only numbers suported.");
+			}
+			result[i+1] = CODES_WIDTH[charToInt(c)];
+		}
+		result[result.length - 1] = STOP_CHAR;
 		return result;
 	}
 	

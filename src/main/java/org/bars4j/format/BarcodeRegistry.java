@@ -2,6 +2,7 @@ package org.bars4j.format;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -31,11 +32,11 @@ public final class BarcodeRegistry {
         return INSTANCE;
     }
 
-    public void register(BarcodeFormat format) {
+    public synchronized void register(BarcodeFormat format) {
         formats.put(normalize(format.id()), format);
     }
 
-    public BarcodeFormat get(String id) {
+    public synchronized BarcodeFormat get(String id) {
         BarcodeFormat format = formats.get(normalize(id));
         if (format == null) {
             throw new IllegalArgumentException("Unknown barcode format: " + id);
@@ -43,16 +44,16 @@ public final class BarcodeRegistry {
         return format;
     }
 
-    public boolean contains(String id) {
+    public synchronized boolean contains(String id) {
         return formats.containsKey(normalize(id));
     }
 
-    public Set<String> ids() {
+    public synchronized Set<String> ids() {
         return Set.copyOf(formats.keySet());
     }
 
-    public Collection<BarcodeFormat> formats() {
-        return formats.values();
+    public synchronized Collection<BarcodeFormat> formats() {
+        return List.copyOf(formats.values());
     }
 
     private static String normalize(String id) {

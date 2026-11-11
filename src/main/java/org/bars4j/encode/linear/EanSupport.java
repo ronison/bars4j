@@ -19,7 +19,10 @@ final class EanSupport {
     private EanSupport() {
     }
 
-    static String checkSum(String text) {
+    static String checkSum(String text) throws InvalidSymbolException {
+        if (text == null) {
+            throw new InvalidSymbolException("[EAN] Text must not be null.");
+        }
         int sum = 0;
         int odd = text.length() % 2;
         for (int charPos = 0; charPos < text.length(); charPos++) {

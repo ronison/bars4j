@@ -94,15 +94,20 @@ public class BarcodeComponent extends JComponent implements PropertyChangeListen
 
     /**
      * @param text The text to set.
-     * @throws InvalidAtributeException 
+     * @throws InvalidAtributeException if the text is invalid for the current encoder.
      */
     public void setText(String text) throws InvalidAtributeException {
-        if(text.equals(getText())){
+        if (text == null) {
+            throw new InvalidAtributeException("Text must not be null");
+        }
+        if (text.equals(getText())) {
             return;
         }
+        // Validate before mutating any state so a failed update leaves the component consistent.
+        String checksum = barcode.calcCheckSum(text);
         String old = this.text;
         this.text = text;
-        this.checkSum = barcode.calcCheckSum(text);
+        this.checkSum = checksum;
         firePropertyChange("Text", old, text);
         invalidate();
         repaint();
@@ -239,7 +244,8 @@ public class BarcodeComponent extends JComponent implements PropertyChangeListen
                 img = barcode.createBarcode(text);
             }
         } catch (InvalidAtributeException exc) {
-        	//throw new RuntimeException(exc);
+            // Keep the last successful image: the visible barcode stays consistent with the
+            // last valid text instead of showing a stale rendering of the failed one.
         }
     }
 
@@ -356,5 +362,18 @@ public class BarcodeComponent extends JComponent implements PropertyChangeListen
         invalidate();
         repaint();
 	}
-    
+
+    @Override
+    public java.awt.Dimension getPreferredSize() {
+        if (img == null) {
+            return super.getPreferredSize();
+        }
+        return new java.awt.Dimension(img.getWidth(), img.getHeight());
+    }
+
+    /** Test hook: exposes the last rendered barcode image. */
+    BufferedImage currentImage() {
+        return img;
+    }
+
 }

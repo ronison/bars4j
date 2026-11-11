@@ -19,8 +19,8 @@ public record Pdf417Dimensions(int minCols, int maxCols, int minRows, int maxRow
         }
     }
 
-    /** Returns the standard 2-30 by 2-30 dimensions range. */
+    /** Returns the standard dimensions range (ISO/IEC 15438 allows 3-90 rows, 1-30 columns). */
     public static Pdf417Dimensions standard() {
-        return new Pdf417Dimensions(2, 30, 2, 30);
+        return new Pdf417Dimensions(2, 30, 3, 90);
     }
 }

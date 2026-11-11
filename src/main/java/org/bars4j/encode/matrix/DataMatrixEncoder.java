@@ -40,6 +40,9 @@ public final class DataMatrixEncoder implements MatrixEncoder {
 
     @Override
     public MatrixSymbol encode(String text) throws UnsupportedTextException {
+        if (text == null) {
+            throw new UnsupportedTextException("Text must not be null");
+        }
         int[] message = DataMatrixHighLevelEncoder.encodeToCodewords(text);
         DataMatrixSymbolInfo symbolInfo;
         try {

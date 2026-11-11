@@ -15,8 +15,8 @@ public class Standard2of5Encoder implements LinearEncoder {
 
     @Override
     public LinearSymbol encode(String text) throws InvalidSymbolException {
-        if (text.length() < 1) {
-            throw new InvalidSymbolException("[Standard2of5] Invalid text length (" + text.length() + ").");
+        if (text == null || text.length() < 1) {
+            throw new InvalidSymbolException("[Standard2of5] Invalid text length (" + (text == null ? "null" : text.length()) + ").");
         }
         StringBuilder bits = new StringBuilder();
         try {

@@ -25,14 +25,18 @@ public final class UpceEncoder implements LinearEncoder {
 
     @Override
     public LinearSymbol encode(String text) throws InvalidSymbolException {
-        if (text.length() != 8) {
-            throw new InvalidSymbolException("[UPCE] Invalid text length (" + text.length() + ").");
+        if (text == null || text.length() != 8) {
+            throw new InvalidSymbolException("[UPCE] Invalid text length (" + (text == null ? "null" : text.length()) + ").");
         }
         EanSupport.validateCheckDigit("UPCE", text.charAt(7), computeCheckSum(text.substring(0, 7)));
         StringBuilder bits = new StringBuilder();
         try {
             int check = LinearBits.digit(text.charAt(7));
             int primeiro = LinearBits.digit(text.charAt(0));
+            // UPC-E is restricted to number system 0 or 1.
+            if (primeiro != 0 && primeiro != 1) {
+                throw new InvalidSymbolException("[UPCE] Invalid Number System, only 0 & 1 are valid (" + primeiro + ").");
+            }
             String par = primeiro == 0
                     ? DIGIT_PARITY[check]
                     : LinearBits.invert(DIGIT_PARITY[check]);

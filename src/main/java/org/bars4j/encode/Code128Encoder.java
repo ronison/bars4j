@@ -21,6 +21,7 @@
  */
 package org.bars4j.encode;
 
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /**
@@ -209,7 +210,10 @@ public class Code128Encoder implements BarcodeEncoder {
      * @param s The charcater to encode
      * @return The code to use to encode the specified
      */
-    private int getCode(byte s) {
+    private int getCode(byte s) throws InvalidAtributeException {
+        if (s < 32 || s > 126) {
+            throw new InvalidAtributeException("[Code128] The text contains unsuported chars.");
+        }
         return s - 32;
     }
 
@@ -225,8 +229,9 @@ public class Code128Encoder implements BarcodeEncoder {
         // We'll collect up the BarSets to return in a List
         List<BarSet> result = new ArrayList<BarSet>();
 
-        // Turn into an array for convenience
-        byte[] bytes = texto.getBytes();
+        // Turn into an array for convenience (ISO-8859-1 keeps the byte-per-character mapping
+        // that Code 128 subset B is defined over, independent of the platform charset).
+        byte[] bytes = texto.getBytes(StandardCharsets.ISO_8859_1);
 
         // Start using numeric
         boolean usingNumericEncoding = false;

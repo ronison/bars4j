@@ -33,17 +33,16 @@ import org.bars4j.encode.BarSet;
 
 
 public class CircularPainter implements BarcodePainter {	    
-    private static BarcodePainter instance; 
+    private static class Holder {
+        static final BarcodePainter INSTANCE = new CircularPainter();
+    }
     
     private CircularPainter (){
         
     }
         
     public static BarcodePainter getInstance(){
-        if(instance == null){
-            instance = new CircularPainter ();
-        }
-        return instance;
+        return Holder.INSTANCE;
     }
     
     /* (non-Javadoc)
@@ -100,19 +99,23 @@ public class CircularPainter implements BarcodePainter {
                 x += width;
             }
         }
+        g2d.dispose();
         return result;
     }
 
 	@Override
 	public StringBuffer paintToSVG(BarSet[] barcode, int barWidth, int barHeight, double wideRatio) {
-		// TODO Auto-generated method stub
-		return null;
+		// Circular (spiral) rendering has no SVG implementation: returning null here would
+		// produce a NullPointerException deeper in the SVG pipeline.
+		throw new UnsupportedOperationException(
+				"CircularPainter does not support SVG output; use paintToImg instead.");
 	}
 
 	@Override
 	public int calcTotalWidth(BarSet[] barcode, int barWidth, int barHeight, double wideRatio) {
-		// TODO Auto-generated method stub
-		return 0;
+		// Circular (spiral) rendering has no linear width: see paintToSVG.
+		throw new UnsupportedOperationException(
+				"CircularPainter does not support linear width calculation; use paintToImg instead.");
 	}
 
 }

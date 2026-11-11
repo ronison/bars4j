@@ -49,8 +49,13 @@ public class Interleaved2of5Encoder extends ToFEncoder {
     }
 	
 	public BarSet[] encode(String text) throws InvalidAtributeException {
-		if( text.length() < 1 ){
-			throw new InvalidAtributeException("[Interleaved2of5] Invalid text length (" + text.length() + ").");
+		if( text == null || text.length() < 1 ){
+			throw new InvalidAtributeException("[Interleaved2of5] Invalid text length (" + (text == null ? "null" : text.length()) + ").");
+		}
+		if( text.length() % 2 != 0 ){
+			// Interleaved 2 of 5 encodes digit pairs; an odd-length input would silently drop
+			// its last digit.
+			throw new InvalidAtributeException("[Interleaved2of5] Invalid text length (" + text.length() + "): an even number of digits is required.");
 		}
 				
 		BarSet [] result = new BarSet[(text.length()/2) + 2];

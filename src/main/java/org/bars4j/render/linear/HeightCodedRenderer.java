@@ -46,6 +46,8 @@ public final class HeightCodedRenderer implements LinearRenderer {
         int barHeight = spec.barHeight();
 
         Graphics2D g2d = target.createGraphics();
+        g2d.setColor(spec.background());
+        g2d.fillRect(offsetX, offsetY, calcTotalWidth((LinearSymbol) symbol, barWidth, barHeight, spec.wideRatio()), barHeight);
         g2d.setColor(spec.foreground());
         int x = offsetX + 10 * barWidth; // 10 x Xdimension is leading quiet zone
         for (boolean bit : bits) {
@@ -66,13 +68,17 @@ public final class HeightCodedRenderer implements LinearRenderer {
         int totalWidth = calcTotalWidth((LinearSymbol) symbol, barWidth, barHeight, spec.wideRatio());
         int pos = 10 * barWidth;
 
-        res.append("<path fill=\"#fff\" d=\"M0 0h");
+        res.append("<path fill=\"");
+        res.append(ColorUtil.hex(spec.background()));
+        res.append("\" d=\"M0 0h");
         res.append(totalWidth);
         res.append("v");
-        res.append(barHeight + 15);
+        res.append(barHeight + 4);
         res.append("H0z\"/>");
 
-        res.append("<path d=\"");
+        res.append("<path fill=\"");
+        res.append(ColorUtil.hex(spec.foreground()));
+        res.append("\" d=\"");
 
         int relPos = 0;
         int relY = 10;

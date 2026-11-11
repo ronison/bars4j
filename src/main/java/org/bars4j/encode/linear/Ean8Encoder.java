@@ -17,8 +17,8 @@ public final class Ean8Encoder implements LinearEncoder {
 
     @Override
     public LinearSymbol encode(String text) throws InvalidSymbolException {
-        if (text.length() != 8) {
-            throw new InvalidSymbolException("[EAN8] Invalid text length (" + text.length() + ").");
+        if (text == null || text.length() != 8) {
+            throw new InvalidSymbolException("[EAN8] Invalid text length (" + (text == null ? "null" : text.length()) + ").");
         }
         StringBuilder bits = new StringBuilder();
         try {

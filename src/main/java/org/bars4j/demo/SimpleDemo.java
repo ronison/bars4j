@@ -323,10 +323,8 @@ public class SimpleDemo {
     }     
     
     static void saveToFile(BufferedImage img, String fileName, String format){
-    	try{
-            FileOutputStream fos = new FileOutputStream("./images/"+fileName);
+    	try (FileOutputStream fos = new FileOutputStream("./images/"+fileName)) {
             ImageUtil.encodeAndWrite(img, format, fos, 96, 96);
-            fos.close();
         }catch (Exception e) {
             e.printStackTrace();
         }
@@ -334,11 +332,9 @@ public class SimpleDemo {
     
     static void saveToSVG(StringBuffer data, String fileName) {
     	
-		try {
-			PrintWriter writer = new PrintWriter("./images/"+fileName, "UTF-8");
+		try (PrintWriter writer = new PrintWriter("./images/"+fileName, "UTF-8")) {
 
 	    	writer.append(data);
-	    	writer.close();
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

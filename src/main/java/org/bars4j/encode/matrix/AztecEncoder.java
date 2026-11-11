@@ -55,6 +55,9 @@ public final class AztecEncoder implements MatrixEncoder {
 
     @Override
     public MatrixSymbol encode(String text) throws UnsupportedTextException {
+        if (text == null) {
+            throw new UnsupportedTextException("Text must not be null");
+        }
         AztecCode code = AztecSymbolEncoder.encode(text, eccPercent, forcedLayers, charset);
         return new MatrixSymbol(code.modules(), QUIET_ZONE);
     }

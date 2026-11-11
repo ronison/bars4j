@@ -100,7 +100,7 @@ public final class Pdf417HighLevelEncoder {
      */
     public static String encodeHighLevel(String msg, Pdf417Compaction compaction, Charset encoding)
             throws UnsupportedTextException {
-        if (msg.isEmpty()) {
+        if (msg == null || msg.isEmpty()) {
             throw new UnsupportedTextException("Empty message not allowed");
         }
         Charset charset = encoding != null ? encoding : DEFAULT_CHARSET;
@@ -108,21 +108,47 @@ public final class Pdf417HighLevelEncoder {
         StringBuilder codewords = new StringBuilder(msg.length());
         if (!DEFAULT_CHARSET.equals(charset)) {
             Integer designator = designatorFor(charset);
-            if (designator != null) {
-                appendEci(designator, codewords);
+            if (designator == null) {
+                // Without an ECI designator a decoder cannot know the character set, so the
+                // message would be misinterpreted; fail instead of encoding silently.
+                throw new UnsupportedTextException(
+                        "Character set has no ECI designator: " + charset.name());
             }
+            appendEci(designator, codewords);
         }
 
         Pdf417Compaction mode = compaction != null ? compaction : Pdf417Compaction.AUTO;
         switch (mode) {
             case TEXT:
+                for (int i = 0; i < msg.length(); i++) {
+                    if (!isText(msg.charAt(i))) {
+                        throw new UnsupportedTextException(
+                                "Character not representable in TEXT compaction: " + msg.charAt(i)
+                                        + " (Unicode: " + (int) msg.charAt(i) + ")");
+                    }
+                }
                 appendText(msg, 0, msg.length(), codewords, TextSubmode.UPPER);
                 break;
             case NUMERIC:
+                for (int i = 0; i < msg.length(); i++) {
+                    if (!isDigit(msg.charAt(i))) {
+                        throw new UnsupportedTextException(
+                                "Character not representable in NUMERIC compaction: " + msg.charAt(i)
+                                        + " (Unicode: " + (int) msg.charAt(i) + ")");
+                    }
+                }
                 codewords.append((char) NUMERIC_LATCH);
                 appendNumeric(msg, 0, msg.length(), codewords);
                 break;
             case BYTE:
+                CharsetEncoder byteEncoder = charset.newEncoder();
+                for (int i = 0; i < msg.length(); i++) {
+                    if (!byteEncoder.canEncode(msg.charAt(i))) {
+                        char ch = msg.charAt(i);
+                        throw new UnsupportedTextException("Non-encodable character detected: " + ch
+                                + " (Unicode: " + (int) ch + ")");
+                    }
+                }
                 appendBytes(codewords, msg.getBytes(charset), Scheme.BYTE);
                 break;
             default:
@@ -407,6 +433,18 @@ public final class Pdf417HighLevelEncoder {
         }
         if (name.equals("windows-1256")) {
             return 24;
+        }
+        if (name.equals("Shift_JIS")) {
+            return 20;
+        }
+        if (name.equals("Big5")) {
+            return 28;
+        }
+        if (name.equals("GB2312") || name.equals("GBK")) {
+            return 29;
+        }
+        if (name.equals("EUC-KR")) {
+            return 30;
         }
         return null;
     }

@@ -4,6 +4,8 @@ import java.nio.charset.Charset;
 import java.util.Locale;
 import java.util.Map;
 
+import org.bars4j.encode.api.UnsupportedTextException;
+
 /**
  * Maps JDK character sets to the ECI assignment numbers used by the Aztec {@code FLG(n)} escape.
  *
@@ -31,6 +33,8 @@ public final class AztecEci {
             Map.entry("CP1252", 23),
             Map.entry("WINDOWS-1256", 24),
             Map.entry("CP1256", 24),
+            Map.entry("SHIFT_JIS", 20),
+            Map.entry("SJIS", 20),
             Map.entry("BIG5", 28),
             Map.entry("GB18030", 29),
             Map.entry("GB2312", 29),
@@ -44,12 +48,14 @@ public final class AztecEci {
     /**
      * Returns the ECI assignment number for {@code charset}.
      *
-     * @throws IllegalArgumentException if the character set has no known ECI number
+     * @throws UnsupportedTextException if the character set has no known ECI number, following the
+     *                                  API convention that unrepresentable input raises a checked
+     *                                  exception
      */
-    public static int valueFor(Charset charset) {
+    public static int valueFor(Charset charset) throws UnsupportedTextException {
         Integer assignment = ASSIGNMENTS.get(charset.name().toUpperCase(Locale.ROOT));
         if (assignment == null) {
-            throw new IllegalArgumentException("No ECI code for character set " + charset);
+            throw new UnsupportedTextException("No ECI code for character set " + charset);
         }
         return assignment;
     }

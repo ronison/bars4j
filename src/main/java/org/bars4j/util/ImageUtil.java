@@ -21,13 +21,23 @@
  */
 package org.bars4j.util;
 
+import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Iterator;
 import java.util.Locale;
 
+import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
+import javax.imageio.ImageTypeSpecifier;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+import javax.imageio.metadata.IIOMetadata;
+import javax.imageio.metadata.IIOMetadataNode;
+import javax.imageio.stream.ImageOutputStream;
 
 /**
  * Utility class to encode images, backed by the standard ImageIO API.
@@ -81,8 +91,86 @@ public class ImageUtil {
         if (!PNG.equals(normalized) && !JPEG.equals(normalized) && !GIF.equals(normalized)) {
             throw new IOException("Unsupported image type: " + format);
         }
-        if (!ImageIO.write(image, normalized, out)) {
+        if (xDpi <= 0 || yDpi <= 0) {
+            throw new IOException("DPI values must be positive: " + xDpi + "x" + yDpi);
+        }
+        if (JPEG.equals(normalized)) {
+            // JPEG has no alpha channel: composite over white first, otherwise transparent
+            // pixels are rendered black by the writer.
+            image = overWhite(image);
+        }
+        ImageWriter writer = imageWriter(normalized);
+        try {
+            ImageWriteParam params = writer.getDefaultWriteParam();
+            IIOMetadata metadata = writer.getDefaultImageMetadata(
+                    ImageTypeSpecifier.createFromRenderedImage(image), params);
+            if (metadata != null) {
+                if (PNG.equals(normalized)) {
+                    setPngDensity(metadata, xDpi, yDpi);
+                } else if (JPEG.equals(normalized)) {
+                    setJpegDensity(metadata, xDpi, yDpi);
+                }
+                // GIF: no standard DPI metadata chunk; the density hint is silently ignored.
+            }
+            try (ImageOutputStream stream = ImageIO.createImageOutputStream(out)) {
+                writer.setOutput(stream);
+                writer.write(null, new IIOImage(image, null, metadata), params);
+            }
+        } finally {
+            writer.dispose();
+        }
+    }
+
+    /**
+     * Stores the pixel density in the PNG {@code pHYs} chunk. The JDK PNG writer interprets
+     * {@code HorizontalPixelSize} as dots per millimetre (contrary to the standard-tree
+     * documentation, which says millimetres per pixel), so the value must be {@code dpi/25.4}
+     * to emit a correct {@code pHYs} chunk.
+     */
+    private static void setPngDensity(IIOMetadata metadata, int xDpi, int yDpi) throws IOException {
+        IIOMetadataNode root = new IIOMetadataNode("javax_imageio_1.0");
+        IIOMetadataNode dimension = new IIOMetadataNode("Dimension");
+        IIOMetadataNode horizontal = new IIOMetadataNode("HorizontalPixelSize");
+        horizontal.setAttribute("value", Double.toString(xDpi / 25.4));
+        IIOMetadataNode vertical = new IIOMetadataNode("VerticalPixelSize");
+        vertical.setAttribute("value", Double.toString(yDpi / 25.4));
+        dimension.appendChild(horizontal);
+        dimension.appendChild(vertical);
+        root.appendChild(dimension);
+        metadata.mergeTree("javax_imageio_1.0", root);
+    }
+
+    /** Stores the pixel density in the JPEG JFIF {@code Xdensity}/{@code Ydensity} fields. */
+    private static void setJpegDensity(IIOMetadata metadata, int xDpi, int yDpi) throws IOException {
+        IIOMetadataNode jfif = (IIOMetadataNode) metadata.getAsTree("javax_imageio_jpeg_image_1.0");
+        IIOMetadataNode markerSequence = (IIOMetadataNode) jfif.getElementsByTagName("JPEGvariety").item(0);
+        IIOMetadataNode app0Jfif = (IIOMetadataNode) markerSequence.getElementsByTagName("app0JFIF").item(0);
+        app0Jfif.setAttribute("Xdensity", Integer.toString(xDpi));
+        app0Jfif.setAttribute("Ydensity", Integer.toString(yDpi));
+        // The JFIF attribute is "resUnits" (1 = dots per inch); "densityUnits" is discarded.
+        app0Jfif.setAttribute("resUnits", "1");
+        metadata.setFromTree("javax_imageio_jpeg_image_1.0", jfif);
+    }
+
+    /** Flattens the image over a white background, dropping its alpha channel. */
+    private static BufferedImage overWhite(BufferedImage image) {
+        if (!image.getColorModel().hasAlpha()) {
+            return image;
+        }
+        BufferedImage result = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
+        Graphics2D g2d = result.createGraphics();
+        g2d.setColor(Color.WHITE);
+        g2d.fillRect(0, 0, result.getWidth(), result.getHeight());
+        g2d.drawRenderedImage(image, null);
+        g2d.dispose();
+        return result;
+    }
+
+    private static ImageWriter imageWriter(String format) throws IOException {
+        Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName(format);
+        if (!writers.hasNext()) {
             throw new IOException("No image writer available for format: " + format);
         }
+        return writers.next();
     }
 }

@@ -53,8 +53,8 @@ public class EAN13Encoder extends EANEncoder {
     }	
 	
 	public BarSet[] encode(String texto) throws InvalidAtributeException {
-		if( texto.length() < 12 || texto.length() > 13  ){
-			throw new InvalidAtributeException("[EAN13] Invalid text length (" + texto.length() + ").");
+		if( texto == null || texto.length() != 13 ){
+			throw new InvalidAtributeException("[EAN13] Invalid text length (" + (texto == null ? "null" : texto.length()) + "): 13 digits are required.");
 		}
 		
 		BarSet [] result = new BarSet[15];

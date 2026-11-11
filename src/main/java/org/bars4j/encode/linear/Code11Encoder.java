@@ -21,8 +21,8 @@ public final class Code11Encoder implements LinearEncoder {
 
     @Override
     public LinearSymbol encode(String text) throws InvalidSymbolException {
-        if (text.length() < 1) {
-            throw new InvalidSymbolException("[Code11] Invalid text length (" + text.length() + ").");
+        if (text == null || text.length() < 1) {
+            throw new InvalidSymbolException("[Code11] Invalid text length (" + (text == null ? "null" : text.length()) + ").");
         }
         StringBuilder bits = new StringBuilder();
         bits.append(START_STOP_CHAR);
@@ -37,17 +37,18 @@ public final class Code11Encoder implements LinearEncoder {
 
     @Override
     public String computeCheckSum(String text) throws InvalidSymbolException {
-        // Calc 'C' check digit char
+        // Calc 'C' check digit char (modulo 11, weights 1..10 from the right)
         int check = 0;
         for (int i = text.length() - 1; i >= 0; i--) {
             int weight = (text.length() - i) % 10;
             weight = weight == 0 ? 10 : weight;
             check += getCharIndex(text.charAt(i)) * weight;
         }
-        StringBuilder result = new StringBuilder(Integer.toString(check % 11));
+        StringBuilder result = new StringBuilder(checkDigitToString(check % 11));
 
-        if (text.length() + result.length() >= 10) {
-            // Calc 'K' check digit char
+        if (text.length() >= 10) {
+            // Calc 'K' check digit char (modulo 11, weights 1..9 from the right, with the C
+            // check digit included as the right-most character).
             check = 0;
             String temp = text + result;
             for (int i = temp.length() - 1; i >= 0; i--) {
@@ -55,9 +56,17 @@ public final class Code11Encoder implements LinearEncoder {
                 weight = weight == 0 ? 9 : weight;
                 check += getCharIndex(temp.charAt(i)) * weight;
             }
-            result.append(Integer.toString(check % 9));
+            result.append(checkDigitToString(check % 11));
         }
         return result.toString();
+    }
+
+    /**
+     * Renders a check digit value: the value 10 is the dash character, per the Code 11
+     * specification.
+     */
+    private static String checkDigitToString(int value) {
+        return value == 10 ? "-" : Integer.toString(value);
     }
 
     private int getCharIndex(char val) throws InvalidSymbolException {

@@ -16,8 +16,8 @@ public class Matrix2of5Encoder extends Standard2of5Encoder {
 
     @Override
     public LinearSymbol encode(String text) throws InvalidSymbolException {
-        if (text.length() < 1) {
-            throw new InvalidSymbolException("[Matrix2of5] Invalid text length (" + text.length() + ").");
+        if (text == null || text.length() < 1) {
+            throw new InvalidSymbolException("[Matrix2of5] Invalid text length (" + (text == null ? "null" : text.length()) + ").");
         }
         StringBuilder bits = new StringBuilder();
         try {

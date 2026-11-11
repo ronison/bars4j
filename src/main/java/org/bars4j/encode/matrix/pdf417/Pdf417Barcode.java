@@ -72,13 +72,12 @@ public final class Pdf417Barcode {
         int dataCount = highLevel.length();
 
         int[] shape = chooseShape(dataCount, checkCount);
-        int cols = shape[0];
-        int rows = shape[1];
-
         if (dataCount + checkCount + 1 > MAX_CODEWORDS) {
             throw new UnsupportedTextException("Encoded message contains too many codewords ("
-                    + msg.length() + " characters)");
+                    + (dataCount + checkCount + 1) + " codewords, maximum is " + (MAX_CODEWORDS - 1) + ")");
         }
+        int cols = shape[0];
+        int rows = shape[1];
 
         int pad = padCount(dataCount, checkCount, cols, rows);
         int[] data = new int[dataCount + pad + 1];
@@ -146,7 +145,8 @@ public final class Pdf417Barcode {
             }
         }
         if (best == null) {
-            throw new UnsupportedTextException("Unable to fit message in columns");
+            throw new UnsupportedTextException("Unable to fit message in a PDF417 symbol ("
+                    + (dataCount + checkCount + 1) + " codewords with the configured dimensions)");
         }
         return best;
     }

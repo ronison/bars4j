@@ -38,17 +38,16 @@ import org.bars4j.encode.BarSet;
  */
 public class HeightCodedPainter implements BarcodePainter {
     
-    private static BarcodePainter instance; 
+    private static class Holder {
+        static final BarcodePainter INSTANCE = new HeightCodedPainter();
+    }
     
     private HeightCodedPainter(){
         
     }
     
     public static BarcodePainter getInstance(){
-        if(instance == null){
-            instance = new HeightCodedPainter();
-        }
-        return instance;
+        return Holder.INSTANCE;
     }
 
     public BufferedImage paintToImg(BarSet[] barcode, int barWidth, int barHeight, double wideRatio) {
@@ -68,6 +67,7 @@ public class HeightCodedPainter implements BarcodePainter {
                 x += 2 * barWidth;
             }
         }        
+        g2d.dispose();
         return result;
     }
 
@@ -78,13 +78,13 @@ StringBuffer res = new StringBuffer();
 		int totalWidth = calcTotalWidth(barcode, barWidth, barHeight, wideRatio);
 		int pos = 10 * barWidth;
 		
-		res.append("<path fill=\"#fff\" d=\"M0 0h");
+		res.append("<path fill=\"#ffffff\" d=\"M0 0h");
 		res.append(totalWidth);
 		res.append("v");
-		res.append(barHeight + 15);
+		res.append(barHeight + 4);
 		res.append("H0z\"/>");
 
-		res.append("<path d=\"");
+		res.append("<path fill=\"#000000\" d=\"");
         
 		int relPos = 0, relY = 10;
 		int height = 0;
