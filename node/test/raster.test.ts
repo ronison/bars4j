@@ -82,3 +82,76 @@ test("human-readable text is drawn with the optional canvas backend", { skip: !c
   }
   assert.ok(differences > 0, "expected the human-readable text to change some pixels");
 });
+
+/** Formats whose raster output shortens the data bars to leave room for the human-readable text. */
+const GAP_CASES: Array<[string, string]> = [
+  ["EAN13", "789100031550"],
+  ["EAN8", "96385074"],
+  ["UPCA", "03600029145"],
+  ["UPCE", "01234565"],
+  ["EAN5", "12345"],
+];
+
+test("human-readable text keeps a 2px gap above the data bars", { skip: !canvasAvailable() }, () => {
+  for (const [id, code] of GAP_CASES) {
+    const format = BarcodeRegistry.getInstance().get(id) as LinearBarcodeFormat;
+    const image = format.withOptions({ ...format.options(), showText: true }).toImage(code, linearDefaults());
+    const isInk = (x: number, y: number) => (((getArgb(image, x, y) >>> 16) & 0xff) < 128);
+
+    // For each column, find the bar run that spans the bar area (contains row 10), then the first
+    // inked row below it (the top of the glyph). Guards extend lower than data bars, so only the
+    // dominant (modal) bar end — the data bars — is asserted.
+    const barEnds: number[] = [];
+    const gaps: number[] = [];
+    for (let x = 0; x < image.width; x++) {
+      let inRun = false;
+      let runStart = -1;
+      for (let y = 0; y < image.height; y++) {
+        const ink = isInk(x, y);
+        if (ink && !inRun) {
+          inRun = true;
+          runStart = y;
+        } else if (!ink && inRun) {
+          inRun = false;
+          const runEnd = y - 1;
+          if (runStart <= 10 && 10 <= runEnd) {
+            let glyphTop = -1;
+            for (let z = runEnd + 1; z < image.height; z++) {
+              if (isInk(x, z)) {
+                glyphTop = z;
+                break;
+              }
+            }
+            if (glyphTop >= 0) {
+              barEnds.push(runEnd);
+              gaps.push(glyphTop - runEnd - 1);
+            }
+            break;
+          }
+        }
+      }
+    }
+
+    const counts = new Map<number, number>();
+    for (const end of barEnds) {
+      counts.set(end, (counts.get(end) ?? 0) + 1);
+    }
+    let modalEnd = -1;
+    let best = -1;
+    for (const [end, count] of counts) {
+      if (count > best) {
+        best = count;
+        modalEnd = end;
+      }
+    }
+
+    let checked = 0;
+    for (let i = 0; i < barEnds.length; i++) {
+      if (barEnds[i] <= modalEnd) {
+        assert.ok(gaps[i] >= 2, `${id}: gap of ${gaps[i]}px between bars and text (expected >= 2)`);
+        checked++;
+      }
+    }
+    assert.ok(checked > 0, `${id}: expected at least one data bar with text below it`);
+  }
+});

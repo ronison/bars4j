@@ -1,6 +1,6 @@
 import { ARGB_BLACK, ARGB_WHITE, type RasterImage } from "../raster-image.ts";
 import { drawText } from "../canvas-backend.ts";
-import type { LinearTextRenderer } from "./linear-text-renderer.ts";
+import { HUMAN_TEXT_GAP_PX, type LinearTextRenderer } from "./linear-text-renderer.ts";
 
 const FONT_SIZE = 14;
 
@@ -16,15 +16,13 @@ export class BaseLineTextRenderer implements LinearTextRenderer {
       const h = pen.fontHeight();
       const center = Math.trunc((image.width - pen.stringWidth(text)) / 2);
 
+      const textY = image.height - Math.trunc(h / 10);
+      // Clear the bars down to a point that leaves HUMAN_TEXT_GAP_PX above the glyph tops.
+      const clearTop = textY - pen.fontAscent() - HUMAN_TEXT_GAP_PX;
+
       pen.fillRect(0, 0, image.width, Math.trunc(image.height / 20), ARGB_WHITE);
-      pen.fillRect(
-        0,
-        image.height - Math.trunc((h * 9) / 10),
-        image.width,
-        Math.trunc((h * 9) / 10),
-        ARGB_WHITE,
-      );
-      pen.drawString(text, center, image.height - Math.trunc(h / 10), ARGB_BLACK);
+      pen.fillRect(0, clearTop, image.width, image.height - clearTop, ARGB_WHITE);
+      pen.drawString(text, center, textY, ARGB_BLACK);
     });
   }
 

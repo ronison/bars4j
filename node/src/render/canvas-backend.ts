@@ -73,6 +73,8 @@ export interface RasterPen {
   setFont(sizePx: number, family?: string): void;
   /** Font height in pixels (ascender + descender), approximating {@code FontMetrics.getHeight()}. */
   fontHeight(): number;
+  /** Ascender height in pixels above the baseline, approximating {@code FontMetrics.getAscent()}. */
+  fontAscent(): number;
   /** Advance width of {@code text} in pixels (approximating {@code FontMetrics.stringWidth}). */
   stringWidth(text: string): number;
   fillRect(x: number, y: number, width: number, height: number, argb: number): void;
@@ -137,6 +139,12 @@ function createPen(ctx: Context2DLike, image: RasterImage): RasterPen {
       const descent = metrics.fontBoundingBoxDescent ?? metrics.actualBoundingBoxDescent ?? 0;
       const height = ascent + descent;
       return height > 0 ? height : currentFont.size;
+    },
+    fontAscent(): number {
+      applyFont();
+      const metrics = ctx.measureText("0123456789");
+      const ascent = metrics.actualBoundingBoxAscent ?? metrics.fontBoundingBoxAscent ?? 0;
+      return ascent > 0 ? ascent : currentFont.size;
     },
     stringWidth(text: string): number {
       applyFont();

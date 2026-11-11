@@ -1,6 +1,6 @@
 import { ARGB_BLACK, ARGB_WHITE, type RasterImage } from "../raster-image.ts";
 import { drawText } from "../canvas-backend.ts";
-import type { LinearTextRenderer } from "./linear-text-renderer.ts";
+import { HUMAN_TEXT_GAP_PX, type LinearTextRenderer } from "./linear-text-renderer.ts";
 
 /**
  * UPC-E specific text layout (number system + 6-digit group + check digit).
@@ -15,9 +15,10 @@ export class UpceTextRenderer implements LinearTextRenderer {
       const textHeight = pen.fontHeight();
       const textXShift = Math.trunc((textWidth - pen.stringWidth("000000") + 2 * nWidth) / 2);
       const textYPos = image.height - Math.trunc(textHeight / 10);
+      // Bars are shortened to leave HUMAN_TEXT_GAP_PX above the human-readable digits.
+      const y = textYPos - pen.fontAscent() - HUMAN_TEXT_GAP_PX;
 
       const x = nWidth * 13;
-      const y = image.height - Math.trunc((textHeight * 4) / 5);
 
       pen.fillRect(0, 0, image.width, Math.trunc(image.height / 20), ARGB_WHITE);
       pen.fillRect(
