@@ -18,5 +18,11 @@ public interface BarcodeFormat {
 
     String toSvg(String text, RenderSpec spec) throws BarcodeException;
 
+    /**
+     * Returns an SVG snippet ready to be embedded inline in an HTML page (no XML prologue, with a
+     * {@code viewBox}, {@code role="img"} and an {@code aria-label}).
+     */
+    String toHtml(String text, RenderSpec spec) throws BarcodeException;
+
     String checkSum(String text) throws BarcodeException;
 }

@@ -45,8 +45,21 @@ import java.awt.image.BufferedImage;
 import org.bars4j.api.BarcodeGenerator;
 
 BarcodeGenerator generator = BarcodeGenerator.of("EAN13");
-String svg = generator.toSvg("789100031550");           // SVG markup
+String svg = generator.toSvg("789100031550");            // standalone SVG document
+String html = generator.toHtml("789100031550");          // SVG snippet for inline HTML embedding
 BufferedImage image = generator.toImage("789100031550"); // AWT image
+```
+
+### HTML embedding
+
+`toHtml` returns an SVG snippet ready to be pasted directly into a web page — no XML prologue, with
+a `viewBox` (so it scales with its container), `role="img"` and an `aria-label`:
+
+```java
+String html = BarcodeGenerator.of("CODE128").toHtml("Bars4J-128");
+// <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 129 76" ...>...</svg>
+
+String sized = BarcodeGenerator.of("CODE128").toHtml("Bars4J-128", 300, 100); // explicit px size
 ```
 
 ### Node.js / TypeScript
@@ -96,6 +109,9 @@ BarcodeGenerator generator = BarcodeGenerator.of("CODE128");
 
 //Export as SVG
 String svg = generator.toSvg("Bars4J Code 128");
+
+//Export as inline HTML/SVG snippet
+String html = generator.toHtml("Bars4J Code 128");
 ...
 ```
 
@@ -178,7 +194,8 @@ String svg = generator.toSvg("Bars4J");
 
 The same `BarcodeGenerator.of("<format id>")` entry point works for every registered format,
 e.g. `BarcodeGenerator.of("EAN13").toSvg("789100031550")`. The list of ids is available from
-`BarcodeRegistry.getInstance().ids()`.
+`BarcodeRegistry.getInstance().ids()`. Every format also supports `toHtml(...)`, which returns the
+SVG snippet for inline HTML embedding (see [HTML embedding](#html-embedding)).
 
 ## ITF-14 (GS1 GTIN-14)
 

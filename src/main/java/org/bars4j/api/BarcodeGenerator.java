@@ -6,6 +6,8 @@ import org.bars4j.encode.api.BarcodeException;
 import org.bars4j.format.BarcodeFormat;
 import org.bars4j.format.BarcodeRegistry;
 import org.bars4j.format.FormatSpec;
+import org.bars4j.format.LinearBarcodeFormat;
+import org.bars4j.format.MatrixBarcodeFormat;
 import org.bars4j.render.RenderSpec;
 import org.bars4j.symbol.SymbolKind;
 
@@ -48,6 +50,36 @@ public final class BarcodeGenerator {
 
     public String toSvg(String text) throws BarcodeException {
         return format.toSvg(text, renderSpec);
+    }
+
+    /**
+     * Returns an SVG snippet ready to be embedded inline in an HTML page, at its natural size.
+     *
+     * <pre>{@code
+     * String html = BarcodeGenerator.of("EAN13").toHtml("789100031550");
+     * // paste directly inside <body>...</body>
+     * }</pre>
+     */
+    public String toHtml(String text) throws BarcodeException {
+        return format.toHtml(text, renderSpec);
+    }
+
+    /**
+     * Returns an SVG snippet ready to be embedded inline in an HTML page, sized to the given
+     * display dimensions in pixels. The {@code viewBox} preserves the symbol geometry, so the
+     * barcode scales proportionally.
+     */
+    public String toHtml(String text, int displayWidth, int displayHeight) throws BarcodeException {
+        if (displayWidth <= 0 || displayHeight <= 0) {
+            throw new IllegalArgumentException("displayWidth/displayHeight must be positive");
+        }
+        if (format instanceof LinearBarcodeFormat linear) {
+            return linear.toHtml(text, renderSpec, displayWidth, displayHeight);
+        }
+        if (format instanceof MatrixBarcodeFormat matrix) {
+            return matrix.toHtml(text, renderSpec, displayWidth, displayHeight);
+        }
+        return format.toHtml(text, renderSpec);
     }
 
     public String checkSum(String text) throws BarcodeException {

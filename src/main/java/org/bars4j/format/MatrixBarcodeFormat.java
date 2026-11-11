@@ -52,6 +52,24 @@ public final class MatrixBarcodeFormat implements BarcodeFormat {
     }
 
     @Override
+    public String toHtml(String text, RenderSpec renderSpec) throws BarcodeException {
+        return toHtml(text, renderSpec, -1, -1);
+    }
+
+    /**
+     * Renders the embeddable HTML snippet with an explicit display size
+     * ({@code width}/{@code height} of -1 keeps the natural size).
+     */
+    public String toHtml(String text, RenderSpec renderSpec, int displayWidth, int displayHeight)
+            throws BarcodeException {
+        MatrixSymbol symbol = encoder.encode(text);
+        String fragment = renderer.toSvg(symbol, renderSpec);
+        int total = (symbol.widthInModules() + 2 * symbol.quietZone()) * renderSpec.moduleSize();
+        return HtmlSnippet.assemble(total, total, displayWidth, displayHeight,
+                spec.displayName() + " " + text, fragment);
+    }
+
+    @Override
     public String checkSum(String text) throws BarcodeException {
         return encoder.computeCheckSum(text);
     }

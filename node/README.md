@@ -12,6 +12,7 @@ fixtures, so the two stay in sync. The port is being delivered in phases:
 | 2 | 2D formats (QRCode, Data Matrix, PDF417, Aztec) + SVG | **done** |
 | 3 | Raster output (ARGB image + PNG) and optional canvas text | **done** |
 | 4 | Demos, CLI, packaging and CI | **done** |
+| 5 | Inline HTML/SVG snippet (`toHtml`, already available in the Java library) | planned |
 
 ## Usage
 

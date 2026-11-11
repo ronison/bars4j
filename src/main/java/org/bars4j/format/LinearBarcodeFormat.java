@@ -219,6 +219,36 @@ public final class LinearBarcodeFormat implements BarcodeFormat {
     }
 
     @Override
+    public String toHtml(String text, RenderSpec renderSpec) throws BarcodeException {
+        return toHtml(text, renderSpec, -1, -1);
+    }
+
+    /**
+     * Renders the embeddable HTML snippet with an explicit display size
+     * ({@code width}/{@code height} of -1 keeps the natural size).
+     */
+    public String toHtml(String text, RenderSpec renderSpec, int displayWidth, int displayHeight)
+            throws BarcodeException {
+        String[] resolved = resolve(text);
+        LinearSymbol symbol = encoder.encode(resolved[0]);
+
+        // Same geometry as toSvg: the paths are drawn in barWidth=1 units and the human-readable
+        // text sits below the bars.
+        int totalWidth = renderer.calcTotalWidth(symbol, 1, barHeight, wideToNarrow);
+        int totalHeight = barHeight + 4;
+
+        StringBuilder pcode = new StringBuilder(renderer.toSvg(symbol, internalSpec(renderSpec)));
+        if (showText) {
+            int textTop = barHeight + textGap;
+            pcode.append(textRenderer.paintTextSvg(resolved[1], textTop, totalWidth));
+            totalHeight = textRenderer.calcTotalHeight(textTop, FONT_SIZE);
+        }
+
+        return HtmlSnippet.assemble(totalWidth, totalHeight, displayWidth, displayHeight,
+                spec.displayName() + " " + resolved[1], pcode.toString());
+    }
+
+    @Override
     public String checkSum(String text) throws BarcodeException {
         return encoder.computeCheckSum(text);
     }
