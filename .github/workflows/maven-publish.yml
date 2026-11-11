@@ -21,7 +21,7 @@ jobs:
 
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write # upload release assets
       packages: write
 
     steps:
@@ -41,3 +41,11 @@ jobs:
       run: mvn deploy -s $GITHUB_WORKSPACE/settings.xml
       env:
         GITHUB_TOKEN: ${{ github.token }}
+
+    # Attach the built jars (main + sources) to the GitHub release so the Java library is available
+    # as a downloadable asset alongside the tagged source.
+    - name: Attach jars to the GitHub release
+      if: github.event_name == 'release'
+      run: gh release upload "${{ github.event.release.tag_name }}" target/bars4j-*.jar --clobber
+      env:
+        GH_TOKEN: ${{ github.token }}
