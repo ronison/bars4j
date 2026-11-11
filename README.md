@@ -1,4 +1,11 @@
 # Bars4J - A simple, fast and effective way to include barcodes in java applications.
+
+[![License: LGPL-2.1-or-later](https://img.shields.io/badge/license-LGPL--2.1--or--later-blue.svg)](LICENSE)
+[![npm version](https://img.shields.io/npm/v/@bars4j/core.svg)](https://www.npmjs.com/package/@bars4j/core)
+[![npm downloads](https://img.shields.io/npm/dm/@bars4j/core.svg)](https://www.npmjs.com/package/@bars4j/core)
+[![Node CI](https://github.com/ronison/bars4j/actions/workflows/node-ci.yml/badge.svg)](https://github.com/ronison/bars4j/actions/workflows/node-ci.yml)
+[![Maven Package](https://github.com/ronison/bars4j/actions/workflows/maven-publish.yml/badge.svg)](https://github.com/ronison/bars4j/actions/workflows/maven-publish.yml)
+
 This project aims to create a java library (framework) for barcode creation. It is a revival of an old project I had at SourceForge, called JBarcode and now it has been renamed to Bars4J. The main features are support for a wide variety of standards, simplicity of including barcodes in Java applications and high performance with low memory consumption.
 
 Barcodes Supported: EAN13, EAN8, UPCA, UPCE, Codabar, Code 11, Code 128, Code 39, Code 39 Extended, Code 93, Code 93 Extended, Standard 2of5, Interleaved 2of5, ITF-14, IATA 2of5, Datalogic 2of5, Matrix 2of5, MSI Plessey, PostNet, QRCode (2D), Data Matrix (2D), PDF417 (2D) and Aztec (2D).
