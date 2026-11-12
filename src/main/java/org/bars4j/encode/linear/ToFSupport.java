@@ -3,7 +3,7 @@ package org.bars4j.encode.linear;
 import org.bars4j.encode.api.InvalidSymbolException;
 
 /**
- * Shared 2-of-5 tables and arithmetic (ported from the legacy {@code ToFEncoder}).
+ * Shared 2-of-5 tables and arithmetic.
  */
 final class ToFSupport {
 

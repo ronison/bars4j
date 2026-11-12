@@ -6,7 +6,7 @@ import org.bars4j.format.BitSemantics;
 import org.bars4j.symbol.LinearSymbol;
 
 /**
- * Native Code 39 encoder. Ported from the legacy {@code Code39Encoder}.
+ * Native Code 39 encoder.
  */
 public class Code39Encoder implements LinearEncoder {
 

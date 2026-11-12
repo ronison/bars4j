@@ -9,7 +9,7 @@ import org.bars4j.symbol.LinearSymbol;
 
 /**
  * Height-coded rendering strategy (bit = full-height bar, 0 = short bar), natively reproducing the
- * legacy {@code HeightCodedPainter} (e.g. PostNet) for both raster and SVG output.
+ * (e.g. PostNet) for both raster and SVG output.
  *
  * <p>Like the other 1D renderers it reserves a 10-module quiet zone on each side, so the symbol is
  * horizontally centred within its canvas.
@@ -29,7 +29,7 @@ public final class HeightCodedRenderer implements LinearRenderer {
         g2d.setColor(spec.background());
         g2d.fillRect(0, 0, width, barHeight);
         g2d.setColor(spec.foreground());
-        int x = 10 * barWidth; // 10 x Xdimension is leading quiet zone
+        int x = quietModules(spec) * barWidth; // leading quiet zone
         for (boolean bit : bits) {
             int barUnit = bit ? barHeight : barHeight / 2;
             g2d.fillRect(x, barHeight - barUnit, barWidth, barUnit);
@@ -49,7 +49,7 @@ public final class HeightCodedRenderer implements LinearRenderer {
         g2d.setColor(spec.background());
         g2d.fillRect(offsetX, offsetY, calcTotalWidth((LinearSymbol) symbol, barWidth, barHeight, spec.wideRatio()), barHeight);
         g2d.setColor(spec.foreground());
-        int x = offsetX + 10 * barWidth; // 10 x Xdimension is leading quiet zone
+        int x = offsetX + quietModules(spec) * barWidth; // leading quiet zone
         for (boolean bit : bits) {
             int barUnit = bit ? barHeight : barHeight / 2;
             g2d.fillRect(x, offsetY + barHeight - barUnit, barWidth, barUnit);
@@ -66,7 +66,7 @@ public final class HeightCodedRenderer implements LinearRenderer {
         StringBuilder res = new StringBuilder();
 
         int totalWidth = calcTotalWidth((LinearSymbol) symbol, barWidth, barHeight, spec.wideRatio());
-        int pos = 10 * barWidth;
+        int pos = quietModules(spec) * barWidth;
 
         res.append("<path fill=\"");
         res.append(ColorUtil.hex(spec.background()));
@@ -106,6 +106,12 @@ public final class HeightCodedRenderer implements LinearRenderer {
 
     @Override
     public int calcTotalWidth(LinearSymbol symbol, int barWidth, int barHeight, double wideRatio) {
-        return (symbol.elements().size() * barWidth * 2) - barWidth + (20 * barWidth);
+        return calcTotalWidth(symbol, barWidth, barHeight, wideRatio, QUIET_ZONE_MODULES);
+    }
+
+    @Override
+    public int calcTotalWidth(LinearSymbol symbol, int barWidth, int barHeight, double wideRatio,
+                              int quietZoneModules) {
+        return (symbol.elements().size() * barWidth * 2) - barWidth + (2 * quietZoneModules * barWidth);
     }
 }

@@ -3,7 +3,7 @@ package org.bars4j.encode.linear;
 import org.bars4j.encode.api.InvalidSymbolException;
 
 /**
- * Shared EAN/UPC tables and arithmetic (ported from the legacy {@code EANEncoder}).
+ * Shared EAN/UPC tables and arithmetic.
  */
 final class EanSupport {
 

@@ -6,7 +6,7 @@ import org.bars4j.format.BitSemantics;
 import org.bars4j.symbol.LinearSymbol;
 
 /**
- * Native EAN-13 encoder (12/13 digits). Ported from the legacy {@code EAN13Encoder}.
+ * Native EAN-13 encoder (12/13 digits).
  */
 public final class Ean13Encoder implements LinearEncoder {
 

@@ -84,16 +84,6 @@ final class GoldenTestSupport {
         return new byte[]{(byte) (value >>> 24), (byte) (value >>> 16), (byte) (value >>> 8), (byte) value};
     }
 
-    static String svgOf(Barcode barcode, String code) throws Exception {
-        return barcode.createBarcodeSVG(code).toString().replace("\r\n", "\n");
-    }
-
-    static BufferedImage imageOf(Barcode barcode, String code) throws Exception {
-        Barcode noText = barcode;
-        noText.setShowText(false);
-        return noText.createBarcode(code);
-    }
-
     static byte[] utf8(String s) {
         return s.getBytes(StandardCharsets.UTF_8);
     }

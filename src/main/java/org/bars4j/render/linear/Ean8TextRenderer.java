@@ -1,7 +1,6 @@
 package org.bars4j.render.linear;
 
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
@@ -27,14 +26,12 @@ public final class Ean8TextRenderer implements LinearTextRenderer {
         // StringIndexOutOfBoundsException (mirrors paintTextSvg).
         String padded = text.length() >= 8 ? text : (text + "00000000").substring(0, 8);
         Graphics g2d = barcode.getGraphics();
-        Font f = new Font("monospace", Font.PLAIN, 11 * nWidth);
-        g2d.setFont(f);
+        g2d.setFont(SlotText.font(nWidth, 11));
         FontMetrics fm = g2d.getFontMetrics();
 
         // calc bounds
         int textWidht = nWidth * 28;
         int textHeight = fm.getHeight();
-        int textXShift = (textWidht - fm.stringWidth("0000") + (2 * nWidth)) / 2;
         int textYPos = barcode.getHeight() - textHeight / 10;
 
         int x = nWidth * 13;
@@ -44,15 +41,17 @@ public final class Ean8TextRenderer implements LinearTextRenderer {
         g2d.fillRect(0, 0, barcode.getWidth(), barcode.getHeight() * 1 / 20);
         g2d.fillRect(0, barcode.getHeight() - textHeight / 3, barcode.getWidth(), textHeight / 3);
 
+        // Left digit group: 4 slots of 7 modules (px) between the left and centre guard bars. Each
+        // digit is centred in its own slot so the group spans exactly those 28px whatever the font
+        // metrics of the platform are (the previous single-string drawing let the last digit drift
+        // into the centre guard bars).
         g2d.fillRect(x, y, textWidht, textHeight);
-        g2d.setColor(foreground);
-        g2d.drawString(padded.substring(0, 4), x + textXShift, textYPos);
+        SlotText.draw(g2d, padded.substring(0, 4), x, textWidht, textYPos, foreground);
 
-        x = nWidth * 45;
+        x = nWidth * 46;
         g2d.setColor(background);
         g2d.fillRect(x, y, textWidht, textHeight);
-        g2d.setColor(foreground);
-        g2d.drawString(padded.substring(4), x + textXShift, textYPos);
+        SlotText.draw(g2d, padded.substring(4), x, textWidht, textYPos, foreground);
         g2d.dispose();
     }
 

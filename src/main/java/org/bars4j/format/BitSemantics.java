@@ -1,11 +1,10 @@
 package org.bars4j.format;
 
 /**
- * How the legacy {@code org.bars4j.encode.BarSet} bits must be interpreted by a painter.
+ * How a symbology's bit string must be interpreted when building a {@code LinearSymbol}.
  *
- * <p>This is the piece that makes the legacy encoders/painters interoperate with the new
- * {@code LinearSymbol} model: a single bit array can mean different things depending on the
- * rendering strategy.
+ * <p>A single bit pattern can mean different things depending on the rendering strategy of the
+ * symbology.
  */
 public enum BitSemantics {
     /** Bit 1 = dark module, bit 0 = light module (width-coded). */

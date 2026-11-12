@@ -6,7 +6,7 @@ import org.bars4j.format.BitSemantics;
 import org.bars4j.symbol.LinearSymbol;
 
 /**
- * Native EAN-5 (supplemental) encoder. Ported from the legacy {@code EAN5Encoder}.
+ * Native EAN-5 (supplemental) encoder.
  */
 public final class Ean5Encoder implements LinearEncoder {
 

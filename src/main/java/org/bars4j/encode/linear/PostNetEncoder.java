@@ -6,7 +6,7 @@ import org.bars4j.format.BitSemantics;
 import org.bars4j.symbol.LinearSymbol;
 
 /**
- * Native PostNet encoder. Ported from the legacy {@code PostNetEncoder}.
+ * Native PostNet encoder.
  */
 public final class PostNetEncoder implements LinearEncoder {
 

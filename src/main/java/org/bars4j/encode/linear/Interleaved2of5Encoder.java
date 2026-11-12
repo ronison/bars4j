@@ -6,7 +6,7 @@ import org.bars4j.format.BitSemantics;
 import org.bars4j.symbol.LinearSymbol;
 
 /**
- * Native Interleaved 2 of 5 encoder. Ported from the legacy {@code Interleaved2of5Encoder}.
+ * Native Interleaved 2 of 5 encoder.
  */
 public final class Interleaved2of5Encoder implements LinearEncoder {
 

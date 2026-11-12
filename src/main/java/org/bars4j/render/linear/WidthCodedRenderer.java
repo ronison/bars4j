@@ -9,7 +9,7 @@ import org.bars4j.symbol.BarcodeSymbol;
 import org.bars4j.symbol.LinearSymbol;
 
 /**
- * Width-coded rendering strategy (bit = dark module), natively reproducing the legacy
+ * Width-coded rendering strategy (bit = dark module), reproducing the
  * {@code WidthCodedPainter} for both raster and SVG output.
  *
  * <p>Colours come from the {@link RenderSpec} (foreground for dark modules, background for the
@@ -22,16 +22,17 @@ public final class WidthCodedRenderer implements LinearRenderer {
         boolean[] bits = SymbolBits.dark((LinearSymbol) symbol);
         int barWidth = spec.barWidth();
         int barHeight = spec.barHeight();
+        int quiet = quietModules(spec);
 
         int width = bits.length * barWidth;
-        width += 20 * barWidth; // 20 x Xdimension is quiet zone width
+        width += 2 * quiet * barWidth; // quiet zone on each side
 
         BufferedImage result = new BufferedImage(width, barHeight, BufferedImage.TYPE_INT_RGB);
         Graphics2D g2d = result.createGraphics();
         g2d.setBackground(spec.background());
         g2d.clearRect(0, 0, width, barHeight);
 
-        int x = 10 * barWidth; // 10 x Xdimension is leading quiet zone
+        int x = quiet * barWidth; // leading quiet zone
         for (boolean bit : bits) {
             g2d.setColor(bit ? spec.foreground() : spec.background());
             g2d.fillRect(x, 0, barWidth, barHeight);
@@ -46,9 +47,10 @@ public final class WidthCodedRenderer implements LinearRenderer {
         boolean[] bits = SymbolBits.dark((LinearSymbol) symbol);
         int barWidth = spec.barWidth();
         int barHeight = spec.barHeight();
+        int quiet = quietModules(spec);
 
         Graphics2D g2d = target.createGraphics();
-        int x = offsetX + 10 * barWidth; // 10 x Xdimension is leading quiet zone
+        int x = offsetX + quiet * barWidth; // leading quiet zone
         for (boolean bit : bits) {
             g2d.setColor(bit ? spec.foreground() : spec.background());
             g2d.fillRect(x, offsetY, barWidth, barHeight);
@@ -77,7 +79,7 @@ public final class WidthCodedRenderer implements LinearRenderer {
         res.append("<path fill=\"");
         res.append(ColorUtil.hex(spec.foreground()));
         res.append("\" d=\"M");
-        res.append(10 * barWidth);
+        res.append(quietModules(spec) * barWidth);
 
         int width = 0;
         int white = 0;
@@ -121,8 +123,14 @@ public final class WidthCodedRenderer implements LinearRenderer {
 
     @Override
     public int calcTotalWidth(LinearSymbol symbol, int barWidth, int barHeight, double wideRatio) {
+        return calcTotalWidth(symbol, barWidth, barHeight, wideRatio, QUIET_ZONE_MODULES);
+    }
+
+    @Override
+    public int calcTotalWidth(LinearSymbol symbol, int barWidth, int barHeight, double wideRatio,
+                              int quietZoneModules) {
         int res = symbol.elements().size() * barWidth;
-        res += 20 * barWidth; // 20 x Xdimension is quiet zone width
+        res += 2 * quietZoneModules * barWidth; // quiet zone on each side
         return res;
     }
 }

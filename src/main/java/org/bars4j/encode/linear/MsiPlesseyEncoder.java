@@ -6,7 +6,7 @@ import org.bars4j.format.BitSemantics;
 import org.bars4j.symbol.LinearSymbol;
 
 /**
- * Native MSI/Plessey encoder. Ported from the legacy {@code MSIPlesseyEncoder}.
+ * Native MSI/Plessey encoder.
  */
 public final class MsiPlesseyEncoder implements LinearEncoder {
 

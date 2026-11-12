@@ -6,8 +6,7 @@ import org.bars4j.format.BitSemantics;
 import org.bars4j.symbol.LinearSymbol;
 
 /**
- * Native UPC-E encoder (8 characters: 7 data + check digit). Ported from the legacy
- * {@code UPCEEncoder}.
+ * Native UPC-E encoder (8 characters: 7 data + check digit).
  */
 public final class UpceEncoder implements LinearEncoder {
 

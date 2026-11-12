@@ -101,6 +101,8 @@ public class SwingDemo extends JFrame {
     private final JSpinner xdimSpinner = new JSpinner(new SpinnerNumberModel(0.2646, 0.05, 5.0, 0.05));
     private final JSpinner heightSpinner = new JSpinner(new SpinnerNumberModel(17.0, 1.0, 120.0, 1.0));
     private final JSpinner ratioSpinner = new JSpinner(new SpinnerNumberModel(2.0, 1.0, 4.0, 0.1));
+    private final JSpinner quietSpinner = new JSpinner(new SpinnerNumberModel(10, 0, 100, 1));
+    private final JSpinner fontSpinner = new JSpinner(new SpinnerNumberModel(14, 6, 72, 1));
     private final JCheckBox showTextBox = new JCheckBox("Draw human readable text");
     private final JCheckBox checkDigitBox = new JCheckBox("Append check digit");
     private final JCheckBox showCheckDigitBox = new JCheckBox("Include check digit in label");
@@ -113,6 +115,7 @@ public class SwingDemo extends JFrame {
     private final JPanel configCards = new JPanel(configLayout);
     private final JPanel linearPanel = new JPanel(new GridBagLayout());
     private final JPanel matrixPanel = new JPanel(new GridBagLayout());
+    private final JPanel colourPanel = new JPanel(new GridBagLayout());
 
     private final BarcodePreview preview = new BarcodePreview();
     private final JLabel statusLabel = new JLabel(" ");
@@ -166,6 +169,8 @@ public class SwingDemo extends JFrame {
         xdimSpinner.addChangeListener(e -> regenerate());
         heightSpinner.addChangeListener(e -> regenerate());
         ratioSpinner.addChangeListener(e -> regenerate());
+        quietSpinner.addChangeListener(e -> regenerate());
+        fontSpinner.addChangeListener(e -> regenerate());
         moduleSpinner.addChangeListener(e -> regenerate());
         showTextBox.addActionListener(e -> regenerate());
         checkDigitBox.addActionListener(e -> regenerate());
@@ -202,12 +207,14 @@ public class SwingDemo extends JFrame {
 
         buildLinearPanel();
         buildMatrixPanel();
+        buildColourPanel();
         configCards.add(linearPanel, "LINEAR");
         configCards.add(matrixPanel, "MATRIX");
 
         JPanel top = new JPanel(new BorderLayout(0, 8));
         top.add(textPanel, BorderLayout.NORTH);
         top.add(configCards, BorderLayout.CENTER);
+        top.add(colourPanel, BorderLayout.SOUTH);
 
         side.add(top, BorderLayout.NORTH);
         side.add(buildActions(), BorderLayout.SOUTH);
@@ -220,23 +227,36 @@ public class SwingDemo extends JFrame {
         addRow(linearPanel, c, 0, "X-dimension (mm)", xdimSpinner);
         addRow(linearPanel, c, 1, "Bar height (mm)", heightSpinner);
         addRow(linearPanel, c, 2, "Wide ratio", ratioSpinner);
-        addFull(linearPanel, c, 3, showTextBox);
-        addFull(linearPanel, c, 4, checkDigitBox);
-        addFull(linearPanel, c, 5, showCheckDigitBox);
+        addRow(linearPanel, c, 3, "Quiet zone", quietSpinner);
+        addRow(linearPanel, c, 4, "Label font (px)", fontSpinner);
+        addFull(linearPanel, c, 5, showTextBox);
+        addFull(linearPanel, c, 6, checkDigitBox);
+        addFull(linearPanel, c, 7, showCheckDigitBox);
     }
 
     private void buildMatrixPanel() {
         matrixPanel.setBorder(new TitledBorder("Matrix options"));
         GridBagConstraints c = gbc();
         addRow(matrixPanel, c, 0, "Module size (px)", moduleSpinner);
-        addFull(matrixPanel, c, 1, labelFor(foregroundButton, () -> foreground, col -> {
+    }
+
+    private void buildColourPanel() {
+        colourPanel.setBorder(new TitledBorder("Colours"));
+        GridBagConstraints c = gbc();
+        addRow(colourPanel, c, 0, "", labelFor(foregroundButton, () -> foreground, col -> {
             foreground = col;
             regenerate();
         }));
-        addFull(matrixPanel, c, 2, labelFor(backgroundButton, () -> background, col -> {
+        c.gridy = 1;
+        c.gridx = 0;
+        c.gridwidth = 2;
+        c.weightx = 1;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        colourPanel.add(labelFor(backgroundButton, () -> background, col -> {
             background = col;
             regenerate();
-        }));
+        }), c);
+        c.gridwidth = 1;
     }
 
     private JPanel buildActions() {
@@ -372,6 +392,8 @@ public class SwingDemo extends JFrame {
                 xdimSpinner.setValue(round2(options.xDimensionMm()));
                 heightSpinner.setValue(round1(options.barHeightMm()));
                 ratioSpinner.setValue(round1(options.wideRatio()));
+                quietSpinner.setValue(10);
+                fontSpinner.setValue(14);
                 showTextBox.setSelected(options.showText());
                 checkDigitBox.setSelected(options.checkDigit());
                 showCheckDigitBox.setSelected(options.showCheckDigit());
@@ -380,9 +402,13 @@ public class SwingDemo extends JFrame {
                 checkDigitBox.setEnabled(spec.supportsCheckDigit());
                 showCheckDigitBox.setEnabled(spec.supportsCheckDigit() && spec.allowsText());
                 ratioSpinner.setEnabled(spec.allowsWideRatio());
+                quietSpinner.setEnabled(true);
+                fontSpinner.setEnabled(spec.allowsText());
             } else {
                 configLayout.show(configCards, "MATRIX");
                 moduleSpinner.setValue(4);
+                quietSpinner.setEnabled(false);
+                fontSpinner.setEnabled(false);
             }
             textField.setText(SampleContent.forFormat(entry.id()));
             textField.setCaretPosition(0);
@@ -412,7 +438,7 @@ public class SwingDemo extends JFrame {
             BarcodeFormat format = registry.get(id);
             if (currentFormat.kind() == SymbolKind.LINEAR) {
                 LinearBarcodeFormat linear = ((LinearBarcodeFormat) format).withOptions(currentLinearOptions());
-                RenderSpec spec = RenderSpec.linearDefaults();
+                RenderSpec spec = currentRenderSpec();
                 currentImage = linear.toImage(text, spec);
                 currentSvg = linear.toSvg(text, spec);
                 currentCheckSum = format.spec().supportsCheckDigit() ? format.checkSum(text) : "";
@@ -432,6 +458,13 @@ public class SwingDemo extends JFrame {
             preview.setMessage(message(ex));
             statusLabel.setText(currentFormat.displayName() + " - " + message(ex));
         }
+    }
+
+    /** Render spec for linear formats: shared colours, quiet zone and label font size. */
+    private RenderSpec currentRenderSpec() {
+        return new RenderSpec(1, 70, 2.0, 1, foreground, background,
+                ((Number) quietSpinner.getValue()).intValue(),
+                ((Number) fontSpinner.getValue()).intValue());
     }
 
     private LinearBarcodeFormat.LinearOptions currentLinearOptions() {

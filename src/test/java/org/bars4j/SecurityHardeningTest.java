@@ -132,13 +132,12 @@ class SecurityHardeningTest {
     }
 
     // -------------------------------------------------------------------------------------------
-    // Legacy facade XSS fix: markup characters in the code are escaped in the SVG
+    // Markup characters in the code are escaped in the SVG
     // -------------------------------------------------------------------------------------------
 
     @Test
-    void legacyFacadeEscapesMarkupCharacters() throws Exception {
-        // BarcodeFactory is the public way to obtain a legacy Barcode facade.
-        String svg = BarcodeFactory.getInstance().createCode128().createBarcodeSVG("A<B&C>D").toString();
+    void facadeEscapesMarkupCharacters() throws Exception {
+        String svg = BarcodeGenerator.of("CODE128").toSvg("A<B&C>D");
         assertTrue(svg.contains("&lt;"), "escaped <");
         assertTrue(svg.contains("&amp;"), "escaped &");
         assertTrue(svg.contains("&gt;"), "escaped >");

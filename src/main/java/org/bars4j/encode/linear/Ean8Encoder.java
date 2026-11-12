@@ -6,7 +6,7 @@ import org.bars4j.format.BitSemantics;
 import org.bars4j.symbol.LinearSymbol;
 
 /**
- * Native EAN-8 encoder (8 digits). Ported from the legacy {@code EAN8Encoder}.
+ * Native EAN-8 encoder (8 digits).
  */
 public final class Ean8Encoder implements LinearEncoder {
 

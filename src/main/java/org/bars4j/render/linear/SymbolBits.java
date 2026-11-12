@@ -4,11 +4,11 @@ import org.bars4j.symbol.BarElement;
 import org.bars4j.symbol.LinearSymbol;
 
 /**
- * Extracts the legacy bit array (one boolean per element) from a {@link LinearSymbol}.
+ * Extracts the bit array (one boolean per element) from a {@link LinearSymbol}.
  *
- * <p>The three painting strategies interpret the same {@link LinearSymbol} differently, exactly as
- * the legacy painters interpreted the bit arrays: width-coded and height-coded strategies read the
- * "dark" flag, wide-ratio strategies read the "wide" flag.
+ * <p>The three painting strategies interpret the same {@link LinearSymbol} differently:
+ * width-coded and height-coded strategies read the "dark" flag, wide-ratio strategies read the
+ * "wide" flag.
  */
 final class SymbolBits {
 

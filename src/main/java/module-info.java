@@ -5,19 +5,15 @@
  *
  * <p>Only the public API surface is exported; the {@code encode.linear}, {@code encode.matrix.*},
  * {@code symbol} and {@code util} packages are internal implementation details (accessible via
- * reflection is not part of the contract). The legacy facade packages ({@code org.bars4j.demo} and
- * {@code org.bars4j.paint}) remain exported for backward compatibility.
+ * reflection is not part of the contract).
  */
 module org.bars4j {
     requires java.desktop;
 
-    exports org.bars4j;
     exports org.bars4j.api;
     exports org.bars4j.demo;
-    exports org.bars4j.encode;
     exports org.bars4j.encode.api;
     exports org.bars4j.format;
-    exports org.bars4j.paint;
     exports org.bars4j.render;
     exports org.bars4j.render.linear;
     exports org.bars4j.render.matrix;

@@ -5,8 +5,7 @@ import java.awt.image.BufferedImage;
 import org.bars4j.render.RenderSpec;
 
 /**
- * Draws the human-readable text of a linear barcode, natively reproducing the legacy
- * {@code org.bars4j.paint.TextPainter} implementations for both raster and SVG output.
+ * Draws the human-readable text of a linear barcode for both raster and SVG output.
  */
 public interface LinearTextRenderer {
 
@@ -27,7 +26,7 @@ public interface LinearTextRenderer {
 
     /**
      * Appends the SVG markup for the text area, clearing the label background with the given
-     * spec's colours. The default ignores the spec (legacy behaviour, hardcoded {@code #fff});
+     * spec's colours. The default ignores the spec (hardcoded {@code #fff});
      * implementations may override to honour it.
      */
     default String paintTextSvg(String text, int barHeight, int totalWidth, RenderSpec spec) {

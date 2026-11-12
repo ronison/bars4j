@@ -10,10 +10,8 @@ import org.bars4j.symbol.LinearSymbol;
 /**
  * Helpers shared by the native linear encoders.
  *
- * <p>Encoders build the bit string exactly like the legacy {@code BarSet[]} arrays did (concatenating
- * the per-character bit patterns in order); this class turns that bit string into a
- * {@link LinearSymbol} using the same {@link BitSemantics} mapping as
- * {@link BarSetBridge#toSymbol}.
+ * <p>Encoders concatenate the per-character bit patterns in order; this class turns that bit
+ * string into a {@link LinearSymbol} using the given {@link BitSemantics} mapping.
  */
 final class LinearBits {
 

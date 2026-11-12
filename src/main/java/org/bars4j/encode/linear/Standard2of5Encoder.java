@@ -6,7 +6,7 @@ import org.bars4j.format.BitSemantics;
 import org.bars4j.symbol.LinearSymbol;
 
 /**
- * Native Standard/Industrial 2 of 5 encoder. Ported from the legacy {@code Standard2of5Encoder}.
+ * Native Standard/Industrial 2 of 5 encoder.
  */
 public class Standard2of5Encoder implements LinearEncoder {
 

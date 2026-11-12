@@ -14,20 +14,17 @@ import org.bars4j.render.linear.LinearTextRenderer;
 import org.bars4j.symbol.LinearSymbol;
 
 /**
- * A linear (1D) format backed by the new native encoder/renderer pipeline.
+ * A linear (1D) format backed by the native encoder/renderer pipeline.
  *
- * <p>This reproduces the legacy {@code org.bars4j.Barcode} assembly (check-digit handling, quiet
- * zone, x-dimension scaling, margins and human-readable text) byte-for-byte, while depending only on
- * the new {@code encode.linear} / {@code render.linear} packages.
- *
- * <p>The provided {@link RenderSpec} supplies the bar/module and background colours for linear
- * formats ({@code null} components fall back to black on white). Like the legacy facade they use
- * their own per-format defaults for x-dimension, bar height and wide ratio, which the spec does
- * not override.
+ * <p>The provided {@link RenderSpec} supplies the bar/module and background colours, the quiet
+ * zone width and the human-readable label font size for linear formats ({@code null} components
+ * fall back to black on white, a quiet zone of 10 modules and a 14px label). Like the historical
+ * facade they use their own per-format defaults for x-dimension, bar height and wide ratio, which
+ * the spec does not override.
  */
 public final class LinearBarcodeFormat implements BarcodeFormat {
 
-    /** Smallest meaningful x-dimension (mirrors the legacy {@code Barcode.MIN_XDIMENSION}). */
+    /** Smallest meaningful x-dimension. */
     public static final double MIN_XDIMENSION = 0.264583333;
 
     /**
@@ -40,10 +37,9 @@ public final class LinearBarcodeFormat implements BarcodeFormat {
     /** Upper bound applied by {@link #resolve} when {@link #withMaxTextLength} is not used. */
     private static int defaultMaxTextLength = DEFAULT_MAX_TEXT_LENGTH;
 
-    private static final int FONT_SIZE = 14;
 
     /**
-     * User-configurable options of a linear format. All values map to the legacy facade attributes.
+     * User-configurable options of a linear format.
      *
      * @param xDimensionMm  narrow bar width (x-dimension) in millimetres
      * @param barHeightMm   bar height in millimetres
@@ -173,15 +169,18 @@ public final class LinearBarcodeFormat implements BarcodeFormat {
     }
 
     /**
-     * Builds the internal render spec from this format's geometry, taking the colours from the
-     * user-provided spec when given.
+     * Builds the internal render spec from this format's geometry, taking the colours, quiet zone
+     * and label font size from the user-provided spec when given ({@code null} components fall
+     * back to black on white, a quiet zone of 10 and a 14px label).
      */
     private RenderSpec internalSpec(RenderSpec userSpec) {
         Color foreground = userSpec != null && userSpec.foreground() != null
                 ? userSpec.foreground() : Color.BLACK;
         Color background = userSpec != null && userSpec.background() != null
                 ? userSpec.background() : Color.WHITE;
-        return new RenderSpec(1, barHeight, wideToNarrow, 1, foreground, background);
+        int quietZone = userSpec != null ? userSpec.quietZone() : RenderSpec.DEFAULT_QUIET_ZONE;
+        int fontSize = userSpec != null ? userSpec.fontSize() : RenderSpec.DEFAULT_FONT_SIZE;
+        return new RenderSpec(1, barHeight, wideToNarrow, 1, foreground, background, quietZone, fontSize);
     }
 
     @Override
@@ -192,7 +191,7 @@ public final class LinearBarcodeFormat implements BarcodeFormat {
         double scale = module / MIN_XDIMENSION;
 
         int unscaledWidth = renderer.calcTotalWidth(symbol, internal.barWidth(), internal.barHeight(),
-                internal.wideRatio());
+                internal.wideRatio(), internal.quietZone());
         BufferedImage result = new BufferedImage(
                 (int) (unscaledWidth * scale) + 1, barHeight + 8 + (showText ? textGap : 0),
                 BufferedImage.TYPE_INT_RGB);
@@ -228,14 +227,15 @@ public final class LinearBarcodeFormat implements BarcodeFormat {
 
         // The SVG paths are drawn in barWidth=1 units; compute the canvas width with the same
         // unit so the document is not over-sized for x-dimensions above the minimum.
-        int totalWidth = renderer.calcTotalWidth(symbol, 1, barHeight, wideToNarrow);
+        int totalWidth = renderer.calcTotalWidth(symbol, 1, barHeight, wideToNarrow,
+                internalSpec(renderSpec).quietZone());
         int totalHeight = barHeight + 4;
 
         StringBuilder pcode = new StringBuilder(renderer.toSvg(symbol, internalSpec(renderSpec)));
         if (showText) {
             int textTop = barHeight + textGap;
             pcode.append(textRenderer.paintTextSvg(resolved[1], textTop, totalWidth, internalSpec(renderSpec)));
-            totalHeight = textRenderer.calcTotalHeight(textTop, FONT_SIZE);
+            totalHeight = textRenderer.calcTotalHeight(textTop, internalSpec(renderSpec).fontSize());
         }
 
         StringBuilder res = new StringBuilder("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>\n"
@@ -247,7 +247,8 @@ public final class LinearBarcodeFormat implements BarcodeFormat {
         // A previous version emitted the canvas size as the preserveAspectRatio alignment
         // ("x226Y78 meet"), which is not a valid SVG value; xMidYMid is the spec-correct
         // centred alignment.
-        res.append("\" preserveAspectRatio=\"xMidYMid meet\"><style>text{font-family: 'Courier New', monospace;font-size: 14px;}</style>");
+        res.append("\" preserveAspectRatio=\"xMidYMid meet\"><style>text{font-family: 'Courier New', monospace;font-size: ")
+                .append(internalSpec(renderSpec).fontSize()).append("px;}</style>");
         res.append(pcode);
         res.append("Sorry, your browser does not support inline SVG.</svg>");
         return res.toString();
@@ -269,14 +270,15 @@ public final class LinearBarcodeFormat implements BarcodeFormat {
 
         // Same geometry as toSvg: the paths are drawn in barWidth=1 units and the human-readable
         // text sits below the bars.
-        int totalWidth = renderer.calcTotalWidth(symbol, 1, barHeight, wideToNarrow);
+        int totalWidth = renderer.calcTotalWidth(symbol, 1, barHeight, wideToNarrow,
+                internalSpec(renderSpec).quietZone());
         int totalHeight = barHeight + 4;
 
         StringBuilder pcode = new StringBuilder(renderer.toSvg(symbol, internalSpec(renderSpec)));
         if (showText) {
             int textTop = barHeight + textGap;
             pcode.append(textRenderer.paintTextSvg(resolved[1], textTop, totalWidth, internalSpec(renderSpec)));
-            totalHeight = textRenderer.calcTotalHeight(textTop, FONT_SIZE);
+            totalHeight = textRenderer.calcTotalHeight(textTop, internalSpec(renderSpec).fontSize());
         }
 
         return HtmlSnippet.assemble(totalWidth, totalHeight, displayWidth, displayHeight,

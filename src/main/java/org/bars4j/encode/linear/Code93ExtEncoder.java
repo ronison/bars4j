@@ -4,7 +4,7 @@ import org.bars4j.encode.api.InvalidSymbolException;
 import org.bars4j.symbol.LinearSymbol;
 
 /**
- * Native Code 93 Extended encoder. Ported from the legacy {@code Code93ExtEncoder}.
+ * Native Code 93 Extended encoder.
  */
 public final class Code93ExtEncoder extends Code93Encoder {
 

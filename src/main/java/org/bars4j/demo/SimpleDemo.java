@@ -20,328 +20,84 @@
  * Boston, MA 02111-1307, USA.
  */
 package org.bars4j.demo;
+
 import java.awt.image.BufferedImage;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
-import org.bars4j.Barcode;
-import org.bars4j.BarcodeFactory;
 import org.bars4j.api.BarcodeGenerator;
-import org.bars4j.encode.UPCAEncoder;
 import org.bars4j.util.ImageUtil;
 
-
-
-
-
 /**
- * TODO: Description.
- * 
- * @author Flavio Sampaio
- * @since 0.1
+ * Generates one sample image per registered format using the unified
+ * {@link BarcodeGenerator} API (output is written to {@code ./images}).
+ *
+ * <p>Run with: {@code mvn exec:java -Dexec.mainClass=org.bars4j.demo.SimpleDemo}.
  */
 public class SimpleDemo {
 
-    /**
-     * @param args
-     */
-    public static void main(String [] args){
-        
-        try{
-            //Creates a JBarcode with a EAN13Encoder and a WidthCodedPainter
-            Barcode b4j = BarcodeFactory.getInstance().createEAN13();
-            long startTime = 0, elapsedTime = 0;
-            
+    private static final String[][] CASES = {
+        {"EAN13", "789100031550"},
+        {"EAN8", "9788515"},
+        {"EAN5", "54495"},
+        {"UPCA", "07567816415"},
+        {"UPCE", "0756785"},
+        {"CODABAR", "97885150040-85"},
+        {"CODE39", "BARS4J-39"},
+        {"CODE39EXT", "Bars4J-39Ext"},
+        {"CODE93", "BARS4J-93"},
+        {"CODE93EXT", "Bars4J-93Ext"},
+        {"CODE128", "Bars4J-128"},
+        {"CODE11", "9788515004041"},
+        {"MSIPLESSEY", "9788515004041"},
+        {"STANDARD2OF5", "978851500404"},
+        {"IATA2OF5", "978851500404"},
+        {"MATRIX2OF5", "123456"},
+        {"DATALOGIC2OF5", "123456"},
+        {"INTERLEAVED2OF5", "9876543210921"},
+        {"ITF14", "1540014128876"},
+        {"POSTNET", "805365961"},
+        {"QRCODE", "https://github.com/ronison/bars4j"},
+        {"DATAMATRIX", "https://github.com/ronison/bars4j"},
+        {"PDF417", "https://github.com/ronison/bars4j"},
+        {"AZTEC", "https://github.com/ronison/bars4j"},
+    };
 
-            System.out.println("EAN13:");
-            String code = "789100031550";
-            startTime = System.currentTimeMillis();
-            BufferedImage img = b4j.createBarcode(code);
-            elapsedTime = System.currentTimeMillis() - startTime;
-            System.out.println("- IMG: " + elapsedTime);
-            startTime = System.currentTimeMillis();
-            StringBuffer svg = b4j.createBarcodeSVG(code);
-            System.out.println("- SVG: " + elapsedTime);
-            saveToSVG(svg, "EAN13.svg");
-            saveToPNG(img, "EAN13.png");
-            
-            //EAN8 Code Example
-            System.out.println("EAN8:");
-            b4j = BarcodeFactory.getInstance().createEAN8();
-            code = "9788515";
-            startTime = System.currentTimeMillis();
-            img = b4j.createBarcode(code);
-            elapsedTime = System.currentTimeMillis() - startTime;
-            System.out.println("- IMG: " + elapsedTime);
-            startTime = System.currentTimeMillis();
-            svg = b4j.createBarcodeSVG(code);
-            elapsedTime = System.currentTimeMillis() - startTime;
-            System.out.println("- SVG: " + elapsedTime);
-            saveToSVG(svg, "EAN8.svg");
-            saveToPNG(img, "EAN8.png");
-            
-            //EAN5 Code Example
-            b4j = BarcodeFactory.getInstance().createEAN5();
-            code = "54495";
-            img = b4j.createBarcode(code);
-            saveToPNG(img, "EAN5.png");
-            
-            //UPCA Code Example
-            System.out.println("UPCA:");
-            b4j = BarcodeFactory.getInstance().createUPCA();
-            code = "07567816415";        
-            startTime = System.currentTimeMillis();
-            img = b4j.createBarcode(code);
-            elapsedTime = System.currentTimeMillis() - startTime;
-            System.out.println("- IMG: " + elapsedTime);
-            startTime = System.currentTimeMillis();
-            svg = b4j.createBarcodeSVG(code);
-            elapsedTime = System.currentTimeMillis() - startTime;
-            System.out.println("- SVG: " + elapsedTime);
-            saveToSVG(svg, "UPCA.svg");
-            saveToPNG(img, "UPCA.png");
-            
-            //UPCE Code Example
-            System.out.println("UPCE:");
-            b4j = BarcodeFactory.getInstance().createUPCE();
-            code = UPCAEncoder.getInstance().convertUPCAtoUPCE("07567816415");
-            startTime = System.currentTimeMillis();
-            img = b4j.createBarcode(code);
-            elapsedTime = System.currentTimeMillis() - startTime;
-            System.out.println("- IMG: " + elapsedTime);
-            startTime = System.currentTimeMillis();
-            svg = b4j.createBarcodeSVG(code);
-            elapsedTime = System.currentTimeMillis() - startTime;
-            System.out.println("- SVG: " + elapsedTime);
-            saveToSVG(svg, "UPCE.svg");
-            saveToPNG(img, "UPCE.png");
-            
-            //Codabar Code Example
-            System.out.println("Codabar:");
-            b4j = BarcodeFactory.getInstance().createCodabar();
-            code = "97885150040-85";
-            startTime = System.currentTimeMillis();
-            elapsedTime = System.currentTimeMillis() - startTime;
-            System.out.println("- IMG: " + elapsedTime);
-            img = b4j.createBarcode(code);
-            startTime = System.currentTimeMillis();
-            svg = b4j.createBarcodeSVG(code);
-            elapsedTime = System.currentTimeMillis() - startTime;
-            System.out.println("- SVG: " + elapsedTime);
-            saveToSVG(svg, "Codabar.svg");
-            saveToJPEG(img, "Codabar.jpg");
-            
-            //Code39 Code Example
-            System.out.println("Code 39:");
-            b4j = BarcodeFactory.getInstance().createCode39();
-            code = "BARS4J-39";
-            startTime = System.currentTimeMillis();
-            img = b4j.createBarcode(code);
-            elapsedTime = System.currentTimeMillis() - startTime;
-            System.out.println("- IMG: " + elapsedTime);
-            startTime = System.currentTimeMillis();
-            svg = b4j.createBarcodeSVG(code);
-            elapsedTime = System.currentTimeMillis() - startTime;
-            System.out.println("- SVG: " + elapsedTime);
-            saveToSVG(svg, "Code39.svg");
-            saveToPNG(img, "Code39.png");
-            
-            //Code39 Extended Code Example
-            System.out.println("Code 39 Extended:");
-            b4j = BarcodeFactory.getInstance().createCode39Extended();
-            code = "Bars4J-39Ext";
-            startTime = System.currentTimeMillis();
-            img = b4j.createBarcode(code);
-            elapsedTime = System.currentTimeMillis() - startTime;
-            System.out.println("- IMG: " + elapsedTime);
-            startTime = System.currentTimeMillis();
-            svg = b4j.createBarcodeSVG(code);
-            elapsedTime = System.currentTimeMillis() - startTime;
-            System.out.println("- SVG: " + elapsedTime);
-            saveToSVG(svg, "Code39Ext.svg");
-            saveToPNG(img, "Code39Ext.png");
-            
-            //Code93 Code Example
-            System.out.println("Code 93:");
-            b4j = BarcodeFactory.getInstance().createCode93();
-            code = "BARS4J-93";
-            startTime = System.currentTimeMillis();
-            img = b4j.createBarcode(code);
-            elapsedTime = System.currentTimeMillis() - startTime;
-            System.out.println("- IMG: " + elapsedTime);
-            startTime = System.currentTimeMillis();
-            svg = b4j.createBarcodeSVG(code);
-            elapsedTime = System.currentTimeMillis() - startTime;
-            System.out.println("- SVG: " + elapsedTime);
-            saveToSVG(svg, "Code93.svg");
-            saveToPNG(img, "Code93.png");
-            
-            //Code93Ex Code Example
-            System.out.println("Code 93 Extended:");
-            b4j = BarcodeFactory.getInstance().createCode93Extended();
-            code = "Bars4J-93Ext";
-            startTime = System.currentTimeMillis();
-            img = b4j.createBarcode(code);
-            elapsedTime = System.currentTimeMillis() - startTime;
-            System.out.println("- IMG: " + elapsedTime);
-            startTime = System.currentTimeMillis();
-            svg = b4j.createBarcodeSVG(code);
-            elapsedTime = System.currentTimeMillis() - startTime;
-            System.out.println("- SVG: " + elapsedTime);
-            saveToSVG(svg, "Code93Ext.svg");
-            saveToPNG(img, "Code93Ext.png");
-            
-            //Code128 Code Example
-            b4j = BarcodeFactory.getInstance().createCode128();
-            code = "Bars4J-128";
-            img = b4j.createBarcode(code);
-            svg = b4j.createBarcodeSVG(code);
-            saveToSVG(svg, "Code128.svg");
-            saveToPNG(img, "Code128.png");
-            
-            //Code11 Code Example
-            b4j = BarcodeFactory.getInstance().createCode11();            
-            code = "9788515004041";
-            img = b4j.createBarcode(code);
-            svg = b4j.createBarcodeSVG(code);
-            saveToSVG(svg, "Code11.svg");
-            saveToPNG(img, "Code11.png");
-            
-            //Code MSIPlessey Code Example
-            b4j = BarcodeFactory.getInstance().createMSIPlessey();
-            code = "9788515004041";
-            img = b4j.createBarcode(code);
-            svg = b4j.createBarcodeSVG(code);
-            saveToSVG(svg, "MSIPlessey.svg");
-            saveToPNG(img, "MSIPlessey.png");
-            
-            //Standard 2 of 5 Code Example
-            b4j = BarcodeFactory.getInstance().createStandard2of5();
-            code = "978851500404";
-            img = b4j.createBarcode(code);
-            svg = b4j.createBarcodeSVG(code);
-            saveToSVG(svg, "Standard2of5.svg");
-            saveToJPEG(img, "Standard2of5.jpg");
-            
-            //IATA 2 of 5 Code Example
-            b4j = BarcodeFactory.getInstance().createIATA2of5();
-            code = "978851500404";
-            img = b4j.createBarcode(code);
-            svg = b4j.createBarcodeSVG(code);
-            saveToSVG(svg, "IATA2of5.svg");
-            saveToPNG(img, "IATA2of5.png");
-            
-            //Matrix 2 of 5 Code Example
-            b4j = BarcodeFactory.getInstance().createMatrix2of5();
-            code = "123456";
-            img = b4j.createBarcode(code);
-            svg = b4j.createBarcodeSVG(code);
-            saveToSVG(svg, "Matrix2of5.svg");
-            saveToPNG(img, "Matrix2of5.png");
-            
-            //Datalogic 2 of 5 Code Example
-            b4j = BarcodeFactory.getInstance().createDatalogic2of5();
-            code = "123456";
-            img = b4j.createBarcode(code);
-            svg = b4j.createBarcodeSVG(code);
-            saveToSVG(svg, "Datalogic2of5.svg");
-            saveToPNG(img, "Datalogic2of5.png");
-            
-            //Interleaved 2 of 5 Code Example
-            b4j = BarcodeFactory.getInstance().createInterleaved2of5();
-            code = "9876543210921";        
-            img = b4j.createBarcode(code);
-            svg = b4j.createBarcodeSVG(code);
-            saveToSVG(svg, "Interleaved2of5.svg");
-            saveToPNG(img, "Interleaved2of5.png");
+    public static void main(String[] args) {
+        for (String[] c : CASES) {
+            String format = c[0];
+            String text = c[1];
+            System.out.println(format + ":");
+            try {
+                BarcodeGenerator generator = BarcodeGenerator.of(format);
+                BufferedImage img = generator.toImage(text);
+                String svg = generator.toSvg(text);
+                saveToSVG(svg, format + ".svg");
+                saveToPNG(img, format + ".png");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
-            //ITF-14 Code Example (new unified API; GS1 GTIN-14 with bearer bars)
-            System.out.println("ITF-14:");
-            String itf14Text = "1540014128876"; // 13 data digits; check digit appended
-            BufferedImage itf14Img = BarcodeGenerator.of("ITF14").toImage(itf14Text);
-            String itf14Svg = BarcodeGenerator.of("ITF14").toSvg(itf14Text);
-            saveToSVG(new StringBuffer(itf14Svg), "ITF14.svg");
-            saveToPNG(itf14Img, "ITF14.png");
-            
-            //PostNet Code Example
-            b4j = BarcodeFactory.getInstance().createPostNet();
-            code = "805365961"; 
-            img = b4j.createBarcode(code);
-            svg = b4j.createBarcodeSVG(code);
-            saveToSVG(svg, "PostNet.svg");
-            saveToJPEG(img, "PostNet.jpg");
+    static void saveToPNG(BufferedImage img, String fileName) {
+        saveToFile(img, fileName, ImageUtil.PNG);
+    }
 
-            //QRCode Example (new unified API / self-contained 2D encoder)
-            System.out.println("QRCode:");
-            String qrText = "https://github.com/ronison/bars4j";
-            BufferedImage qrImg = BarcodeGenerator.of("QRCODE").toImage(qrText);
-            String qrSvg = BarcodeGenerator.of("QRCODE").toSvg(qrText);
-            saveToSVG(new StringBuffer(qrSvg), "QRCode.svg");
-            saveToPNG(qrImg, "QRCode.png");
-
-            //Data Matrix Example (new unified API / self-contained 2D encoder)
-            System.out.println("Data Matrix:");
-            String dmText = "https://github.com/ronison/bars4j";
-            BufferedImage dmImg = BarcodeGenerator.of("DATAMATRIX").toImage(dmText);
-            String dmSvg = BarcodeGenerator.of("DATAMATRIX").toSvg(dmText);
-            saveToSVG(new StringBuffer(dmSvg), "DataMatrix.svg");
-            saveToPNG(dmImg, "DataMatrix.png");
-
-            //PDF417 Example (new unified API / self-contained 2D encoder)
-            System.out.println("PDF417:");
-            String pdfText = "https://github.com/ronison/bars4j";
-            BufferedImage pdfImg = BarcodeGenerator.of("PDF417").toImage(pdfText);
-            String pdfSvg = BarcodeGenerator.of("PDF417").toSvg(pdfText);
-            saveToSVG(new StringBuffer(pdfSvg), "PDF417.svg");
-            saveToPNG(pdfImg, "PDF417.png");
-
-            //Aztec Example (new unified API / self-contained 2D encoder)
-            System.out.println("Aztec:");
-            String azText = "https://github.com/ronison/bars4j";
-            BufferedImage azImg = BarcodeGenerator.of("AZTEC").toImage(azText);
-            String azSvg = BarcodeGenerator.of("AZTEC").toSvg(azText);
-            saveToSVG(new StringBuffer(azSvg), "Aztec.svg");
-            saveToPNG(azImg, "Aztec.png");
+    static void saveToFile(BufferedImage img, String fileName, String format) {
+        try (FileOutputStream fos = new FileOutputStream("./images/" + fileName)) {
+            ImageUtil.encodeAndWrite(img, format, fos, 96, 96);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
     }
-    
-    static void saveToJPEG(BufferedImage img, String fileName){
-        saveToFile(img, fileName, ImageUtil.JPEG);
-    }
-    
-    static void saveToPNG(BufferedImage img, String fileName){
-       saveToFile(img, fileName, ImageUtil.PNG);
-    }
-    
-    static void saveToGIF(BufferedImage img, String fileName){
-        saveToFile(img, fileName, ImageUtil.GIF);
-    }     
-    
-    static void saveToFile(BufferedImage img, String fileName, String format){
-    	try (FileOutputStream fos = new FileOutputStream("./images/"+fileName)) {
-            ImageUtil.encodeAndWrite(img, format, fos, 96, 96);
-        }catch (Exception e) {
+
+    static void saveToSVG(String data, String fileName) {
+        try (PrintWriter writer = new PrintWriter("./images/" + fileName, StandardCharsets.UTF_8)) {
+            writer.append(data);
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
-    
-    static void saveToSVG(StringBuffer data, String fileName) {
-    	
-		try (PrintWriter writer = new PrintWriter("./images/"+fileName, "UTF-8")) {
-
-	    	writer.append(data);
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-    }
-
 }

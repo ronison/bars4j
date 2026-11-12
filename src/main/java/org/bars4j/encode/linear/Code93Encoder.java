@@ -6,7 +6,7 @@ import org.bars4j.format.BitSemantics;
 import org.bars4j.symbol.LinearSymbol;
 
 /**
- * Native Code 93 encoder. Ported from the legacy {@code Code93Encoder}.
+ * Native Code 93 encoder.
  */
 public class Code93Encoder implements LinearEncoder {
 

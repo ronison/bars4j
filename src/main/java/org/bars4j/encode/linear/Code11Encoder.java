@@ -6,7 +6,7 @@ import org.bars4j.format.BitSemantics;
 import org.bars4j.symbol.LinearSymbol;
 
 /**
- * Native Code 11 encoder. Ported from the legacy {@code Code11Encoder}.
+ * Native Code 11 encoder.
  */
 public final class Code11Encoder implements LinearEncoder {
 
@@ -37,6 +37,9 @@ public final class Code11Encoder implements LinearEncoder {
 
     @Override
     public String computeCheckSum(String text) throws InvalidSymbolException {
+        if (text == null || text.length() < 1) {
+            throw new InvalidSymbolException("[Code11] Invalid text length (" + (text == null ? "null" : text.length()) + ").");
+        }
         // Calc 'C' check digit char (modulo 11, weights 1..10 from the right)
         int check = 0;
         for (int i = text.length() - 1; i >= 0; i--) {

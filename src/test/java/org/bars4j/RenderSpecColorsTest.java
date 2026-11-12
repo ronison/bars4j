@@ -9,14 +9,12 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 
 import org.bars4j.api.BarcodeGenerator;
-import org.bars4j.paint.BarcodePainter;
-import org.bars4j.paint.CircularPainter;
 import org.bars4j.render.RenderSpec;
 import org.junit.jupiter.api.Test;
 
 /**
  * The linear generators honour the {@link RenderSpec} foreground/background colours in both
- * raster and SVG output, and the circular painter reports its missing SVG support clearly.
+ * raster and SVG output.
  */
 class RenderSpecColorsTest {
 
@@ -60,16 +58,6 @@ class RenderSpecColorsTest {
         BufferedImage image = generator.with(RED_BLUE).toImage("805365961");
         assertColorPresent(image, 0xFFE53935, "red foreground");
         assertColorPresent(image, 0xFF0D47A1, "blue background");
-    }
-
-    @Test
-    void circularPainterRejectsSvgOutput() throws Exception {
-        BarcodePainter painter = CircularPainter.getInstance();
-        assertThrows(UnsupportedOperationException.class,
-                () -> painter.paintToSVG(new org.bars4j.encode.BarSet[0], 2, 20, 2.0));
-        assertThrows(UnsupportedOperationException.class,
-                () -> painter.calcTotalWidth(new org.bars4j.encode.BarSet[0], 2, 20, 2.0));
-        assertNotNull(CircularPainter.getInstance(), "getInstance is safe");
     }
 
     @Test

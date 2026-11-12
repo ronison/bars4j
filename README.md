@@ -36,7 +36,7 @@ It is also published to GitHub Packages (`maven.pkg.github.com/ronison/bars4j`):
 <dependency>
   <groupId>org.bars4j</groupId>
   <artifactId>bars4j</artifactId>
-  <version>0.7.2</version>
+  <version>1.0.0</version>
 </dependency>
 ```
 
@@ -233,15 +233,31 @@ be given either as the payload alone or as the complete code including its check
   (13, 8, 12, 8 and 14 digits respectively); a wrong check digit is rejected with an
   `InvalidSymbolException`.
 
-The `BarcodeGenerator` facade accepts both forms. The raw encoders (`Ean13Encoder`, `Ean8Encoder`,
-`UpcaEncoder`, `UpceEncoder`, `Itf14Encoder`) accept the complete code and validate it; `EAN13` (12),
-`UPCA` (11) and `ITF14` (13) also accept the payload alone, while `EAN8`/`UPCE` raw encoders expect
-the complete 8-digit code (the facade is what appends their check digit). Each exposes
-`completeLength()` for the full length.
+The `BarcodeGenerator` facade accepts both forms. Each raw encoder exposes `completeLength()` for
+the full length; `UpcaEncoder` also provides `convertUPCAtoUPCE(...)` and `UpceEncoder` provides
+`convertUPCEtoUPCA(...)` for the UPC-A ⇄ UPC-E conversions.
 
-> Note: the shared 2-of-5 check digit is computed with the GS1 weights anchored to the right of the
-> payload. This matches the previous behaviour for even-length payloads and fixes the odd-length
-> case (e.g. the 13 data digits of an ITF-14/GTIN-14).
+## Rendering options
+
+Every format accepts a `RenderSpec` with the colours (foreground/background), the quiet zone
+width and the human-readable label font size:
+
+```java
+RenderSpec spec = new RenderSpec(
+        1,                          // bar/module width for linear symbols (px)
+        70,                         // bar height (px)
+        2.0,                        // wide-to-narrow ratio
+        4,                          // module size for matrix symbols (px)
+        Color.BLACK, Color.WHITE,   // foreground / background
+        10,                         // quiet zone (modules per side for linear symbols)
+        14);                        // human-readable label font size (px)
+
+BufferedImage img = BarcodeGenerator.of("EAN13").with(spec).toImage("789100031550");
+```
+
+`RenderSpec.linearDefaults()` / `RenderSpec.matrixDefaults()` provide the standard presets.
+The human-readable digits of the EAN/UPC formats are drawn digit-by-digit in fixed slots (the
+canonical HRI positions), so the label geometry is stable across platforms and JDK font metrics.
 
 ## Building and running the demos
 
@@ -292,8 +308,10 @@ mvn exec:java -Dexec.mainClass=org.bars4j.demo.SwingDemo
 
 * pick any registered format (1D or 2D) from the format list;
 * edit the content and the format-specific options — the preview updates in real time;
-* **linear** options: x-dimension, bar height, wide ratio, human-readable text, check digit;
-* **matrix** options: module size, foreground and background colours;
+* **linear** options: x-dimension, bar height, wide ratio, quiet zone, label font size,
+  human-readable text, check digit;
+* **matrix** options: module size;
+* **colours** (1D and 2D): foreground and background;
 * zoom the preview with the mouse wheel (double-click resets the zoom);
 * **Print…** sends the barcode to a printer (scaled to fit and centred on the page);
 * **Export PNG…** / **Export SVG…** save the current result.

@@ -5,7 +5,7 @@ import org.bars4j.format.BitSemantics;
 import org.bars4j.symbol.LinearSymbol;
 
 /**
- * Native Matrix 2 of 5 encoder. Ported from the legacy {@code Matrix2of5Encoder}.
+ * Native Matrix 2 of 5 encoder.
  */
 public class Matrix2of5Encoder extends Standard2of5Encoder {
 

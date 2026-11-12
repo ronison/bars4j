@@ -10,7 +10,7 @@ import org.bars4j.symbol.LinearSymbol;
 
 /**
  * Wide-to-narrow ratio rendering strategy (bit = wide element, colour alternates starting dark),
- * natively reproducing the legacy {@code WideRatioCodedPainter} for both raster and SVG output.
+ * reproducing the historical {@code WideRatioCodedPainter} strategy for both raster and SVG output.
  */
 public class WideRatioCodedRenderer implements LinearRenderer {
 
@@ -20,8 +20,9 @@ public class WideRatioCodedRenderer implements LinearRenderer {
         int barWidth = spec.barWidth();
         int barHeight = spec.barHeight();
         double wideRatio = spec.wideRatio();
+        int quiet = quietModules(spec);
 
-        int width = 20 * barWidth; // 20 x Xdimension is quiet zone width
+        int width = 2 * quiet * barWidth; // quiet zone on each side
         int wideWidth = (int) Math.round(barWidth * wideRatio);
         for (boolean bit : bits) {
             width += bit ? wideWidth : barWidth;
@@ -33,7 +34,7 @@ public class WideRatioCodedRenderer implements LinearRenderer {
         g2d.setColor(spec.foreground());
         g2d.clearRect(0, 0, width, barHeight);
 
-        int x = 10 * barWidth; // 10 x Xdimension is leading quiet zone
+        int x = quiet * barWidth; // leading quiet zone
         boolean flag = true;
         for (boolean bit : bits) {
             int w = bit ? wideWidth : barWidth;
@@ -52,10 +53,11 @@ public class WideRatioCodedRenderer implements LinearRenderer {
         int barWidth = spec.barWidth();
         int barHeight = spec.barHeight();
         int wideWidth = (int) Math.round(barWidth * spec.wideRatio());
+        int quiet = quietModules(spec);
 
         Graphics2D g2d = target.createGraphics();
         g2d.setColor(spec.foreground());
-        int x = offsetX + 10 * barWidth; // 10 x Xdimension is leading quiet zone
+        int x = offsetX + quiet * barWidth; // leading quiet zone
         boolean flag = true;
         for (boolean bit : bits) {
             int w = bit ? wideWidth : barWidth;
@@ -90,7 +92,7 @@ public class WideRatioCodedRenderer implements LinearRenderer {
         res.append(ColorUtil.hex(spec.foreground()));
         res.append("\" d=\"");
 
-        int pos = 10 * barWidth;
+        int pos = quietModules(spec) * barWidth;
         int relPos = 0;
         int relY = 2;
         int width = 0;
@@ -121,7 +123,13 @@ public class WideRatioCodedRenderer implements LinearRenderer {
 
     @Override
     public int calcTotalWidth(LinearSymbol symbol, int barWidth, int barHeight, double wideRatio) {
-        int res = 20 * barWidth; // 20 x Xdimension is quiet zone width
+        return calcTotalWidth(symbol, barWidth, barHeight, wideRatio, QUIET_ZONE_MODULES);
+    }
+
+    @Override
+    public int calcTotalWidth(LinearSymbol symbol, int barWidth, int barHeight, double wideRatio,
+                              int quietZoneModules) {
+        int res = 2 * quietZoneModules * barWidth; // quiet zone on each side
         int wideWidth = (int) Math.round(barWidth * wideRatio);
         boolean[] bits = SymbolBits.wide(symbol);
         for (boolean bit : bits) {

@@ -6,8 +6,7 @@ import org.bars4j.format.BitSemantics;
 import org.bars4j.symbol.LinearSymbol;
 
 /**
- * Native Codabar encoder. Ported from the legacy {@code CodabarEncoder} (default start 'A',
- * stop '*').
+ * Native Codabar encoder (default start 'A', stop '*').
  */
 public final class CodabarEncoder implements LinearEncoder {
 

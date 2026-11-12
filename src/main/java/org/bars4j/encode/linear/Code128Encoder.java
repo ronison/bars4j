@@ -8,7 +8,7 @@ import org.bars4j.format.BitSemantics;
 import org.bars4j.symbol.LinearSymbol;
 
 /**
- * Native Code 128 encoder. Ported from the legacy {@code Code128Encoder} (character sets B and C).
+ * Native Code 128 encoder (character sets B and C).
  */
 public final class Code128Encoder implements LinearEncoder {
 
