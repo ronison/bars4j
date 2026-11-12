@@ -15,11 +15,16 @@ public final class Ean8TextRenderer implements LinearTextRenderer {
 
     @Override
     public void paintText(BufferedImage barcode, String text, int nWidth) {
-        paintText(barcode, text, nWidth, null);
+        paintText(barcode, text, (double) nWidth, null);
     }
 
     @Override
     public void paintText(BufferedImage barcode, String text, int nWidth, RenderSpec spec) {
+        paintText(barcode, text, (double) nWidth, spec);
+    }
+
+    @Override
+    public void paintText(BufferedImage barcode, String text, double nWidth, RenderSpec spec) {
         Color background = spec != null && spec.background() != null ? spec.background() : Color.WHITE;
         Color foreground = spec != null && spec.foreground() != null ? spec.foreground() : Color.BLACK;
         // The label is normally 8 digits; pad defensively so a short label cannot crash with
@@ -30,29 +35,39 @@ public final class Ean8TextRenderer implements LinearTextRenderer {
         FontMetrics fm = g2d.getFontMetrics();
 
         // calc bounds
-        int textWidht = nWidth * 28;
+        double groupWidth = nWidth * 28;
         int textHeight = fm.getHeight();
         int textYPos = barcode.getHeight() - textHeight / 10;
 
-        int x = nWidth * 13;
+        // Slot positions are relative to the bar start (offset by the leading quiet zone), so the
+        // digits keep lining up with the guard bars for any quiet-zone width. The historical
+        // layout assumed a quiet zone of 10 (left group at 13, right group at 46).
+        int quiet = spec != null ? spec.quietZone() : 10;
+        double leftGroup = (quiet + 3) * nWidth;
+        double rightGroup = (quiet + 36) * nWidth;
         int y = barcode.getHeight() - (textHeight * 4 / 5);
 
         g2d.setColor(background);
         g2d.fillRect(0, 0, barcode.getWidth(), barcode.getHeight() * 1 / 20);
         g2d.fillRect(0, barcode.getHeight() - textHeight / 3, barcode.getWidth(), textHeight / 3);
 
-        // Left digit group: 4 slots of 7 modules (px) between the left and centre guard bars. Each
-        // digit is centred in its own slot so the group spans exactly those 28px whatever the font
-        // metrics of the platform are (the previous single-string drawing let the last digit drift
-        // into the centre guard bars).
-        g2d.fillRect(x, y, textWidht, textHeight);
-        SlotText.draw(g2d, padded.substring(0, 4), x, textWidht, textYPos, foreground);
+        // Left digit group: 4 slots of 7 modules between the left and centre guard bars. Each
+        // digit is centred in its own slot so the group spans exactly those 7*4 modules whatever
+        // the font metrics of the platform are (the previous single-string drawing let the last
+        // digit drift into the centre guard bars). Slot positions use the fractional module width
+        // so the digits keep matching the bars when the canvas was scaled.
+        g2d.fillRect(round(leftGroup), y, round(groupWidth), textHeight);
+        SlotText.draw(g2d, padded.substring(0, 4), leftGroup, groupWidth, textYPos, foreground);
 
-        x = nWidth * 46;
         g2d.setColor(background);
-        g2d.fillRect(x, y, textWidht, textHeight);
-        SlotText.draw(g2d, padded.substring(4), x, textWidht, textYPos, foreground);
+        g2d.fillRect(round(rightGroup), y, round(groupWidth), textHeight);
+        SlotText.draw(g2d, padded.substring(4), rightGroup, groupWidth, textYPos, foreground);
         g2d.dispose();
+    }
+
+    /** Rounds a slot geometry value to a pixel coordinate. */
+    private static int round(double v) {
+        return (int) Math.round(v);
     }
 
     @Override

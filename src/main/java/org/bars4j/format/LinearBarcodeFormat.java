@@ -215,7 +215,9 @@ public final class LinearBarcodeFormat implements BarcodeFormat {
         }
 
         if (showText) {
-            textRenderer.paintText(result, resolved[1], 1, internal);
+            // The text slots use the fractional module width (the horizontal scale factor) so the
+            // digits keep lining up with the guard bars when the canvas was scaled.
+            textRenderer.paintText(result, resolved[1], scale, internal);
         }
         return result;
     }

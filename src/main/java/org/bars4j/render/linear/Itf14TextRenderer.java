@@ -48,6 +48,16 @@ public final class Itf14TextRenderer implements LinearTextRenderer {
         delegate.paintText(image, format(text), nWidth, spec);
     }
 
+    /**
+     * The centred label does not align with individual modules, so the fractional module width
+     * (the horizontal scale factor) is ignored — the font size stays fixed. Honouring it would
+     * scale the font (and the cleared band) with the x-dimension and wipe the bottom bearer bar.
+     */
+    @Override
+    public void paintText(BufferedImage image, String text, double nWidth, org.bars4j.render.RenderSpec spec) {
+        delegate.paintText(image, format(text), 1, spec);
+    }
+
     @Override
     public String paintTextSvg(String text, int barHeight, int totalWidth) {
         return delegate.paintTextSvg(format(text), barHeight, totalWidth);

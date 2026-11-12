@@ -15,11 +15,16 @@ public final class UpcaTextRenderer implements LinearTextRenderer {
 
     @Override
     public void paintText(BufferedImage barcode, String text, int nWidth) {
-        paintText(barcode, text, nWidth, null);
+        paintText(barcode, text, (double) nWidth, null);
     }
 
     @Override
     public void paintText(BufferedImage barcode, String text, int nWidth, RenderSpec spec) {
+        paintText(barcode, text, (double) nWidth, spec);
+    }
+
+    @Override
+    public void paintText(BufferedImage barcode, String text, double nWidth, RenderSpec spec) {
         Color background = spec != null && spec.background() != null ? spec.background() : Color.WHITE;
         Color foreground = spec != null && spec.foreground() != null ? spec.foreground() : Color.BLACK;
         // The label is normally 12 digits; without the check digit it has 11. Pad defensively so a
@@ -30,36 +35,51 @@ public final class UpcaTextRenderer implements LinearTextRenderer {
         FontMetrics fm = g2d.getFontMetrics();
 
         // calc bounds
-        int textWidht = nWidth * 35;
+        double groupWidth = nWidth * 35;
         int textHeight = fm.getHeight();
         int textYPos = barcode.getHeight() - textHeight / 10;
 
-        int x = nWidth * 20;
+        // Slot positions are relative to the bar start (offset by the leading quiet zone), so the
+        // digits keep lining up with the guard bars for any quiet-zone width. The historical
+        // layout assumed a quiet zone of 10 (number system at 0, left group at 20, right group at
+        // 60, check digit at 106).
+        int quiet = spec != null ? spec.quietZone() : 10;
+        double leftGroup = (quiet + 10) * nWidth;
+        double rightGroup = (quiet + 50) * nWidth;
+        double checkSlot = (quiet + 96) * nWidth;
         int y = barcode.getHeight() - (textHeight * 4 / 5);
 
         g2d.setColor(background);
         g2d.fillRect(0, 0, barcode.getWidth(), barcode.getHeight() * 1 / 20);
         g2d.fillRect(0, barcode.getHeight() - textHeight / 3, barcode.getWidth(), textHeight / 3);
 
-        // Left digit group: 5 slots of 7 modules (px) between the left guard bars and the centre
-        // guard bars. Each digit is centred in its own slot so the group spans exactly those 35px
+        // Left digit group: 5 slots of 7 modules between the left guard bars and the centre guard
+        // bars. Each digit is centred in its own slot so the group spans exactly those 7*5 modules
         // whatever the font metrics of the platform are (the previous single-string drawing let
-        // the last digit drift into the guard bars).
-        g2d.fillRect(x, y, textWidht, textHeight);
-        SlotText.draw(g2d, padded.substring(1, 6), x, textWidht, textYPos, foreground);
-        // Number system digit sits in the leading quiet zone (8px slot).
-        SlotText.draw(g2d, padded.substring(0, 1), 0, 8 * nWidth, textYPos, foreground);
+        // the last digit drift into the guard bars). Slot positions use the fractional module
+        // width so the digits keep matching the bars when the canvas was scaled.
+        g2d.fillRect(round(leftGroup), y, round(groupWidth), textHeight);
+        SlotText.draw(g2d, padded.substring(1, 6), leftGroup, groupWidth, textYPos, foreground);
+        // Number system digit sits in the leading quiet zone (8-module slot).
+        SlotText.draw(g2d, padded.substring(0, 1), Math.max(0, quiet - 10) * nWidth, 8 * nWidth,
+                textYPos, foreground);
 
-        x = nWidth * 60;
         g2d.setColor(background);
-        g2d.fillRect(x, y, textWidht, textHeight);
-        SlotText.draw(g2d, padded.substring(6, 11), x, textWidht, textYPos, foreground);
+        g2d.fillRect(round(rightGroup), y, round(groupWidth), textHeight);
+        SlotText.draw(g2d, padded.substring(6, 11), rightGroup, groupWidth, textYPos, foreground);
 
-        // Check digit sits in the trailing quiet zone (8px slot, aligned with the SVG output).
+        // Check digit sits in the trailing quiet zone (8-module slot, aligned with the SVG output
+        // at x=quiet+96). When the quiet zone is too narrow to hold it the digit clips at the
+        // canvas edge, mirroring the SVG text overflowing the viewBox.
         g2d.setColor(background);
-        g2d.fillRect(nWidth * 106, y, 8 * nWidth, textHeight);
-        SlotText.draw(g2d, padded.substring(11), nWidth * 106, 8 * nWidth, textYPos, foreground);
+        g2d.fillRect(round(checkSlot), y, round(8 * nWidth), textHeight);
+        SlotText.draw(g2d, padded.substring(11), checkSlot, 8 * nWidth, textYPos, foreground);
         g2d.dispose();
+    }
+
+    /** Rounds a slot geometry value to a pixel coordinate. */
+    private static int round(double v) {
+        return (int) Math.round(v);
     }
 
     @Override

@@ -43,6 +43,17 @@ public final class BaseLineTextRenderer implements LinearTextRenderer {
         g2d.dispose();
     }
 
+    /**
+     * The centred label does not align with individual modules, so the fractional module width
+     * (the horizontal scale factor) is ignored — the font size stays fixed. Honouring it would
+     * scale the font (and the cleared band) with the x-dimension and wipe, for instance, the
+     * ITF-14 bottom bearer bar.
+     */
+    @Override
+    public void paintText(BufferedImage barcode, String text, double nWidth, RenderSpec spec) {
+        paintText(barcode, text, 1, spec);
+    }
+
     @Override
     public String paintTextSvg(String text, int barHeight, int nWidth) {
         return paintTextSvg(text, barHeight, nWidth, null);

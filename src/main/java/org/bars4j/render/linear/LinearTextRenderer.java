@@ -21,6 +21,18 @@ public interface LinearTextRenderer {
         paintText(image, text, nWidth);
     }
 
+    /**
+     * Draws the text onto an already rendered barcode image whose bars were drawn with a module
+     * width of {@code nWidth} pixels — fractional when the canvas was horizontally scaled (the
+     * value is then the scale factor). The default delegates to
+     * {@link #paintText(BufferedImage, String, int, RenderSpec)} with the width rounded to the
+     * nearest pixel; implementations may override to keep sub-pixel slot positions aligned with
+     * the scaled bars.
+     */
+    default void paintText(BufferedImage image, String text, double nWidth, RenderSpec spec) {
+        paintText(image, text, (int) Math.round(nWidth), spec);
+    }
+
     /** Appends the SVG markup for the text area (may assume {@code fontSize} of 14). */
     String paintTextSvg(String text, int barHeight, int totalWidth);
 
