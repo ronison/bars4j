@@ -1,6 +1,6 @@
 {
   "name": "@bars4j/core",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Node.js/TypeScript port of the Bars4J barcode library (1D + 2D, SVG and raster).",
   "type": "module",
   "license": "LGPL-2.1-or-later",

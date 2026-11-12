@@ -36,7 +36,7 @@ It is also published to GitHub Packages (`maven.pkg.github.com/ronison/bars4j`):
 <dependency>
   <groupId>org.bars4j</groupId>
   <artifactId>bars4j</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
 </dependency>
 ```
 
