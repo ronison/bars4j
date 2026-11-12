@@ -47,7 +47,8 @@ export class Code128Encoder implements LinearEncoder {
     }
 
     let bits = "";
-    const bytes = Buffer.from(text, "utf8");
+    // Latin-1 matches the Java implementation (ISO-8859-1, one byte per char for 0-255).
+    const bytes = Buffer.from(text, "latin1");
 
     let usingNumericEncoding = false;
     let code = START_CODE_B_ALPHA;

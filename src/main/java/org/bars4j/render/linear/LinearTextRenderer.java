@@ -25,5 +25,14 @@ public interface LinearTextRenderer {
     /** Appends the SVG markup for the text area (may assume {@code fontSize} of 14). */
     String paintTextSvg(String text, int barHeight, int totalWidth);
 
+    /**
+     * Appends the SVG markup for the text area, clearing the label background with the given
+     * spec's colours. The default ignores the spec (legacy behaviour, hardcoded {@code #fff});
+     * implementations may override to honour it.
+     */
+    default String paintTextSvg(String text, int barHeight, int totalWidth, RenderSpec spec) {
+        return paintTextSvg(text, barHeight, totalWidth);
+    }
+
     int calcTotalHeight(int barHeight, int fontSize);
 }

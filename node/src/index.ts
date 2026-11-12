@@ -9,7 +9,15 @@ export { BarcodeGenerator } from "./api/barcode-generator.ts";
 export { BarcodeRegistry } from "./format/barcode-registry.ts";
 export type { BarcodeFormat } from "./format/barcode-format.ts";
 export type { FormatSpec } from "./format/format-spec.ts";
-export { LinearBarcodeFormat, MIN_XDIMENSION, type LinearOptions } from "./format/linear-barcode-format.ts";
+export {
+  DEFAULT_MAX_TEXT_LENGTH,
+  LinearBarcodeFormat,
+  MIN_XDIMENSION,
+  maxTextLength,
+  resetMaxTextLength,
+  setMaxTextLength,
+  type LinearOptions,
+} from "./format/linear-barcode-format.ts";
 export { BitSemantics } from "./format/bit-semantics.ts";
 
 export {

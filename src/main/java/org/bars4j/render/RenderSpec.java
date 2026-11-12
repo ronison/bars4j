@@ -15,9 +15,21 @@ import java.awt.Color;
 public record RenderSpec(int barWidth, int barHeight, double wideRatio, int moduleSize,
                          Color foreground, Color background) {
 
+    /** Upper bound for the module/bar dimensions, so an untrusted request cannot request a
+     * bitmap large enough to exhaust the heap (resource-exhaustion DoS). */
+    public static final int MAX_BAR_WIDTH = 100;
+    public static final int MAX_BAR_HEIGHT = 10_000;
+    public static final int MAX_MODULE_SIZE = 100;
+
     public RenderSpec {
-        if (barWidth <= 0 || barHeight <= 0 || moduleSize <= 0) {
-            throw new IllegalArgumentException("barWidth/barHeight/moduleSize must be positive");
+        if (barWidth <= 0 || barWidth > MAX_BAR_WIDTH) {
+            throw new IllegalArgumentException("barWidth must be between 1 and " + MAX_BAR_WIDTH);
+        }
+        if (barHeight <= 0 || barHeight > MAX_BAR_HEIGHT) {
+            throw new IllegalArgumentException("barHeight must be between 1 and " + MAX_BAR_HEIGHT);
+        }
+        if (moduleSize <= 0 || moduleSize > MAX_MODULE_SIZE) {
+            throw new IllegalArgumentException("moduleSize must be between 1 and " + MAX_MODULE_SIZE);
         }
         if (wideRatio < 1.0) {
             throw new IllegalArgumentException("wideRatio must be >= 1.0");

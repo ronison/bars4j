@@ -27,8 +27,12 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 
+import org.bars4j.util.Escapes;
+
 /**
- * TODO: Description.
+ * Draws a single centred line of text under the barcode. The text is HTML/XML-escaped before being
+ * embedded into the SVG markup, so characters accepted by the barcode charset (Code 128 accepts
+ * {@code & < >}, for instance) cannot break out of the markup.
  * 
  * @author Flavio Sampaio
  * @since 0.1
@@ -81,7 +85,7 @@ public class BaseLineTextPainter implements TextPainter {
 	public StringBuffer paintTextSVG(StringBuffer barcode, String text, int barHeight, int nWidth) {
 		StringBuffer res = new StringBuffer();
 		//TEXT AREA
-		res.append("<path fill=\"#fff\" d=\"M0 ");
+		res.append("<path fill=\"#ffffff\" d=\"M0 ");
 		res.append(barHeight);
 		res.append("h");
 		res.append(nWidth);
@@ -94,7 +98,7 @@ public class BaseLineTextPainter implements TextPainter {
     	res.append("\" y=\"");
     	res.append(barHeight + fontSize-2); //14 is font size
     	res.append("\" class=\"small\" text-anchor=\"middle\">");
-    	res.append(text);
+    	res.append(Escapes.text(text));
     	res.append("</text>");
     	return res;
 	}

@@ -1,4 +1,5 @@
 import type { RasterImage } from "../raster-image.ts";
+import type { RenderSpec } from "../render-spec.ts";
 import { BaseLineTextRenderer } from "./base-line-text-renderer.ts";
 import type { LinearTextRenderer } from "./linear-text-renderer.ts";
 
@@ -44,7 +45,28 @@ export class Itf14TextRenderer implements LinearTextRenderer {
     this.delegate.paintText(image, Itf14TextRenderer.format(text), nWidth);
   }
 
+  paintTextWithSpec(image: RasterImage, text: string, nWidth: number, spec: RenderSpec): void {
+    const base = this.delegate as BaseLineTextRenderer & {
+      paintTextWithSpec?: (img: RasterImage, t: string, w: number, s: RenderSpec) => void;
+    };
+    if (typeof base.paintTextWithSpec === "function") {
+      base.paintTextWithSpec(image, Itf14TextRenderer.format(text), nWidth, spec);
+    } else {
+      this.delegate.paintText(image, Itf14TextRenderer.format(text), nWidth);
+    }
+  }
+
   paintTextSvg(text: string, barHeight: number, totalWidth: number): string {
+    return this.delegate.paintTextSvg(Itf14TextRenderer.format(text), barHeight, totalWidth);
+  }
+
+  paintTextSvgWithSpec(text: string, barHeight: number, totalWidth: number, spec: RenderSpec): string {
+    const base = this.delegate as BaseLineTextRenderer & {
+      paintTextSvgWithSpec?: (t: string, h: number, w: number, s: RenderSpec) => string;
+    };
+    if (base.paintTextSvgWithSpec) {
+      return base.paintTextSvgWithSpec(Itf14TextRenderer.format(text), barHeight, totalWidth, spec);
+    }
     return this.delegate.paintTextSvg(Itf14TextRenderer.format(text), barHeight, totalWidth);
   }
 

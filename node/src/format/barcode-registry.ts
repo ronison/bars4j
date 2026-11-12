@@ -24,7 +24,14 @@ export class BarcodeRegistry {
   }
 
   register(format: BarcodeFormat): void {
-    this.formatsMap.set(normalize(format.id()), format);
+    const key = normalize(format.id());
+    // Built-in format ids cannot be shadowed: replacing, say, QRCODE with a different
+    // implementation would silently change the behaviour of every caller that looks the format
+    // up by id, so re-registering an already known id is rejected.
+    if (this.formatsMap.has(key)) {
+      throw new Error("Cannot replace registered format: " + format.id());
+    }
+    this.formatsMap.set(key, format);
   }
 
   get(id: string): BarcodeFormat {
@@ -49,5 +56,6 @@ export class BarcodeRegistry {
 }
 
 function normalize(id: string): string {
+  // Locale-independent uppercase; the port mirrors the Java Locale.ROOT behaviour.
   return id.trim().toUpperCase();
 }

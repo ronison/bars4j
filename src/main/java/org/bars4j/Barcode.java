@@ -184,16 +184,15 @@ public class Barcode {
         res.append(totalWidth);
         res.append("\" height=\"");
         res.append(totalHeight);
-        res.append("\" preserveAspectRatio=\"x");
-        res.append(totalWidth);
-        res.append("Y");
-        res.append(totalHeight);
-        res.append(" meet\"><style>text{font-family: 'Courier New', monospace;font-size: 14px;}</style>");
-        
+        // A previous version emitted the canvas size as the preserveAspectRatio alignment
+        // ("x226Y78 meet"), which is not a valid SVG value; xMidYMid is the spec-correct
+        // centred alignment.
+        res.append("\" preserveAspectRatio=\"xMidYMid meet\"><style>text{font-family: 'Courier New', monospace;font-size: 14px;}</style>");
+
         res.append(pcode);
-        
+
         res.append("Sorry, your browser does not support inline SVG.</svg>");
-       
+
         return res;
     }
         

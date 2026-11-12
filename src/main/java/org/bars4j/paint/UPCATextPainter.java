@@ -27,8 +27,11 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 
+import org.bars4j.util.Escapes;
+
 /**
- * TODO: Description.
+ * UPC-A specific text layout (number system + two 5-digit groups + check digit). Text fragments
+ * are HTML/XML-escaped before being embedded into the SVG markup.
  * 
  * @author Flávio Sampaio
  * @since 0.1
@@ -99,34 +102,34 @@ public class UPCATextPainter implements TextPainter {
     	int posY = (int) Math.round(barHeight * 0.9);
     	StringBuffer res = new StringBuffer();
     	
-    	res.append("<path fill=\"#fff\" d=\"M0 ");
+    	res.append("<path fill=\"#ffffff\" d=\"M0 ");
     	res.append(barHeight);
     	res.append("h");
     	res.append(nWidth);
     	res.append("v8H0z\"/>");
     	
-    	res.append("<path fill=\"#fff\" d=\"M20 ");
+    	res.append("<path fill=\"#ffffff\" d=\"M20 ");
     	res.append(posY);
     	res.append("h36v14H20zm39 0h36v14H59z\"/>");
     	
     	res.append("<text x=\"0\" y=\"");
     	res.append(posY+10);
     	res.append("\" class=\"small\" textLength=\"8\">");
-    	res.append(t1);
+    	res.append(Escapes.text(t1));
     	res.append("</text>");
     	res.append("<text x=\"20\" y=\"");
     	res.append(posY+10);
     	res.append("\" class=\"small\" textLength=\"36\">");
-    	res.append(t2);
+    	res.append(Escapes.text(t2));
     	res.append("</text>");
     	res.append("<text x=\"59\" y=\"");
     	res.append(posY+10);
     	res.append("\" class=\"small\" textLength=\"36\">");
-    	res.append(t3);
+    	res.append(Escapes.text(t3));
     	res.append("</text><text x=\"106\" y=\"");
     	res.append(posY+10);
     	res.append("\" class=\"small\" textLength=\"8\">");
-    	res.append(t4);
+    	res.append(Escapes.text(t4));
     	res.append("</text>");
     	return res;
 	}

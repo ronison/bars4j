@@ -6,6 +6,7 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 
+import org.bars4j.render.RenderSpec;
 import org.bars4j.util.Escapes;
 
 /**
@@ -15,6 +16,16 @@ public final class Ean8TextRenderer implements LinearTextRenderer {
 
     @Override
     public void paintText(BufferedImage barcode, String text, int nWidth) {
+        paintText(barcode, text, nWidth, null);
+    }
+
+    @Override
+    public void paintText(BufferedImage barcode, String text, int nWidth, RenderSpec spec) {
+        Color background = spec != null && spec.background() != null ? spec.background() : Color.WHITE;
+        Color foreground = spec != null && spec.foreground() != null ? spec.foreground() : Color.BLACK;
+        // The label is normally 8 digits; pad defensively so a short label cannot crash with
+        // StringIndexOutOfBoundsException (mirrors paintTextSvg).
+        String padded = text.length() >= 8 ? text : (text + "00000000").substring(0, 8);
         Graphics g2d = barcode.getGraphics();
         Font f = new Font("monospace", Font.PLAIN, 11 * nWidth);
         g2d.setFont(f);
@@ -29,36 +40,45 @@ public final class Ean8TextRenderer implements LinearTextRenderer {
         int x = nWidth * 13;
         int y = barcode.getHeight() - (textHeight * 4 / 5);
 
-        g2d.setColor(Color.WHITE);
+        g2d.setColor(background);
         g2d.fillRect(0, 0, barcode.getWidth(), barcode.getHeight() * 1 / 20);
         g2d.fillRect(0, barcode.getHeight() - textHeight / 3, barcode.getWidth(), textHeight / 3);
 
         g2d.fillRect(x, y, textWidht, textHeight);
-        g2d.setColor(Color.BLACK);
-        g2d.drawString(text.substring(0, 4), x + textXShift, textYPos);
+        g2d.setColor(foreground);
+        g2d.drawString(padded.substring(0, 4), x + textXShift, textYPos);
 
         x = nWidth * 45;
-        g2d.setColor(Color.WHITE);
+        g2d.setColor(background);
         g2d.fillRect(x, y, textWidht, textHeight);
-        g2d.setColor(Color.BLACK);
-        g2d.drawString(text.substring(4), x + textXShift, textYPos);
+        g2d.setColor(foreground);
+        g2d.drawString(padded.substring(4), x + textXShift, textYPos);
         g2d.dispose();
     }
 
     @Override
     public String paintTextSvg(String text, int barHeight, int nWidth) {
-        String t1 = text.substring(0, 4);
-        String t2 = text.substring(4, 8);
+        return paintTextSvg(text, barHeight, nWidth, null);
+    }
+
+    @Override
+    public String paintTextSvg(String text, int barHeight, int nWidth, RenderSpec spec) {
+        // The label is normally 8 digits; pad defensively so a short label cannot crash with
+        // StringIndexOutOfBoundsException.
+        String padded = text.length() >= 8 ? text : (text + "00000000").substring(0, 8);
+        String t1 = padded.substring(0, 4);
+        String t2 = padded.substring(4, 8);
         int posY = (int) Math.ceil(barHeight * 0.9);
         StringBuilder res = new StringBuilder();
 
-        res.append("<path fill=\"#fff\" d=\"M0 ");
+        Color background = spec != null && spec.background() != null ? spec.background() : Color.WHITE;
+        res.append("<path fill=\"").append(ColorUtil.hex(background)).append("\" d=\"M0 ");
         res.append(barHeight);
         res.append("h");
         res.append(nWidth);
         res.append("v8H0z\"/>");
 
-        res.append("<path fill=\"#fff\" d=\"M13 ");
+        res.append("<path fill=\"").append(ColorUtil.hex(background)).append("\" d=\"M13 ");
         res.append(posY);
         res.append("h29v14H13zm32 0h29v14H45z\"/>");
         res.append("<text x=\"13\" y=\"");

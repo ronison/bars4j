@@ -30,6 +30,16 @@ public final class LinearBarcodeFormat implements BarcodeFormat {
     /** Smallest meaningful x-dimension (mirrors the legacy {@code Barcode.MIN_XDIMENSION}). */
     public static final double MIN_XDIMENSION = 0.264583333;
 
+    /**
+     * Default upper bound for the user-supplied text length. Variable-length symbologies (Code 128,
+     * Code 39, MSI, 2-of-5, ...) accept arbitrary input, so without a cap an untrusted request can
+     * drive a multi-megabyte string into the encoder and exhaust memory/CPU (DoS).
+     */
+    public static final int DEFAULT_MAX_TEXT_LENGTH = 4_000;
+
+    /** Upper bound applied by {@link #resolve} when {@link #withMaxTextLength} is not used. */
+    private static int defaultMaxTextLength = DEFAULT_MAX_TEXT_LENGTH;
+
     private static final int FONT_SIZE = 14;
 
     /**
@@ -100,6 +110,28 @@ public final class LinearBarcodeFormat implements BarcodeFormat {
                 options.checkDigit(), options.showCheckDigit(), options.showText(), textGap);
     }
 
+    /** The effective text-length cap for this format. */
+    public static int maxTextLength() {
+        return defaultMaxTextLength;
+    }
+
+    /**
+     * Overrides the global text-length cap (e.g. lowered for an internet-facing service, or raised
+     * for a trusted batch job). Values below 1 are ignored.
+     *
+     * @param maxTextLength new maximum user-supplied text length
+     */
+    public static void setMaxTextLength(int maxTextLength) {
+        if (maxTextLength >= 1) {
+            defaultMaxTextLength = maxTextLength;
+        }
+    }
+
+    /** Restores the default text-length cap. */
+    public static void resetMaxTextLength() {
+        defaultMaxTextLength = DEFAULT_MAX_TEXT_LENGTH;
+    }
+
     @Override
     public String id() {
         return spec.id();
@@ -114,6 +146,10 @@ public final class LinearBarcodeFormat implements BarcodeFormat {
     private String[] resolve(String text) throws BarcodeException {
         if (text == null || text.isEmpty()) {
             throw new InvalidSymbolException("[" + spec.id() + "] Invalid text length (0).");
+        }
+        if (text.length() > defaultMaxTextLength) {
+            throw new InvalidSymbolException("[" + spec.id() + "] Text length (" + text.length()
+                    + ") exceeds the maximum of " + defaultMaxTextLength + ".");
         }
         String code = text;
         String label = text;
@@ -198,7 +234,7 @@ public final class LinearBarcodeFormat implements BarcodeFormat {
         StringBuilder pcode = new StringBuilder(renderer.toSvg(symbol, internalSpec(renderSpec)));
         if (showText) {
             int textTop = barHeight + textGap;
-            pcode.append(textRenderer.paintTextSvg(resolved[1], textTop, totalWidth));
+            pcode.append(textRenderer.paintTextSvg(resolved[1], textTop, totalWidth, internalSpec(renderSpec)));
             totalHeight = textRenderer.calcTotalHeight(textTop, FONT_SIZE);
         }
 
@@ -208,11 +244,10 @@ public final class LinearBarcodeFormat implements BarcodeFormat {
         res.append(totalWidth);
         res.append("\" height=\"");
         res.append(totalHeight);
-        res.append("\" preserveAspectRatio=\"x");
-        res.append(totalWidth);
-        res.append("Y");
-        res.append(totalHeight);
-        res.append(" meet\"><style>text{font-family: 'Courier New', monospace;font-size: 14px;}</style>");
+        // A previous version emitted the canvas size as the preserveAspectRatio alignment
+        // ("x226Y78 meet"), which is not a valid SVG value; xMidYMid is the spec-correct
+        // centred alignment.
+        res.append("\" preserveAspectRatio=\"xMidYMid meet\"><style>text{font-family: 'Courier New', monospace;font-size: 14px;}</style>");
         res.append(pcode);
         res.append("Sorry, your browser does not support inline SVG.</svg>");
         return res.toString();
@@ -240,7 +275,7 @@ public final class LinearBarcodeFormat implements BarcodeFormat {
         StringBuilder pcode = new StringBuilder(renderer.toSvg(symbol, internalSpec(renderSpec)));
         if (showText) {
             int textTop = barHeight + textGap;
-            pcode.append(textRenderer.paintTextSvg(resolved[1], textTop, totalWidth));
+            pcode.append(textRenderer.paintTextSvg(resolved[1], textTop, totalWidth, internalSpec(renderSpec)));
             totalHeight = textRenderer.calcTotalHeight(textTop, FONT_SIZE);
         }
 

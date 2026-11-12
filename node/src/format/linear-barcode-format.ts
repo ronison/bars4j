@@ -16,6 +16,35 @@ import type { FormatSpec } from "./format-spec.ts";
 /** Smallest meaningful x-dimension (mirrors the legacy {@code Barcode.MIN_XDIMENSION}). */
 export const MIN_XDIMENSION = 0.264583333;
 
+/**
+ * Default upper bound for the user-supplied text length. Variable-length symbologies (Code 128,
+ * Code 39, MSI, 2-of-5, ...) accept arbitrary input, so without a cap an untrusted request can
+ * drive a multi-megabyte string into the encoder and exhaust memory/CPU (DoS).
+ */
+export const DEFAULT_MAX_TEXT_LENGTH = 4_000;
+
+let maxTextLengthValue = DEFAULT_MAX_TEXT_LENGTH;
+
+/** The effective text-length cap. */
+export function maxTextLength(): number {
+  return maxTextLengthValue;
+}
+
+/**
+ * Overrides the global text-length cap (e.g. lowered for an internet-facing service, or raised
+ * for a trusted batch job). Values below 1 are ignored.
+ */
+export function setMaxTextLength(value: number): void {
+  if (Number.isInteger(value) && value >= 1) {
+    maxTextLengthValue = value;
+  }
+}
+
+/** Restores the default text-length cap. */
+export function resetMaxTextLength(): void {
+  maxTextLengthValue = DEFAULT_MAX_TEXT_LENGTH;
+}
+
 const FONT_SIZE = 14;
 
 /**
@@ -132,6 +161,11 @@ export class LinearBarcodeFormat implements BarcodeFormat {
     if (text == null || text.length === 0) {
       throw new InvalidSymbolException(`[${this.specValue.id}] Invalid text length (0).`);
     }
+    if (text.length > maxTextLengthValue) {
+      throw new InvalidSymbolException(
+        `[${this.specValue.id}] Text length (${text.length}) exceeds the maximum of ${maxTextLengthValue}.`,
+      );
+    }
     let code = text;
     let label = text;
     if (this.checkDigitFlag) {
@@ -148,14 +182,20 @@ export class LinearBarcodeFormat implements BarcodeFormat {
     return [code, label];
   }
 
-  private internalSpec(): RenderSpec {
-    return renderSpec(1, this.barHeightValue, this.wideToNarrow, 1, "#000000", "#ffffff");
+  /**
+   * Builds the internal render spec from this format's geometry, taking the colours from the
+   * user-provided spec when given (port of the Java {@code internalSpec(RenderSpec)}).
+   */
+  private internalSpec(userSpec?: RenderSpec): RenderSpec {
+    const foreground = userSpec?.foreground ?? "#000000";
+    const background = userSpec?.background ?? "#ffffff";
+    return renderSpec(1, this.barHeightValue, this.wideToNarrow, 1, foreground, background);
   }
 
-  toImage(text: string, _renderSpec: RenderSpec): RasterImage {
+  toImage(text: string, userSpec?: RenderSpec): RasterImage {
     const [code, label] = this.resolve(text);
     const symbol: LinearSymbol = this.encoder.encode(code);
-    const internal = this.internalSpec();
+    const internal = this.internalSpec(userSpec);
     const scale = this.module / MIN_XDIMENSION;
 
     const unscaledWidth = this.renderer.calcTotalWidth(
@@ -177,12 +217,20 @@ export class LinearBarcodeFormat implements BarcodeFormat {
     }
 
     if (this.showTextFlag) {
-      this.textRenderer.paintText(image, label, 1);
+      // Prefer the colour-aware variant when the renderer provides it.
+      const colourAware = this.textRenderer as LinearTextRenderer & {
+        paintTextWithSpec?: (img: RasterImage, t: string, w: number, s: RenderSpec) => void;
+      };
+      if (typeof colourAware.paintTextWithSpec === "function") {
+        colourAware.paintTextWithSpec(image, label, 1, internal);
+      } else {
+        this.textRenderer.paintText(image, label, 1);
+      }
     }
     return image;
   }
 
-  toSvg(text: string, _renderSpec: RenderSpec): string {
+  toSvg(text: string, userSpec?: RenderSpec): string {
     const [code, label] = this.resolve(text);
     const symbol: LinearSymbol = this.encoder.encode(code);
 
@@ -191,10 +239,18 @@ export class LinearBarcodeFormat implements BarcodeFormat {
     const totalWidth = this.renderer.calcTotalWidth(symbol, 1, this.barHeightValue, this.wideToNarrow);
     let totalHeight = this.barHeightValue + 4;
 
-    let pcode = this.renderer.toSvg(symbol, this.internalSpec());
+    let pcode = this.renderer.toSvg(symbol, this.internalSpec(userSpec));
     if (this.showTextFlag) {
       const textTop = this.barHeightValue + this.textGap;
-      pcode += this.textRenderer.paintTextSvg(label, textTop, totalWidth);
+      // Prefer the colour-aware variant when the renderer provides it.
+      const colourAware = this.textRenderer as LinearTextRenderer & {
+        paintTextSvgWithSpec?: (t: string, h: number, w: number, s: RenderSpec) => string;
+      };
+      if (typeof colourAware.paintTextSvgWithSpec === "function") {
+        pcode += colourAware.paintTextSvgWithSpec(label, textTop, totalWidth, this.internalSpec(userSpec));
+      } else {
+        pcode += this.textRenderer.paintTextSvg(label, textTop, totalWidth);
+      }
       totalHeight = this.textRenderer.calcTotalHeight(textTop, FONT_SIZE);
     }
 
@@ -204,11 +260,10 @@ export class LinearBarcodeFormat implements BarcodeFormat {
     res += String(totalWidth);
     res += "\" height=\"";
     res += String(totalHeight);
-    res += "\" preserveAspectRatio=\"x";
-    res += String(totalWidth);
-    res += "Y";
-    res += String(totalHeight);
-    res += " meet\"><style>text{font-family: 'Courier New', monospace;font-size: 14px;}</style>";
+    // A previous version emitted the canvas size as the preserveAspectRatio alignment
+    // ("x226Y78 meet"), which is not a valid SVG value; xMidYMid is the spec-correct
+    // centred alignment.
+    res += "\" preserveAspectRatio=\"xMidYMid meet\"><style>text{font-family: 'Courier New', monospace;font-size: 14px;}</style>";
     res += pcode;
     res += "Sorry, your browser does not support inline SVG.</svg>";
     return res;

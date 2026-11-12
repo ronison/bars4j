@@ -3,6 +3,7 @@ package org.bars4j.format;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -32,8 +33,19 @@ public final class BarcodeRegistry {
         return INSTANCE;
     }
 
+    /**
+     * Registers a custom format. Built-in format ids cannot be shadowed: replacing, say,
+     * {@code QRCODE} with a different implementation would silently change the behaviour of every
+     * caller that looks the format up by id, so re-registering an already known id is rejected.
+     *
+     * @throws IllegalArgumentException if the id is already registered
+     */
     public synchronized void register(BarcodeFormat format) {
-        formats.put(normalize(format.id()), format);
+        String key = normalize(format.id());
+        if (formats.containsKey(key)) {
+            throw new IllegalArgumentException("Cannot replace registered format: " + format.id());
+        }
+        formats.put(key, format);
     }
 
     public synchronized BarcodeFormat get(String id) {
@@ -57,7 +69,9 @@ public final class BarcodeRegistry {
     }
 
     private static String normalize(String id) {
-        return id.trim().toUpperCase();
+        // Locale.ROOT: the default locale's rules would break the lookup on, for instance,
+        // Turkish systems (i -> İ).
+        return id.trim().toUpperCase(Locale.ROOT);
     }
 
     static FormatSpec linear(String id, String name, boolean checkDigit, boolean text, boolean wideRatio) {

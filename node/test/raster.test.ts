@@ -8,6 +8,7 @@ import {
   encodePng,
   getArgb,
   linearDefaults,
+  renderSpec,
   LinearBarcodeFormat,
   ARGB_BLACK,
   ARGB_WHITE,
@@ -154,4 +155,21 @@ test("human-readable text keeps a 2px gap above the data bars", { skip: !canvasA
     }
     assert.ok(checked > 0, `${id}: expected at least one data bar with text below it`);
   }
+});
+
+test("1D raster and SVG honour user-provided spec colours", () => {
+  // Red bars on a blue background (mirrors the Java RenderSpecColorsTest).
+  const redBlue = renderSpec(1, 70, 2.0, 4, "#e53935", "#0d47a1");
+  const image = BarcodeGenerator.of("CODE128").with(redBlue).toImage("BARS4J");
+
+  const hasColour = (argb: number) => image.pixels.some((p) => (p >>> 0) === argb);
+  assert.ok(hasColour(0xffe53935), "red foreground not found in raster");
+  assert.ok(hasColour(0xff0d47a1), "blue background not found in raster");
+  assert.ok(!hasColour(0xff000000), "default black unexpectedly found");
+  assert.ok(!hasColour(0xffffffff), "default white unexpectedly found");
+
+  const svg = BarcodeGenerator.of("CODE128").with(redBlue).toSvg("BARS4J");
+  assert.ok(svg.includes('fill="#e53935"'), "foreground hex in SVG path");
+  assert.ok(svg.includes('fill="#0d47a1"'), "background hex in SVG path");
+  assert.ok(!svg.includes('fill="#fff"'), "no hardcoded white fill");
 });

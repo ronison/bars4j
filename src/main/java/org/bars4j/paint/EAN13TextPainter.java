@@ -27,8 +27,11 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 
+import org.bars4j.util.Escapes;
+
 /**
- * TODO: Description.
+ * EAN-13 specific text layout (guard bars left visible, three text groups). Text fragments are
+ * HTML/XML-escaped before being embedded into the SVG markup.
  * 
  * @author Flavio Sampaio
  * @since 0.1
@@ -94,29 +97,29 @@ public class EAN13TextPainter implements TextPainter {
     	int posY = (int) Math.ceil(barHeight * 0.9);
     	StringBuffer res = new StringBuffer();
     	
-    	res.append("<path fill=\"#fff\" d=\"M0 ");
+    	res.append("<path fill=\"#ffffff\" d=\"M0 ");
     	res.append(barHeight);
     	res.append("h");
     	res.append(nWidth);
     	res.append("v8H0z\"/>");
     	
-    	res.append("<path fill=\"#fff\" d=\"M13 ");
+    	res.append("<path fill=\"#ffffff\" d=\"M13 ");
     	res.append(posY);
     	res.append("h43v14H13zm46 0h43v14H59z\"/>");
     	res.append("<text x=\"0\" y=\"");
     	res.append(posY+10);
     	res.append("\" class=\"small\" textLength=\"8\">");
-    	res.append(t1);
+    	res.append(Escapes.text(t1));
     	res.append("</text>");
     	res.append("<text x=\"13\" y=\"");
     	res.append(posY+10);
     	res.append("\" class=\"small\" textLength=\"43\">");
-    	res.append(t2);
+    	res.append(Escapes.text(t2));
     	res.append("</text>");
     	res.append("<text x=\"59\" y=\"");
     	res.append(posY+10);
     	res.append("\" class=\"small\" textLength=\"43\">");
-    	res.append(t3);
+    	res.append(Escapes.text(t3));
     	res.append("</text>");
     	return res;
     	

@@ -1,4 +1,5 @@
 import type { RasterImage } from "../raster-image.ts";
+import type { RenderSpec } from "../render-spec.ts";
 
 /**
  * Vertical gap (in pixels) kept between the bottom of the bars and the top of the human-readable
@@ -20,8 +21,22 @@ export interface LinearTextRenderer {
   /** Draws the text onto an already rendered barcode image. */
   paintText(image: RasterImage, text: string, nWidth: number): void;
 
+  /**
+   * Draws the text onto an already rendered barcode image, clearing the text area with the given
+   * spec's colours. The default delegates to {@link LinearTextRenderer.paintText}
+   * (colour-unaware); implementations may override to honour the spec.
+   */
+  paintTextWithSpec?(image: RasterImage, text: string, nWidth: number, spec: RenderSpec): void;
+
   /** Appends the SVG markup for the text area (may assume {@code fontSize} of 14). */
   paintTextSvg(text: string, barHeight: number, totalWidth: number): string;
+
+  /**
+   * Appends the SVG markup for the text area, clearing the label background with the given
+   * spec's colours. The default ignores the spec (legacy behaviour, hardcoded {@code #fff});
+   * implementations may override to honour it.
+   */
+  paintTextSvgWithSpec?(text: string, barHeight: number, totalWidth: number, spec: RenderSpec): string;
 
   calcTotalHeight(barHeight: number, fontSize: number): number;
 }

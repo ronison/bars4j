@@ -44,6 +44,11 @@ public final class Itf14TextRenderer implements LinearTextRenderer {
     }
 
     @Override
+    public void paintText(BufferedImage image, String text, int nWidth, org.bars4j.render.RenderSpec spec) {
+        delegate.paintText(image, format(text), nWidth, spec);
+    }
+
+    @Override
     public String paintTextSvg(String text, int barHeight, int totalWidth) {
         return delegate.paintTextSvg(format(text), barHeight, totalWidth);
     }

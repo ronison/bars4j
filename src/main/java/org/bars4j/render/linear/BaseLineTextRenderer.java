@@ -45,9 +45,16 @@ public final class BaseLineTextRenderer implements LinearTextRenderer {
 
     @Override
     public String paintTextSvg(String text, int barHeight, int nWidth) {
+        return paintTextSvg(text, barHeight, nWidth, null);
+    }
+
+    @Override
+    public String paintTextSvg(String text, int barHeight, int nWidth, RenderSpec spec) {
         StringBuilder res = new StringBuilder();
         // TEXT AREA
-        res.append("<path fill=\"#fff\" d=\"M0 ");
+        res.append("<path fill=\"");
+        res.append(ColorUtil.hex(spec != null && spec.background() != null ? spec.background() : Color.WHITE));
+        res.append("\" d=\"M0 ");
         res.append(barHeight);
         res.append("h");
         res.append(nWidth);

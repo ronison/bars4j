@@ -1,5 +1,7 @@
 package org.bars4j.encode.linear;
 
+import java.nio.charset.StandardCharsets;
+
 import org.bars4j.encode.api.InvalidSymbolException;
 import org.bars4j.encode.api.LinearEncoder;
 import org.bars4j.format.BitSemantics;
@@ -50,7 +52,7 @@ public final class Code128Encoder implements LinearEncoder {
         }
 
         StringBuilder bits = new StringBuilder();
-        byte[] bytes = text.getBytes();
+        byte[] bytes = text.getBytes(StandardCharsets.ISO_8859_1);
 
         boolean usingNumericEncoding = false;
         int code = START_CODE_B_ALPHA;

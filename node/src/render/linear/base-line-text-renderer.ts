@@ -1,7 +1,9 @@
-import { ARGB_BLACK, ARGB_WHITE, type RasterImage } from "../raster-image.ts";
+import { ARGB_BLACK, ARGB_WHITE, parseArgb, type RasterImage } from "../raster-image.ts";
 import { drawText } from "../canvas-backend.ts";
+import { hexColour } from "./colour-util.ts";
 import { escapeText } from "../../util/escapes.ts";
 import { HUMAN_TEXT_GAP_PX, type LinearTextRenderer } from "./linear-text-renderer.ts";
+import type { RenderSpec } from "../render-spec.ts";
 
 const FONT_SIZE = 14;
 
@@ -27,10 +29,39 @@ export class BaseLineTextRenderer implements LinearTextRenderer {
     });
   }
 
+  paintTextWithSpec(image: RasterImage, text: string, nWidth: number, spec: RenderSpec): void {
+    const background = parseArgb(spec.background);
+    const foreground = parseArgb(spec.foreground);
+    drawText(image, (pen) => {
+      pen.setFont(10 * nWidth);
+      const h = pen.fontHeight();
+      const center = Math.trunc((image.width - pen.stringWidth(text)) / 2);
+
+      const textY = image.height - Math.trunc(h / 10);
+      // Clear the bars down to a point that leaves HUMAN_TEXT_GAP_PX above the glyph tops.
+      const clearTop = textY - pen.fontAscent() - HUMAN_TEXT_GAP_PX;
+
+      pen.fillRect(0, 0, image.width, Math.trunc(image.height / 20), background);
+      pen.fillRect(0, clearTop, image.width, image.height - clearTop, background);
+      pen.drawString(text, center, textY, foreground);
+    });
+  }
+
   paintTextSvg(text: string, barHeight: number, totalWidth: number): string {
+    return this.paintTextSvgWithSpec(text, barHeight, totalWidth, {
+      barWidth: 1,
+      barHeight: 70,
+      wideRatio: 2.0,
+      moduleSize: 1,
+      foreground: "#000000",
+      background: "#ffffff",
+    });
+  }
+
+  paintTextSvgWithSpec(text: string, barHeight: number, totalWidth: number, spec: RenderSpec): string {
     let res = "";
     // TEXT AREA
-    res += `<path fill="#fff" d="M0 ${barHeight}h${totalWidth}v${FONT_SIZE}H0z"/>`;
+    res += `<path fill="${hexColour(spec.background)}" d="M0 ${barHeight}h${totalWidth}v${FONT_SIZE}H0z"/>`;
     // TEXT
     res += `<text x="${Math.trunc(totalWidth / 2)}" y="${barHeight + FONT_SIZE - 2}" class="small" text-anchor="middle">${escapeText(text)}</text>`;
     return res;
