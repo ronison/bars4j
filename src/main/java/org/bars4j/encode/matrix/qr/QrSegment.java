@@ -1,5 +1,7 @@
 package org.bars4j.encode.matrix.qr;
 
+import java.util.Arrays;
+
 /**
  * A run of data encoded in a single {@link QrMode}.
  *
@@ -25,5 +27,31 @@ public record QrSegment(QrMode mode, int[] values, int[] bitWidths, int charCoun
         for (int i = 0; i < values.length; i++) {
             stream.append(values[i], bitWidths[i]);
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return o instanceof QrSegment other
+                && mode == other.mode
+                && Arrays.equals(values, other.values)
+                && Arrays.equals(bitWidths, other.bitWidths)
+                && charCount == other.charCount;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = mode != null ? mode.hashCode() : 0;
+        result = 31 * result + Arrays.hashCode(values);
+        result = 31 * result + Arrays.hashCode(bitWidths);
+        result = 31 * result + charCount;
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "QrSegment[mode=" + mode
+                + ", values=" + Arrays.toString(values)
+                + ", bitWidths=" + Arrays.toString(bitWidths)
+                + ", charCount=" + charCount + "]";
     }
 }

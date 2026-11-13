@@ -120,8 +120,8 @@ public class SwingDemo extends JFrame {
     private final BarcodePreview preview = new BarcodePreview();
     private final JLabel statusLabel = new JLabel(" ");
 
-    private Color foreground = Color.BLACK;
-    private Color background = Color.WHITE;
+    private Color barcodeForeground = Color.BLACK;
+    private Color barcodeBackground = Color.WHITE;
 
     private FormatEntry currentFormat;
     private BufferedImage currentImage;
@@ -243,8 +243,8 @@ public class SwingDemo extends JFrame {
     private void buildColourPanel() {
         colourPanel.setBorder(new TitledBorder("Colours"));
         GridBagConstraints c = gbc();
-        addRow(colourPanel, c, 0, "", labelFor(foregroundButton, () -> foreground, col -> {
-            foreground = col;
+        addRow(colourPanel, c, 0, "", labelFor(foregroundButton, () -> barcodeForeground, col -> {
+            barcodeForeground = col;
             regenerate();
         }));
         c.gridy = 1;
@@ -252,8 +252,8 @@ public class SwingDemo extends JFrame {
         c.gridwidth = 2;
         c.weightx = 1;
         c.fill = GridBagConstraints.HORIZONTAL;
-        colourPanel.add(labelFor(backgroundButton, () -> background, col -> {
-            background = col;
+        colourPanel.add(labelFor(backgroundButton, () -> barcodeBackground, col -> {
+            barcodeBackground = col;
             regenerate();
         }), c);
         c.gridwidth = 1;
@@ -444,7 +444,7 @@ public class SwingDemo extends JFrame {
                 currentCheckSum = format.spec().supportsCheckDigit() ? format.checkSum(text) : "";
             } else {
                 RenderSpec spec = new RenderSpec(1, 70, 2.0, ((Number) moduleSpinner.getValue()).intValue(),
-                        foreground, background);
+                        barcodeForeground, barcodeBackground);
                 currentImage = format.toImage(text, spec);
                 currentSvg = format.toSvg(text, spec);
                 currentCheckSum = "";
@@ -462,7 +462,7 @@ public class SwingDemo extends JFrame {
 
     /** Render spec for linear formats: shared colours, quiet zone and label font size. */
     private RenderSpec currentRenderSpec() {
-        return new RenderSpec(1, 70, 2.0, 1, foreground, background,
+        return new RenderSpec(1, 70, 2.0, 1, barcodeForeground, barcodeBackground,
                 ((Number) quietSpinner.getValue()).intValue(),
                 ((Number) fontSpinner.getValue()).intValue());
     }

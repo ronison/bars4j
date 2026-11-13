@@ -25,6 +25,8 @@ import java.awt.image.BufferedImage;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.bars4j.api.BarcodeGenerator;
 import org.bars4j.util.ImageUtil;
@@ -36,6 +38,8 @@ import org.bars4j.util.ImageUtil;
  * <p>Run with: {@code mvn exec:java -Dexec.mainClass=org.bars4j.demo.SimpleDemo}.
  */
 public class SimpleDemo {
+
+    private static final Logger LOG = Logger.getLogger(SimpleDemo.class.getName());
 
     private static final String[][] CASES = {
         {"EAN13", "789100031550"},
@@ -76,7 +80,7 @@ public class SimpleDemo {
                 saveToSVG(svg, format + ".svg");
                 saveToPNG(img, format + ".png");
             } catch (Exception e) {
-                e.printStackTrace();
+                LOG.log(Level.WARNING, "Failed to generate barcode for format: " + format, e);
             }
         }
     }
@@ -89,7 +93,7 @@ public class SimpleDemo {
         try (FileOutputStream fos = new FileOutputStream("./images/" + fileName)) {
             ImageUtil.encodeAndWrite(img, format, fos, 96, 96);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.log(Level.WARNING, "Failed to save file: " + fileName, e);
         }
     }
 
@@ -97,7 +101,7 @@ public class SimpleDemo {
         try (PrintWriter writer = new PrintWriter("./images/" + fileName, StandardCharsets.UTF_8)) {
             writer.append(data);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.log(Level.WARNING, "Failed to save SVG: " + fileName, e);
         }
     }
 }

@@ -41,9 +41,12 @@ public final class DataMatrixPlacement {
         }
     }
 
-    /** Returns whether the module at {@code (col, row)} is dark. */
+    /**
+     * Returns whether the module at {@code (col, row)} is dark. Coordinates outside the grid read
+     * as light ({@code false}).
+     */
     public boolean getBit(int col, int row) {
-        return grid[row][col] == DARK;
+        return inBounds(col, row) && grid[row][col] == DARK;
     }
 
     /** Runs the Annex M.1 placement over the whole data-region grid. */
@@ -175,7 +178,11 @@ public final class DataMatrixPlacement {
     }
 
     private boolean isUnfilled(int column, int row) {
-        return grid[row][column] == UNFILLED;
+        return inBounds(column, row) && grid[row][column] == UNFILLED;
+    }
+
+    private boolean inBounds(int column, int row) {
+        return row >= 0 && row < rows && column >= 0 && column < columns;
     }
 
     private void write(int column, int row, boolean dark) {

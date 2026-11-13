@@ -1,5 +1,7 @@
 package org.bars4j.encode.matrix.qr;
 
+import java.util.Arrays;
+
 /**
  * QRCode version metadata (versions 1-40).
  *
@@ -29,6 +31,24 @@ public final class QrVersion {
                 total += block.count() * block.dataCodewords();
             }
             return total;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            return o instanceof EcBlocks other
+                    && ecCodewordsPerBlock == other.ecCodewordsPerBlock
+                    && Arrays.equals(blocks, other.blocks);
+        }
+
+        @Override
+        public int hashCode() {
+            return 31 * ecCodewordsPerBlock + Arrays.hashCode(blocks);
+        }
+
+        @Override
+        public String toString() {
+            return "EcBlocks[ecCodewordsPerBlock=" + ecCodewordsPerBlock
+                    + ", blocks=" + Arrays.toString(blocks) + "]";
         }
     }
 

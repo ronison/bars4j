@@ -25,6 +25,8 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.PrintWriter;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.bars4j.api.BarcodeGenerator;
 import org.bars4j.format.BarcodeRegistry;
@@ -37,6 +39,8 @@ import org.bars4j.util.ImageUtil;
  * <p>Run with: {@code mvn exec:java -Dexec.mainClass=org.bars4j.demo.QRCodeDemo}
  */
 public class QRCodeDemo {
+
+    private static final Logger LOG = Logger.getLogger(QRCodeDemo.class.getName());
 
     public static void main(String[] args) {
         new File("./images").mkdirs();
@@ -81,7 +85,7 @@ public class QRCodeDemo {
             saveToSVG(BarcodeGenerator.of("AZTEC").toSvg(azText), "Aztec.svg");
             System.out.println("AZTEC: " + azImage.getWidth() + "x" + azImage.getHeight() + "px -> images/Aztec.png");
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.log(Level.SEVERE, "Failed to generate demo barcodes", e);
         }
     }
 
@@ -89,7 +93,7 @@ public class QRCodeDemo {
         try (java.io.FileOutputStream fos = new java.io.FileOutputStream("./images/" + fileName)) {
             ImageUtil.encodeAndWrite(img, ImageUtil.PNG, fos, 96, 96);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.log(Level.WARNING, "Failed to save PNG: " + fileName, e);
         }
     }
 
@@ -97,7 +101,7 @@ public class QRCodeDemo {
         try (PrintWriter writer = new PrintWriter("./images/" + fileName, "UTF-8")) {
             writer.append(data);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.log(Level.WARNING, "Failed to save SVG: " + fileName, e);
         }
     }
 }

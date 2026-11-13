@@ -19,10 +19,12 @@ public final class AztecBitBuffer {
 
     /** Returns bit {@code index} ({@code true} = one). */
     public boolean get(int index) {
-        if (index < 0 || index >= bitCount) {
+        int byteIndex = index / 8;
+        int bitIndex = 7 - index % 8;
+        if (index < 0 || index >= bitCount || byteIndex >= bytes.length) {
             throw new IndexOutOfBoundsException("bit index " + index + " out of range [0," + bitCount + ")");
         }
-        return (bytes[index / 8] & (1 << (7 - index % 8))) != 0;
+        return (bytes[byteIndex] & 0xff & (1 << bitIndex)) != 0;
     }
 
     /** Appends a single bit. */

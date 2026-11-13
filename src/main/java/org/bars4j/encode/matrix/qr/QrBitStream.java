@@ -29,7 +29,7 @@ public final class QrBitStream {
         if (index < 0 || index >= bitCount) {
             return false;
         }
-        return (bytes[index >>> 3] & (0x80 >>> (index & 7))) != 0;
+        return (bytes[index >>> 3] & 0xff & (0x80 >>> (index & 7))) != 0;
     }
 
     /**
