@@ -1,0 +1,12 @@
+{
+  "name": "sonarqube-bridge",
+  "version": "1.0.0",
+  "type": "module",
+  "exports": {
+    ".": "./index.ts"
+  },
+  "dependencies": {
+    "@opencode/plugin": "latest",
+    "opencode-sonarqube": "^2.2.0"
+  }
+}

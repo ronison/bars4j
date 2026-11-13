@@ -12,3 +12,6 @@ images/*.jpg
 
 # Demo-only SVG not used by the README gallery.
 images/EAN13-from-new-api.svg
+
+# OpenCode local plugin (sonarqube-bridge): build artifacts.
+.opencode/plugins/*/node_modules/
