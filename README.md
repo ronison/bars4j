@@ -5,6 +5,7 @@
 [![npm downloads](https://img.shields.io/npm/dm/@bars4j/core.svg)](https://www.npmjs.com/package/@bars4j/core)
 [![Node CI](https://github.com/ronison/bars4j/actions/workflows/node-ci.yml/badge.svg)](https://github.com/ronison/bars4j/actions/workflows/node-ci.yml)
 [![Maven Package](https://github.com/ronison/bars4j/actions/workflows/maven-publish.yml/badge.svg)](https://github.com/ronison/bars4j/actions/workflows/maven-publish.yml)
+[![Quality Gate Status](https://sonarcloud.io)](https://sonarcloud.io)
 
 This project aims to create a java library (framework) for barcode creation. It is a revival of an old project I had at SourceForge, called JBarcode and now it has been renamed to Bars4J. The main features are support for a wide variety of standards, simplicity of including barcodes in Java applications and high performance with low memory consumption.
 
