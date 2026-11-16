@@ -164,10 +164,6 @@ public final class LinearBarcodeFormat implements BarcodeFormat {
         return new String[]{code, label};
     }
 
-    private RenderSpec internalSpec() {
-        return internalSpec(null);
-    }
-
     /**
      * Builds the internal render spec from this format's geometry, taking the colours, quiet zone
      * and label font size from the user-provided spec when given ({@code null} components fall
@@ -226,22 +222,22 @@ public final class LinearBarcodeFormat implements BarcodeFormat {
     public String toSvg(String text, RenderSpec renderSpec) throws BarcodeException {
         String[] resolved = resolve(text);
         LinearSymbol symbol = encoder.encode(resolved[0]);
+        RenderSpec internal = internalSpec(renderSpec);
 
         // The SVG paths are drawn in barWidth=1 units; compute the canvas width with the same
         // unit so the document is not over-sized for x-dimensions above the minimum.
-        int totalWidth = renderer.calcTotalWidth(symbol, 1, barHeight, wideToNarrow,
-                internalSpec(renderSpec).quietZone());
+        int totalWidth = renderer.calcTotalWidth(symbol, 1, barHeight, wideToNarrow, internal.quietZone());
         int totalHeight = barHeight + 4;
 
-        StringBuilder pcode = new StringBuilder(renderer.toSvg(symbol, internalSpec(renderSpec)));
+        StringBuilder pcode = new StringBuilder(renderer.toSvg(symbol, internal));
         if (showText) {
             int textTop = barHeight + textGap;
-            pcode.append(textRenderer.paintTextSvg(resolved[1], textTop, totalWidth, internalSpec(renderSpec)));
-            totalHeight = textRenderer.calcTotalHeight(textTop, internalSpec(renderSpec).fontSize());
+            pcode.append(textRenderer.paintTextSvg(resolved[1], textTop, totalWidth, internal));
+            totalHeight = textRenderer.calcTotalHeight(textTop, internal.fontSize());
         }
 
         String style = "<style>text{font-family: 'Courier New', monospace;font-size: "
-                + internalSpec(renderSpec).fontSize() + "px;}</style>";
+                + internal.fontSize() + "px;}</style>";
         return SvgDocument.assemble(totalWidth, totalHeight, style, pcode.toString());
     }
 
@@ -258,18 +254,18 @@ public final class LinearBarcodeFormat implements BarcodeFormat {
             throws BarcodeException {
         String[] resolved = resolve(text);
         LinearSymbol symbol = encoder.encode(resolved[0]);
+        RenderSpec internal = internalSpec(renderSpec);
 
         // Same geometry as toSvg: the paths are drawn in barWidth=1 units and the human-readable
         // text sits below the bars.
-        int totalWidth = renderer.calcTotalWidth(symbol, 1, barHeight, wideToNarrow,
-                internalSpec(renderSpec).quietZone());
+        int totalWidth = renderer.calcTotalWidth(symbol, 1, barHeight, wideToNarrow, internal.quietZone());
         int totalHeight = barHeight + 4;
 
-        StringBuilder pcode = new StringBuilder(renderer.toSvg(symbol, internalSpec(renderSpec)));
+        StringBuilder pcode = new StringBuilder(renderer.toSvg(symbol, internal));
         if (showText) {
             int textTop = barHeight + textGap;
-            pcode.append(textRenderer.paintTextSvg(resolved[1], textTop, totalWidth, internalSpec(renderSpec)));
-            totalHeight = textRenderer.calcTotalHeight(textTop, internalSpec(renderSpec).fontSize());
+            pcode.append(textRenderer.paintTextSvg(resolved[1], textTop, totalWidth, internal));
+            totalHeight = textRenderer.calcTotalHeight(textTop, internal.fontSize());
         }
 
         return HtmlSnippet.assemble(totalWidth, totalHeight, displayWidth, displayHeight,
