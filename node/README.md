@@ -4,7 +4,9 @@ A Node.js/TypeScript port of the [Bars4J](https://github.com/ronison/bars4j) bar
 keeping the same characteristics and functionality.
 
 This package lives in the same repository as the Java implementation and shares its golden
-fixtures, so the two stay in sync. The port is being delivered in phases:
+fixtures, so the two stay in sync — the 1D renderers mirror the Java `BarRect` pipeline (one
+absolute SVG subpath per element, inks separated per colour) and are verified byte-for-byte
+against the shared goldens on every run.
 
 | Phase | Scope | Status |
 |-------|-------|--------|
@@ -74,8 +76,8 @@ bars4j --list
 ## Conformance
 
 The SVG output is verified byte-for-byte against the Java goldens stored in
-`../src/test/resources/golden`. For the 1D formats these are the shared `.svg` files produced by the
-Java build; for the 2D formats the module matrices and the end-to-end SVG documents live in
+`../src/test/resources/golden`. For the 1D formats these are the shared `.svg` files produced by
+the Java build; for the 2D formats the module matrices and the end-to-end SVG documents live in
 `../src/test/resources/golden/matrix` and are generated from the (unmodified) Java implementation.
 The 1D raster geometry is additionally verified through the `*.image.txt` pixel fingerprints
 (SHA-256 of the ARGB pixels), which the Node port reproduces exactly. Every registered format is
