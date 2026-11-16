@@ -8,6 +8,11 @@ package org.bars4j.encode.matrix.gf256;
  * {@code x^8 + x^4 + x^3 + x^2 + 1}. The element {@code 0x02} is primitive, so the 255 non-zero
  * elements form a cycle of powers of {@code alpha = 0x02}; multiplication therefore turns into
  * addition of exponents, which is what the two lookup tables below make cheap.
+ *
+ * <p>Deprecated for internal use: the shared {@link org.bars4j.encode.matrix.ecc.GfField} provides
+ * the same arithmetic. Kept because {@link org.bars4j.encode.matrix.gf256.ReedSolomon}'s historical
+ * entry point still documents itself against it; the table constants below remain the QR field's
+ * canonical definition.
  */
 public final class Gf256 {
 

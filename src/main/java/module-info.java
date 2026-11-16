@@ -9,6 +9,7 @@
  */
 module org.bars4j {
     requires java.desktop;
+    requires java.logging;
 
     exports org.bars4j.api;
     exports org.bars4j.demo;

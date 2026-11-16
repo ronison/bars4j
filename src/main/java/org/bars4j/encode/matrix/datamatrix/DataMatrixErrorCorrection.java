@@ -1,5 +1,8 @@
 package org.bars4j.encode.matrix.datamatrix;
 
+import org.bars4j.encode.matrix.ecc.GfField;
+import org.bars4j.encode.matrix.ecc.ReedSolomonCoder;
+
 /**
  * Reed-Solomon error protection for Data Matrix ECC200, per ISO/IEC 16022 clause 5.3.
  *
@@ -9,42 +12,24 @@ package org.bars4j.encode.matrix.datamatrix;
  *
  * <pre>  g(x) = (x + alpha^1)(x + alpha^2) ... (x + alpha^n)</pre>
  *
- * whose roots are the first {@code n} consecutive powers of alpha. The generator is produced here
- * by multiplying its linear factors at run time; only the field polynomial is a compile-time
- * constant. A block's error codewords are the coefficients of the remainder of
- * {@code message(x) * x^n} divided by {@code g(x)}.
+ * whose roots are the first {@code n} consecutive powers of alpha starting at {@code alpha^1}. A
+ * block's error codewords are the coefficients of the remainder of {@code message(x) * x^n} divided
+ * by {@code g(x)}.
  *
  * <p>Symbols whose capacity exceeds one block hold several interleaved blocks, each protected on
  * its own; the resulting error codewords are then re-interleaved in the layout fixed by the symbol.
+ *
+ * <p>The field arithmetic and the polynomial division are delegated to the shared
+ * {@link ReedSolomonCoder}; this class adds only the ECC200 block/interleave layout.
  */
 public final class DataMatrixErrorCorrection {
 
     /** Primitive polynomial of the ECC200 field: {@code x^8 + x^4 + x^3 + x^2 + 1}. */
     private static final int FIELD_POLYNOMIAL = 0x12D;
 
-    /** Number of non-zero field elements, i.e. the multiplicative order of {@code alpha}. */
-    private static final int FIELD_CYCLE = 255;
-
-    /** {@code alpha^power} for {@code power} in {@code [0, 2 * FIELD_CYCLE)}. */
-    private static final int[] ALPHA_POWER = new int[FIELD_CYCLE * 2];
-
-    /** Discrete logarithm to base {@code alpha}; defined for non-zero values {@code 1..255}. */
-    private static final int[] ALPHA_LOG = new int[256];
-
-    static {
-        int element = 1;
-        for (int exponent = 0; exponent < FIELD_CYCLE; exponent++) {
-            ALPHA_POWER[exponent] = element;
-            ALPHA_LOG[element] = exponent;
-            element <<= 1;
-            if (element >= 256) {
-                element ^= FIELD_POLYNOMIAL;
-            }
-        }
-        for (int exponent = FIELD_CYCLE; exponent < FIELD_CYCLE * 2; exponent++) {
-            ALPHA_POWER[exponent] = ALPHA_POWER[exponent - FIELD_CYCLE];
-        }
-    }
+    /** ECC200 generator roots start at {@code alpha^1}. */
+    private static final ReedSolomonCoder CODER =
+            new ReedSolomonCoder(GfField.of(FIELD_POLYNOMIAL, 256), ReedSolomonCoder.ECC200_FIRST_ROOT);
 
     private DataMatrixErrorCorrection() {
     }
@@ -70,7 +55,7 @@ public final class DataMatrixErrorCorrection {
 
         int blocks = symbolInfo.interleavedBlockCount();
         if (blocks == 1) {
-            int[] parity = blockParity(codewords, 0, dataCount, errorCount);
+            int[] parity = CODER.encodeSlice(codewords, 0, dataCount, errorCount);
             System.arraycopy(parity, 0, result, dataCount, errorCount);
             return result;
         }
@@ -84,66 +69,11 @@ public final class DataMatrixErrorCorrection {
                 blockData[i] = codewords[block + i * blocks];
             }
 
-            int[] parity = blockParity(blockData, 0, blockDataCount, blockErrorCount);
+            int[] parity = CODER.encodeSlice(blockData, 0, blockDataCount, blockErrorCount);
             for (int i = 0; i < blockErrorCount; i++) {
                 result[dataCount + block + i * blocks] = parity[i];
             }
         }
         return result;
-    }
-
-    /**
-     * Computes the error codewords of one block by reducing {@code message(x) * x^parityCount}
-     * modulo the generator polynomial.
-     */
-    private static int[] blockParity(int[] message, int offset, int length, int parityCount) {
-        int[] generator = generatorPolynomial(parityCount);
-        int[] accumulator = new int[length + parityCount];
-        System.arraycopy(message, offset, accumulator, 0, length);
-
-        for (int i = 0; i < length; i++) {
-            int leadingTerm = accumulator[i];
-            if (leadingTerm == 0) {
-                continue;
-            }
-            for (int j = 0; j < generator.length; j++) {
-                accumulator[i + j] ^= multiply(generator[j], leadingTerm);
-            }
-        }
-
-        int[] parity = new int[parityCount];
-        System.arraycopy(accumulator, length, parity, 0, parityCount);
-        return parity;
-    }
-
-    /**
-     * Builds the monic generator polynomial of the given degree, ordered from the highest power
-     * downwards; the returned array has {@code degree + 1} entries.
-     */
-    private static int[] generatorPolynomial(int degree) {
-        int[] coefficients = {1};
-        for (int root = 1; root <= degree; root++) {
-            coefficients = multiplyByLinearFactor(coefficients, ALPHA_POWER[root]);
-        }
-        return coefficients;
-    }
-
-    /** Multiplies a polynomial (high power first) by the linear factor {@code (x + root)}. */
-    private static int[] multiplyByLinearFactor(int[] polynomial, int root) {
-        int[] product = new int[polynomial.length + 1];
-        for (int i = 0; i < polynomial.length; i++) {
-            int term = polynomial[i];
-            product[i] ^= term;
-            product[i + 1] ^= multiply(term, root);
-        }
-        return product;
-    }
-
-    /** Multiplies two field elements. */
-    private static int multiply(int a, int b) {
-        if (a == 0 || b == 0) {
-            return 0;
-        }
-        return ALPHA_POWER[ALPHA_LOG[a] + ALPHA_LOG[b]];
     }
 }
