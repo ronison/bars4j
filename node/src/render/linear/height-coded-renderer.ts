@@ -60,20 +60,17 @@ export class HeightCodedRenderer extends AbstractLinearRenderer {
     const barHeight = spec.barHeight;
 
     const totalWidth = this.calcTotalWidth(symbol as LinearSymbol, barWidth, barHeight, spec.wideRatio);
-    let pos = 10 * barWidth;
+    const svgY = 2; // historical 2px vertical offset of the ink inside the canvas
 
+    // One absolute subpath per bar, bottom-aligned at the canvas baseline as in the Java
+    // renderers: a bar sits svgY px from the top and ends barHeight px below the canvas top.
     let res = `<path fill="${hexColour(spec.background)}" d="M0 0h${totalWidth}v${barHeight + 4}H0z"/>`;
     res += `<path fill="${hexColour(spec.foreground)}" d="`;
-
-    let relPos = 0;
-    let relY = 10;
+    let x = 10 * barWidth;
     for (const bit of bits) {
-      let height = bit ? barHeight : Math.trunc(barHeight / 2);
-      height *= -1;
-      res += `m${pos - relPos} ${relY}h${barWidth}v${height}h-${barWidth}z`;
-      relPos = pos;
-      relY = 0;
-      pos += 2 * barWidth;
+      const barUnit = bit ? barHeight : Math.trunc(barHeight / 2);
+      res += `M${x} ${svgY + barHeight - barUnit}h${barWidth}v${barUnit}h-${barWidth}z`;
+      x += 2 * barWidth;
     }
     res += `"/>`;
     return res;

@@ -57,30 +57,24 @@ export class WidthCodedRenderer extends AbstractLinearRenderer {
     const barHeight = spec.barHeight;
 
     const totalWidth = this.calcTotalWidth(symbol as LinearSymbol, barWidth, barHeight, spec.wideRatio);
+    const svgY = 2; // historical 2px vertical offset of the ink inside the canvas
 
+    // One absolute subpath per element, dark and light inks in separate paths, reproducing the
+    // Java renderers (one rect per element instead of the legacy run-length fusion).
     let res = `<path fill="${hexColour(spec.background)}" d="M0 0h${totalWidth}v${barHeight + 4}H0z"/>`;
-    res += `<path fill="${hexColour(spec.foreground)}" d="M${10 * barWidth}`;
-
-    let width = 0;
-    let white = 0;
-    let relY = 2;
+    let foregrounds = `<path fill="${hexColour(spec.foreground)}" d="`;
+    let backgrounds = `<path fill="${hexColour(spec.background)}" d="`;
+    let x = 10 * barWidth;
     for (const bit of bits) {
-      if (!bit) {
-        white += barWidth;
+      const rect = `M${x} ${svgY}h${barWidth}v${barHeight}h-${barWidth}z`;
+      if (bit) {
+        foregrounds += rect;
       } else {
-        if (white > 0 && width > 0) {
-          // The relY token completes the implicit relative moveto pair (m dx dy).
-          res += ` ${relY}h${width}v${barHeight}h-${width}zm${white + width}`;
-          relY = 0;
-          width = 0;
-          white = 0;
-        }
-        width += barWidth;
+        backgrounds += rect;
       }
+      x += barWidth;
     }
-    if (width > 0) {
-      res += ` ${relY}h${width}v${barHeight}h-${width}z"/>`;
-    }
+    res += foregrounds + `"/>` + backgrounds + `"/>`;
     return res;
   }
 

@@ -76,26 +76,28 @@ export class WideRatioCodedRenderer extends AbstractLinearRenderer {
 
     const totalWidth = this.calcTotalWidth(symbol as LinearSymbol, barWidth, barHeight, wideRatio);
     const wideWidth = Math.round(barWidth * wideRatio);
+    const svgY = 2; // historical 2px vertical offset of the ink inside the canvas
 
+    // One absolute subpath per element, alternating ink starting dark, in separate paths per
+    // colour — reproducing the Java renderers (one rect per element instead of the legacy
+    // run-length fusion).
     let res = `<path fill="${hexColour(spec.background)}" d="M0 0h${totalWidth}v${barHeight + 4}H0z"/>`;
-    res += `<path fill="${hexColour(spec.foreground)}" d="`;
-
-    let pos = 10 * barWidth;
-    let relPos = 0;
-    let relY = 2;
-    let width = 0;
-    let cFlag = true;
+    let foregrounds = `<path fill="${hexColour(spec.foreground)}" d="`;
+    let backgrounds = `<path fill="${hexColour(spec.background)}" d="`;
+    let x = 10 * barWidth;
+    let dark = true;
     for (const bit of bits) {
-      width = bit ? wideWidth : barWidth;
-      if (cFlag) {
-        res += `m${pos - relPos} ${relY}h${width}v${barHeight}h-${width}z`;
-        relPos = pos;
-        relY = 0;
+      const w = bit ? wideWidth : barWidth;
+      const rect = `M${x} ${svgY}h${w}v${barHeight}h-${w}z`;
+      if (dark) {
+        foregrounds += rect;
+      } else {
+        backgrounds += rect;
       }
-      cFlag = !cFlag;
-      pos += width;
+      dark = !dark;
+      x += w;
     }
-    res += `"/>`;
+    res += foregrounds + `"/>` + backgrounds + `"/>`;
     return res;
   }
 
