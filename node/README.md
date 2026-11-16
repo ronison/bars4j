@@ -14,7 +14,7 @@ against the shared goldens on every run.
 | 2 | 2D formats (QRCode, Data Matrix, PDF417, Aztec) + SVG | **done** |
 | 3 | Raster output (ARGB image + PNG) and optional canvas text | **done** |
 | 4 | Demos, CLI, packaging and CI | **done** |
-| 5 | Inline HTML/SVG snippet (`toHtml`, already available in the Java library) | planned |
+| 5 | Inline HTML/SVG snippet (`toHtml`) | **done** |
 
 ## Usage
 
@@ -22,6 +22,9 @@ against the shared goldens on every run.
 import { BarcodeGenerator, encodePng } from "@bars4j/core";
 
 const svg = BarcodeGenerator.of("EAN13").toSvg("789100031550");
+
+// Inline HTML/SVG snippet for web pages (viewBox, role="img", aria-label):
+const html = BarcodeGenerator.of("CODE128").toHtml("Bars4J-128", 300, 100);
 
 // Raster: an opaque ARGB image (width, height, Int32Array pixels).
 const image = BarcodeGenerator.of("EAN13").toImage("789100031550");
@@ -64,7 +67,7 @@ differs from Java, sizing profiles), see [`../docs/performance.md`](../docs/perf
 ## Demos and CLI
 
 ```sh
-npm run demo          # SVG + PNG for every registered format, into node/images/
+npm run demo          # SVG + HTML + PNG for every registered format, into node/images/
 npm run demo:qrcode   # 2D showcase (bigger modules, all four 2D formats)
 
 # Command line (installed as the `bars4j` binary):
@@ -80,8 +83,11 @@ The SVG output is verified byte-for-byte against the Java goldens stored in
 the Java build; for the 2D formats the module matrices and the end-to-end SVG documents live in
 `../src/test/resources/golden/matrix` and are generated from the (unmodified) Java implementation.
 The 1D raster geometry is additionally verified through the `*.image.txt` pixel fingerprints
-(SHA-256 of the ARGB pixels), which the Node port reproduces exactly. Every registered format is
-also smoke-tested for SVG and PNG output with the shared demo payloads.
+(SHA-256 of the ARGB pixels), which the Node port reproduces exactly. The inline HTML snippet
+(`toHtml`) is verified in `test/html-output.test.ts`: embeddability properties (no prologue,
+`viewBox`, `role="img"`, `aria-label`), drawing-markup parity with the golden-validated `toSvg`
+output, display sizing, colour handling and markup escaping. Every registered format is also
+smoke-tested for SVG, HTML and PNG output with the shared demo payloads.
 
 ## Packaging
 

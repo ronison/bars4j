@@ -48,6 +48,36 @@ export class BarcodeGenerator {
     return this.barcodeFormat.toSvg(text, this.renderSpec);
   }
 
+  /**
+   * Returns an SVG snippet ready to be embedded inline in an HTML page, at its natural size.
+   *
+   * <pre>{@code
+   * const html = BarcodeGenerator.of("EAN13").toHtml("789100031550");
+   * // paste directly inside <body>...</body>
+   * }</pre>
+   */
+  toHtml(text: string): string;
+
+  /**
+   * Returns an SVG snippet ready to be embedded inline in an HTML page, sized to the given
+   * display dimensions in pixels. The {@code viewBox} preserves the symbol geometry, so the
+   * barcode scales proportionally.
+   */
+  toHtml(text: string, displayWidth: number, displayHeight: number): string;
+
+  toHtml(text: string, displayWidth?: number, displayHeight?: number): string {
+    if (displayWidth !== undefined || displayHeight !== undefined) {
+      if (displayWidth === undefined || displayHeight === undefined) {
+        throw new Error("displayWidth and displayHeight must be given together");
+      }
+      if (displayWidth <= 0 || displayHeight <= 0) {
+        throw new Error("displayWidth/displayHeight must be positive");
+      }
+      return this.barcodeFormat.toHtml(text, this.renderSpec, displayWidth, displayHeight);
+    }
+    return this.barcodeFormat.toHtml(text, this.renderSpec);
+  }
+
   checkSum(text: string): string {
     return this.barcodeFormat.checkSum(text);
   }

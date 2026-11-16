@@ -17,5 +17,17 @@ export interface BarcodeFormat {
 
   toSvg(text: string, spec: RenderSpec): string;
 
+  /**
+   * Renders the embeddable HTML/SVG snippet for web pages: no XML prologue, with a
+   * {@code viewBox}, {@code role="img"} and an {@code aria-label}.
+   */
+  toHtml(text: string, spec: RenderSpec): string;
+
+  /**
+   * Renders the embeddable HTML/SVG snippet with an explicit display size in pixels
+   * (a display size of -1 keeps the natural size).
+   */
+  toHtml(text: string, spec: RenderSpec, displayWidth: number, displayHeight: number): string;
+
   checkSum(text: string): string;
 }

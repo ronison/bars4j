@@ -5,6 +5,7 @@ import type { RenderSpec } from "../render/render-spec.ts";
 import type { MatrixSymbol } from "../symbol/matrix-symbol.ts";
 import type { BarcodeFormat } from "./barcode-format.ts";
 import type { FormatSpec } from "./format-spec.ts";
+import { htmlSnippet } from "./html-snippet.ts";
 
 /**
  * A matrix (2D) format backed by the symbol/renderer pipeline (e.g. QRCode).
@@ -43,6 +44,26 @@ export class MatrixBarcodeFormat implements BarcodeFormat {
       + `<svg xmlns="http://www.w3.org/2000/svg" version="1.2" width="${total}" height="${total}" viewBox="0 0 ${total} ${total}">`
       + fragment
       + `</svg>`;
+  }
+
+  /**
+   * Renders the embeddable HTML snippet at its natural size
+   * ({@code width}/{@code height} of -1 keeps the natural size).
+   */
+  toHtml(text: string, renderSpec: RenderSpec): string;
+
+  /**
+   * Renders the embeddable HTML snippet with an explicit display size. The {@code viewBox}
+   * keeps the natural geometry so the symbol scales proportionally.
+   */
+  toHtml(text: string, renderSpec: RenderSpec, displayWidth: number, displayHeight: number): string;
+
+  toHtml(text: string, renderSpec: RenderSpec, displayWidth = -1, displayHeight = -1): string {
+    const symbol: MatrixSymbol = this.encoder.encode(text);
+    const fragment = this.renderer.toSvg(symbol, renderSpec);
+    const total = (symbol.widthInModules() + 2 * symbol.quietZone()) * renderSpec.moduleSize;
+    return htmlSnippet(total, total, displayWidth, displayHeight,
+      this.specValue.displayName + " " + text, fragment);
   }
 
   checkSum(text: string): string {

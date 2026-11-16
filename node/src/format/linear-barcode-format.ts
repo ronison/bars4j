@@ -12,6 +12,7 @@ import { renderSpec, type RenderSpec } from "../render/render-spec.ts";
 import type { LinearSymbol } from "../symbol/linear-symbol.ts";
 import type { BarcodeFormat } from "./barcode-format.ts";
 import type { FormatSpec } from "./format-spec.ts";
+import { htmlSnippet } from "./html-snippet.ts";
 
 /** Smallest meaningful x-dimension (mirrors the legacy {@code Barcode.MIN_XDIMENSION}). */
 export const MIN_XDIMENSION = 0.264583333;
@@ -267,6 +268,35 @@ export class LinearBarcodeFormat implements BarcodeFormat {
     res += pcode;
     res += "Sorry, your browser does not support inline SVG.</svg>";
     return res;
+  }
+
+  toHtml(text: string, userSpec?: RenderSpec, displayWidth = -1, displayHeight = -1): string {
+    const [code, label] = this.resolve(text);
+    const symbol: LinearSymbol = this.encoder.encode(code);
+    const internal = this.internalSpec(userSpec);
+
+    // Same geometry as toSvg: the paths are drawn in barWidth=1 units and the human-readable
+    // text sits below the bars.
+    const totalWidth = this.renderer.calcTotalWidth(symbol, 1, this.barHeightValue, this.wideToNarrow);
+    let totalHeight = this.barHeightValue + 4;
+
+    let pcode = this.renderer.toSvg(symbol, internal);
+    if (this.showTextFlag) {
+      const textTop = this.barHeightValue + this.textGap;
+      // Prefer the colour-aware variant when the renderer provides it.
+      const colourAware = this.textRenderer as LinearTextRenderer & {
+        paintTextSvgWithSpec?: (t: string, h: number, w: number, s: RenderSpec) => string;
+      };
+      if (typeof colourAware.paintTextSvgWithSpec === "function") {
+        pcode += colourAware.paintTextSvgWithSpec(label, textTop, totalWidth, internal);
+      } else {
+        pcode += this.textRenderer.paintTextSvg(label, textTop, totalWidth);
+      }
+      totalHeight = this.textRenderer.calcTotalHeight(textTop, FONT_SIZE);
+    }
+
+    return htmlSnippet(totalWidth, totalHeight, displayWidth, displayHeight,
+      this.specValue.displayName + " " + label, pcode);
   }
 
   checkSum(text: string): string {
