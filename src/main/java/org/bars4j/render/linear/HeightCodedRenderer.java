@@ -18,16 +18,13 @@ import org.bars4j.symbol.LinearSymbol;
  */
 public final class HeightCodedRenderer implements LinearRenderer {
 
-    /** Historical vertical offset of the markup inside the canvas. */
-    private static final int SVG_TEXT_GAP = 10;
-
     @Override
     public BufferedImage toImage(BarcodeSymbol symbol, RenderSpec spec) {
         LinearSymbol linear = (LinearSymbol) symbol;
         int barWidth = spec.barWidth();
         int barHeight = spec.barHeight();
         int quiet = quietModules(spec);
-        List<BarRect> rects = rects(linear, barWidth, barHeight, quiet, 0);
+        List<BarRect> rects = rects(linear, barWidth, barHeight, quiet);
         return LinearPainters.toImage(rects, totalWidth(linear, barWidth, quiet), barHeight, spec);
     }
 
@@ -37,7 +34,7 @@ public final class HeightCodedRenderer implements LinearRenderer {
         int barWidth = spec.barWidth();
         int barHeight = spec.barHeight();
         int quiet = quietModules(spec);
-        List<BarRect> rects = rects(linear, barWidth, barHeight, quiet, 0);
+        List<BarRect> rects = rects(linear, barWidth, barHeight, quiet);
         LinearPainters.renderInto(target, offsetX, offsetY, totalWidth(linear, barWidth, quiet),
                 barHeight, rects, spec);
     }
@@ -48,7 +45,7 @@ public final class HeightCodedRenderer implements LinearRenderer {
         int barWidth = spec.barWidth();
         int barHeight = spec.barHeight();
         int quiet = quietModules(spec);
-        List<BarRect> rects = rects(linear, barWidth, barHeight, quiet, SVG_TEXT_GAP);
+        List<BarRect> rects = rects(linear, barWidth, barHeight, quiet);
         return LinearPainters.toSvg(rects, totalWidth(linear, barWidth, quiet), barHeight,
                 WidthCodedRenderer.BACKGROUND_OVERHANG, spec);
     }
@@ -66,20 +63,16 @@ public final class HeightCodedRenderer implements LinearRenderer {
 
     /**
      * Resolves the symbol to rectangles: dark elements are full-height bars, light elements are
-     * half-height bars drawn from the bottom edge up (the historical painter's rule). The SVG path
-     * historically starts its first subpath at a downward offset, reproduced by
-     * {@code svgOffsetY}.
+     * half-height bars, both bottom-aligned at the bar height (the historical painter's rule). The
+     * SVG painter shifts the run {@link LinearPainters#SVG_Y_OFFSET} px down, which puts the bar
+     * baseline 2px above the canvas bottom as before.
      */
-    private static List<BarRect> rects(LinearSymbol symbol, int barWidth, int barHeight, int quiet,
-                                       int svgOffsetY) {
+    private static List<BarRect> rects(LinearSymbol symbol, int barWidth, int barHeight, int quiet) {
         List<BarRect> rects = new ArrayList<>();
         int x = quiet * barWidth; // leading quiet zone
-        boolean first = true;
         for (boolean bit : SymbolBits.dark(symbol)) {
             int unit = bit ? barHeight : barHeight / 2;
-            int y = svgOffsetY == 0 ? barHeight - unit : svgOffsetY + (first ? unit : 0);
-            rects.add(new BarRect(x, y, barWidth, unit, true));
-            first = false;
+            rects.add(new BarRect(x, barHeight - unit, barWidth, unit, true));
             x += 2 * barWidth;
         }
         return rects;
