@@ -43,12 +43,7 @@ public final class MatrixBarcodeFormat implements BarcodeFormat {
         MatrixSymbol symbol = encoder.encode(text);
         String fragment = renderer.toSvg(symbol, renderSpec);
         int total = (symbol.widthInModules() + 2 * symbol.quietZone()) * renderSpec.moduleSize();
-        return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>\n"
-                + "<!-- Created with Bars4J -->\n"
-                + "<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.2\" width=\"" + total
-                + "\" height=\"" + total + "\" viewBox=\"0 0 " + total + " " + total + "\">"
-                + fragment
-                + "</svg>";
+        return SvgDocument.assemble(total, total, null, fragment);
     }
 
     @Override

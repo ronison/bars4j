@@ -240,20 +240,9 @@ public final class LinearBarcodeFormat implements BarcodeFormat {
             totalHeight = textRenderer.calcTotalHeight(textTop, internalSpec(renderSpec).fontSize());
         }
 
-        StringBuilder res = new StringBuilder("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>\n"
-                + "<!-- Created with Bars4J -->\n"
-                + "<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.2\" width=\"");
-        res.append(totalWidth);
-        res.append("\" height=\"");
-        res.append(totalHeight);
-        // A previous version emitted the canvas size as the preserveAspectRatio alignment
-        // ("x226Y78 meet"), which is not a valid SVG value; xMidYMid is the spec-correct
-        // centred alignment.
-        res.append("\" preserveAspectRatio=\"xMidYMid meet\"><style>text{font-family: 'Courier New', monospace;font-size: ")
-                .append(internalSpec(renderSpec).fontSize()).append("px;}</style>");
-        res.append(pcode);
-        res.append("Sorry, your browser does not support inline SVG.</svg>");
-        return res.toString();
+        String style = "<style>text{font-family: 'Courier New', monospace;font-size: "
+                + internalSpec(renderSpec).fontSize() + "px;}</style>";
+        return SvgDocument.assemble(totalWidth, totalHeight, style, pcode.toString());
     }
 
     @Override
