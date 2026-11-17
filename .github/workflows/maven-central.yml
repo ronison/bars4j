@@ -7,10 +7,10 @@
 #   GPG_PRIVATE_KEY / GPG_PASSPHRASE     — GPG key used to sign the artifacts (armored private key)
 #
 # The pom's `central` profile adds the javadoc jar, the GPG signatures and the
-# central-publishing-maven-plugin. The plugin stages the bundle and uploads it to the Portal; with
-# autoPublish=false the deployment is validated and then needs a manual confirmation on
-# https://central.sonatype.com/publishing/deployments (flip the pom flag to true once the first
-# release has been confirmed successfully).
+# central-publishing-maven-plugin. The plugin stages the bundle, uploads it to the Portal and,
+# with autoPublish=true + waitUntil=published, publishes the deployment automatically after
+# validation (the 1.2.0 first release was confirmed manually on
+# https://central.sonatype.com/publishing/deployments).
 
 name: Maven Central
 

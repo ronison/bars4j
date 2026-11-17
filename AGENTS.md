@@ -231,10 +231,9 @@ The jar is a **library** (no `Main-Class`): `java -jar target/bars4j-*.jar` does
 secrets `CENTRAL_USERNAME`/`CENTRAL_PASSWORD` (Portal user token) and
 `GPG_PRIVATE_KEY`/`GPG_PASSPHRASE`, plus the `io.github.ronison` namespace verified in the Central
 Portal (free GitHub namespace, no domain needed).
-With `autoPublish=false` the deployment is validated and then needs a manual confirmation on
-https://central.sonatype.com/publishing/deployments; flip the pom flag to `true` once the first
-release has been confirmed successfully. Components on Central are immutable — never re-publish a
-version that is already there.
+With `autoPublish=true` + `waitUntil=published` a validated deployment is published automatically
+(the 1.2.0 first release was confirmed manually on the Portal). Components on Central are
+immutable — never re-publish a version that is already there.
 
 ## 12. Pitfall checklist (TL;DR)
 

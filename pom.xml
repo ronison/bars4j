@@ -136,9 +136,9 @@
   <!--
     Maven Central publishing (Central Portal). Everything Central-specific lives in this profile so
     the default build and the GitHub Packages deploy are untouched: run `mvn deploy -Pcentral` with
-    the `central` server (Portal user token) in settings.xml. The first release should keep
-    autoPublish=false (manual confirmation on https://central.sonatype.com/publishing/deployments);
-    afterwards flip it to true for fully automated publishing.
+    the `central` server (Portal user token) in settings.xml. autoPublish=true publishes a validated
+    deployment automatically (first release of 1.2.0 was confirmed manually on
+    https://central.sonatype.com/publishing/deployments).
   -->
   <profiles>
     <profile>
@@ -195,7 +195,8 @@
             <configuration>
               <publishingServerId>central</publishingServerId>
               <deploymentName>bars4j</deploymentName>
-              <autoPublish>false</autoPublish>
+              <autoPublish>true</autoPublish>
+              <waitUntil>published</waitUntil>
             </configuration>
           </plugin>
         </plugins>
