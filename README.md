@@ -31,7 +31,17 @@ cd bars4j
 mvn package      # produces target/bars4j-<version>.jar and target/bars4j-<version>-sources.jar
 ```
 
-It is also published to GitHub Packages (`maven.pkg.github.com/ronison/bars4j`):
+It is published to the **Maven Central repository**:
+
+```xml
+<dependency>
+  <groupId>org.bars4j</groupId>
+  <artifactId>bars4j</artifactId>
+  <version>1.0.1</version> <!-- check the latest release -->
+</dependency>
+```
+
+And also to GitHub Packages (`maven.pkg.github.com/ronison/bars4j`):
 
 ```xml
 <dependency>

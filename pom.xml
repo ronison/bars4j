@@ -5,6 +5,31 @@
   <groupId>org.bars4j</groupId>
   <artifactId>bars4j</artifactId>
   <version>1.1.0</version>
+  <name>Bars4J</name>
+  <description>Pure-Java barcode generation library: 20 linear (1D) and 4 matrix (2D) formats, rendering to AWT images, standalone SVG documents and embeddable HTML/SVG snippets.</description>
+  <url>https://github.com/ronison/bars4j</url>
+
+  <licenses>
+    <license>
+      <name>GNU Lesser General Public License, Version 2.1 or later</name>
+      <url>https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <id>ronison</id>
+      <name>ronison</name>
+      <email>ronison@gmail.com</email>
+    </developer>
+  </developers>
+
+  <scm>
+    <connection>scm:git:https://github.com/ronison/bars4j.git</connection>
+    <developerConnection>scm:git:git@github.com:ronison/bars4j.git</developerConnection>
+    <url>https://github.com/ronison/bars4j</url>
+  </scm>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -101,4 +126,74 @@
       <url>https://maven.pkg.github.com/ronison/bars4j</url>
     </repository>
   </distributionManagement>
+
+  <!--
+    Maven Central publishing (Central Portal). Everything Central-specific lives in this profile so
+    the default build and the GitHub Packages deploy are untouched: run `mvn deploy -Pcentral` with
+    the `central` server (Portal user token) in settings.xml. The first release should keep
+    autoPublish=false (manual confirmation on https://central.sonatype.com/publishing/deployments);
+    afterwards flip it to true for fully automated publishing.
+  -->
+  <profiles>
+    <profile>
+      <id>central</id>
+      <build>
+        <plugins>
+          <!-- Central requires a -javadoc jar. -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <version>3.12.0</version>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <!-- Do not block publishing on javadoc lint warnings (e.g. missing @param). -->
+              <doclint>none</doclint>
+              <quiet>true</quiet>
+            </configuration>
+          </plugin>
+          <!-- Central requires GPG signatures for every artifact. -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <version>3.2.8</version>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <!-- Prevent gpg from pinning the terminal prompt in CI. -->
+              <gpgArguments>
+                <arg>--pinentry-mode</arg>
+                <arg>loopback</arg>
+              </gpgArguments>
+            </configuration>
+          </plugin>
+          <!-- Bundles the artifacts and uploads them to the Central Portal on `mvn deploy`. -->
+          <plugin>
+            <groupId>org.sonatype.central</groupId>
+            <artifactId>central-publishing-maven-plugin</artifactId>
+            <version>0.12.0</version>
+            <extensions>true</extensions>
+            <configuration>
+              <publishingServerId>central</publishingServerId>
+              <deploymentName>bars4j</deploymentName>
+              <autoPublish>false</autoPublish>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>

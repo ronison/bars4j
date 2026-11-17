@@ -218,6 +218,23 @@ mvn exec:java -Dexec.mainClass=org.bars4j.demo.SwingDemo  # Swing UI
 
 The jar is a **library** (no `Main-Class`): `java -jar target/bars4j-*.jar` does not work.
 
+### Publishing channels
+
+| Channel | Trigger | Target |
+|---|---|---|
+| GitHub Packages (`maven-publish.yml`) | release published | `mvn deploy` → `maven.pkg.github.com` (uses the pom's `<distributionManagement>`) |
+| Maven Central (`maven-central.yml`) | release published / manual | `mvn deploy -Pcentral` → Sonatype Central Portal (namespace `org.bars4j`) |
+| npm (`node-publish.yml`) | release published / `node-v*` tag | `@bars4j/core` |
+
+**Maven Central specifics** (everything lives in the pom's `central` profile): the profile adds the
+`-javadoc` jar, GPG signatures and the `central-publishing-maven-plugin`. Requires repository
+secrets `CENTRAL_USERNAME`/`CENTRAL_PASSWORD` (Portal user token) and
+`GPG_PRIVATE_KEY`/`GPG_PASSPHRASE`, plus the `org.bars4j` namespace verified in the Central Portal.
+With `autoPublish=false` the deployment is validated and then needs a manual confirmation on
+https://central.sonatype.com/publishing/deployments; flip the pom flag to `true` once the first
+release has been confirmed successfully. Components on Central are immutable — never re-publish a
+version that is already there.
+
 ## 12. Pitfall checklist (TL;DR)
 
 1. Always catch `BarcodeException` around `toImage`/`toSvg`/`toHtml`/`checkSum`.

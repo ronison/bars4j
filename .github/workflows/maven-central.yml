@@ -1,0 +1,54 @@
+# Publishes the Java library to the Maven Central repository via the Sonatype Central Portal.
+#
+# Triggered when a GitHub release is published (aligned with the other publishing workflows), when
+# run manually. Requires the namespace org.bars4j to be verified in the Central Portal and these
+# repository secrets:
+#   CENTRAL_USERNAME / CENTRAL_PASSWORD  — Central Portal user token (Account → Generate User Token)
+#   GPG_PRIVATE_KEY / GPG_PASSPHRASE     — GPG key used to sign the artifacts (armored private key)
+#
+# The pom's `central` profile adds the javadoc jar, the GPG signatures and the
+# central-publishing-maven-plugin. The plugin stages the bundle and uploads it to the Portal; with
+# autoPublish=false the deployment is validated and then needs a manual confirmation on
+# https://central.sonatype.com/publishing/deployments (flip the pom flag to true once the first
+# release has been confirmed successfully).
+
+name: Maven Central
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+concurrency:
+  group: maven-central-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        server-id: central # Value of the central-publishing-maven-plugin publishingServerId
+        server-username: CENTRAL_USERNAME
+        server-password: CENTRAL_PASSWORD
+        gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+        gpg-passphrase: GPG_PASSPHRASE
+
+    - name: Build with Maven
+      run: mvn -B verify --file pom.xml -Pcentral -Dgpg.skip=true
+
+    # Signs and uploads the bundle to the Central Portal. The Portal then validates the deployment.
+    - name: Publish to Maven Central
+      run: mvn -B deploy --file pom.xml -Pcentral
+      env:
+        CENTRAL_USERNAME: ${{ secrets.CENTRAL_USERNAME }}
+        CENTRAL_PASSWORD: ${{ secrets.CENTRAL_PASSWORD }}
+        GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
