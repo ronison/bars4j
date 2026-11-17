@@ -35,17 +35,22 @@ It is published to the **Maven Central repository**:
 
 ```xml
 <dependency>
-  <groupId>org.bars4j</groupId>
+  <groupId>io.github.ronison</groupId>
   <artifactId>bars4j</artifactId>
   <version>1.0.1</version> <!-- check the latest release -->
 </dependency>
 ```
 
+> **Migration note:** releases up to 1.1.0 were published to GitHub Packages as
+> `org.bars4j:bars4j`. From 1.2.0 the Maven coordinate is `io.github.ronison:bars4j` (the verified
+> GitHub namespace on Maven Central). Java packages and the JPMS module name remain `org.bars4j.*` —
+> only the Maven coordinate changed.
+
 And also to GitHub Packages (`maven.pkg.github.com/ronison/bars4j`):
 
 ```xml
 <dependency>
-  <groupId>org.bars4j</groupId>
+  <groupId>io.github.ronison</groupId>
   <artifactId>bars4j</artifactId>
   <version>1.0.1</version>
 </dependency>

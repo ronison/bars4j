@@ -15,7 +15,7 @@ Java systems. Treat it as the fast path; the javadoc and the tests are the sourc
 
 ```xml
 <dependency>
-  <groupId>org.bars4j</groupId>
+  <groupId>io.github.ronison</groupId>
   <artifactId>bars4j</artifactId>
   <version>1.0.1</version> <!-- check the latest release -->
 </dependency>
@@ -223,13 +223,14 @@ The jar is a **library** (no `Main-Class`): `java -jar target/bars4j-*.jar` does
 | Channel | Trigger | Target |
 |---|---|---|
 | GitHub Packages (`maven-publish.yml`) | release published | `mvn deploy` → `maven.pkg.github.com` (uses the pom's `<distributionManagement>`) |
-| Maven Central (`maven-central.yml`) | release published / manual | `mvn deploy -Pcentral` → Sonatype Central Portal (namespace `org.bars4j`) |
+| Maven Central (`maven-central.yml`) | release published / manual | `mvn deploy -Pcentral` → Sonatype Central Portal (namespace `io.github.ronison`) |
 | npm (`node-publish.yml`) | release published / `node-v*` tag | `@bars4j/core` |
 
 **Maven Central specifics** (everything lives in the pom's `central` profile): the profile adds the
 `-javadoc` jar, GPG signatures and the `central-publishing-maven-plugin`. Requires repository
 secrets `CENTRAL_USERNAME`/`CENTRAL_PASSWORD` (Portal user token) and
-`GPG_PRIVATE_KEY`/`GPG_PASSPHRASE`, plus the `org.bars4j` namespace verified in the Central Portal.
+`GPG_PRIVATE_KEY`/`GPG_PASSPHRASE`, plus the `io.github.ronison` namespace verified in the Central
+Portal (free GitHub namespace, no domain needed).
 With `autoPublish=false` the deployment is validated and then needs a manual confirmation on
 https://central.sonatype.com/publishing/deployments; flip the pom flag to `true` once the first
 release has been confirmed successfully. Components on Central are immutable — never re-publish a

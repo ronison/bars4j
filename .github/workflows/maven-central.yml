@@ -1,8 +1,8 @@
 # Publishes the Java library to the Maven Central repository via the Sonatype Central Portal.
 #
 # Triggered when a GitHub release is published (aligned with the other publishing workflows), when
-# run manually. Requires the namespace org.bars4j to be verified in the Central Portal and these
-# repository secrets:
+# run manually. Requires the namespace io.github.ronison to be verified in the Central Portal and
+# these repository secrets:
 #   CENTRAL_USERNAME / CENTRAL_PASSWORD  — Central Portal user token (Account → Generate User Token)
 #   GPG_PRIVATE_KEY / GPG_PASSPHRASE     — GPG key used to sign the artifacts (armored private key)
 #

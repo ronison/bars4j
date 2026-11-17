@@ -2,10 +2,16 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>org.bars4j</groupId>
+  <groupId>io.github.ronison</groupId>
   <artifactId>bars4j</artifactId>
-  <version>1.1.0</version>
+  <version>1.2.0</version>
   <name>Bars4J</name>
+  <!--
+    Coordinates note: releases up to 1.1.0 were published as org.bars4j:bars4j (GitHub Packages
+    only). From 1.2.0 the Maven coordinate is io.github.ronison:bars4j — the verified, free
+    GitHub namespace on the Maven Central Portal. Java packages and the JPMS module name remain
+    org.bars4j.*; only the Maven coordinate changed.
+  -->
   <description>Pure-Java barcode generation library: 20 linear (1D) and 4 matrix (2D) formats, rendering to AWT images, standalone SVG documents and embeddable HTML/SVG snippets.</description>
   <url>https://github.com/ronison/bars4j</url>
 
