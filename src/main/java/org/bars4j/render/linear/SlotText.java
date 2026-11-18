@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 
 /**
  * Draws the EAN/UPC human-readable digits in fixed-width slots.
@@ -48,6 +50,12 @@ final class SlotText {
         int advance = fm.stringWidth("0");
         double slot = groupWidth / count;
         g.setColor(foreground);
+        // Anti-aliased glyphs: without this hint the digits rasterise jagged ("staircased") in the
+        // exported PNG. Bars are axis-aligned fills, so the hint does not affect them.
+        if (g instanceof Graphics2D g2d) {
+            g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+                    RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        }
         for (int i = 0; i < count; i++) {
             int x = (int) Math.round(slotX + slot * i + (slot - advance) / 2.0);
             g.drawString(digits.substring(i, i + 1), x, baseline);

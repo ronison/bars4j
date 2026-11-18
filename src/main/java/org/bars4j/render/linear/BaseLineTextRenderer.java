@@ -31,6 +31,12 @@ public final class BaseLineTextRenderer implements LinearTextRenderer {
         Graphics g2d = barcode.getGraphics();
         Font f = new Font("monospace", Font.PLAIN, fontSize);
         g2d.setFont(f);
+        // Anti-aliased glyphs: without this hint the label rasterises jagged in the exported PNG.
+        // Bars are axis-aligned fills, so the hint does not affect them.
+        if (g2d instanceof java.awt.Graphics2D g2) {
+            g2.setRenderingHint(java.awt.RenderingHints.KEY_TEXT_ANTIALIASING,
+                    java.awt.RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        }
         FontMetrics fm = g2d.getFontMetrics();
         int h = fm.getHeight();
         int center = (barcode.getWidth() - fm.stringWidth(text)) / 2;
