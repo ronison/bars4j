@@ -38,12 +38,18 @@ export class MatrixBarcodeFormat implements BarcodeFormat {
   toSvg(text: string, renderSpec: RenderSpec): string {
     const symbol: MatrixSymbol = this.encoder.encode(text);
     const fragment = this.renderer.toSvg(symbol, renderSpec);
-    const total = (symbol.widthInModules() + 2 * symbol.quietZone()) * renderSpec.moduleSize;
+    // Width and height are computed separately: not every matrix symbol is square (PDF417 is
+    // rectangular), and a square canvas would letterbox the symbol with dead space.
+    const width = (symbol.widthInModules() + 2 * symbol.quietZone()) * renderSpec.moduleSize;
+    const height = (symbol.heightInModules() + 2 * symbol.quietZone()) * renderSpec.moduleSize;
+    // Document assembly mirrors the Java SvgDocument: XML prologue, fixed canvas (no viewBox)
+    // and the inline-SVG fallback text.
     return `<?xml version="1.0" encoding="UTF-8" standalone="no" ?>\n`
       + `<!-- Created with Bars4J -->\n`
-      + `<svg xmlns="http://www.w3.org/2000/svg" version="1.2" width="${total}" height="${total}" viewBox="0 0 ${total} ${total}">`
+      + `<svg xmlns="http://www.w3.org/2000/svg" version="1.2" width="${width}" height="${height}"`
+      + ` preserveAspectRatio="xMidYMid meet">`
       + fragment
-      + `</svg>`;
+      + `Sorry, your browser does not support inline SVG.</svg>`;
   }
 
   /**
@@ -61,8 +67,11 @@ export class MatrixBarcodeFormat implements BarcodeFormat {
   toHtml(text: string, renderSpec: RenderSpec, displayWidth = -1, displayHeight = -1): string {
     const symbol: MatrixSymbol = this.encoder.encode(text);
     const fragment = this.renderer.toSvg(symbol, renderSpec);
-    const total = (symbol.widthInModules() + 2 * symbol.quietZone()) * renderSpec.moduleSize;
-    return htmlSnippet(total, total, displayWidth, displayHeight,
+    // Width and height are computed separately: not every matrix symbol is square (PDF417 is
+    // rectangular), and a square canvas would letterbox the symbol with dead space.
+    const width = (symbol.widthInModules() + 2 * symbol.quietZone()) * renderSpec.moduleSize;
+    const height = (symbol.heightInModules() + 2 * symbol.quietZone()) * renderSpec.moduleSize;
+    return htmlSnippet(width, height, displayWidth, displayHeight,
       this.specValue.displayName + " " + text, fragment);
   }
 

@@ -42,8 +42,11 @@ public final class MatrixBarcodeFormat implements BarcodeFormat {
     public String toSvg(String text, RenderSpec renderSpec) throws BarcodeException {
         MatrixSymbol symbol = encoder.encode(text);
         String fragment = renderer.toSvg(symbol, renderSpec);
-        int total = (symbol.widthInModules() + 2 * symbol.quietZone()) * renderSpec.moduleSize();
-        return SvgDocument.assemble(total, total, null, fragment);
+        // Width and height are computed separately: not every matrix symbol is square (PDF417 is
+        // rectangular), and a square canvas would letterbox the symbol with dead space.
+        int width = (symbol.widthInModules() + 2 * symbol.quietZone()) * renderSpec.moduleSize();
+        int height = (symbol.heightInModules() + 2 * symbol.quietZone()) * renderSpec.moduleSize();
+        return SvgDocument.assemble(width, height, null, fragment);
     }
 
     @Override
@@ -59,8 +62,11 @@ public final class MatrixBarcodeFormat implements BarcodeFormat {
             throws BarcodeException {
         MatrixSymbol symbol = encoder.encode(text);
         String fragment = renderer.toSvg(symbol, renderSpec);
-        int total = (symbol.widthInModules() + 2 * symbol.quietZone()) * renderSpec.moduleSize();
-        return HtmlSnippet.assemble(total, total, displayWidth, displayHeight,
+        // Width and height are computed separately: not every matrix symbol is square (PDF417 is
+        // rectangular), and a square canvas would letterbox the symbol with dead space.
+        int width = (symbol.widthInModules() + 2 * symbol.quietZone()) * renderSpec.moduleSize();
+        int height = (symbol.heightInModules() + 2 * symbol.quietZone()) * renderSpec.moduleSize();
+        return HtmlSnippet.assemble(width, height, displayWidth, displayHeight,
                 renderSpec, spec.displayName() + " " + text, fragment);
     }
 
