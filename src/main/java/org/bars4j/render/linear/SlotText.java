@@ -21,12 +21,38 @@ import java.awt.RenderingHints;
  */
 final class SlotText {
 
+    /**
+     * Physical monospaced families preferred for the raster label, best hinted first. The AWT
+     * logical font {@code monospace} maps to the synthesised {@code Dialog} fallback on some
+     * platforms (notably macOS), whose glyphs rasterise jagged at small sizes; a native family
+     * such as Menlo hints cleanly. The chain is deterministic per platform: the first installed
+     * family wins, otherwise the historical logical font is kept.
+     */
+    private static final String[] PREFERRED_FAMILIES = {"Menlo", "Monaco", "Courier New"};
+
     private SlotText() {
     }
 
-    /** Monospaced font used for the human-readable digits. */
+    /**
+     * Monospaced font used for the human-readable digits, resolving the best installed family of
+     * the preferred chain (falling back to the AWT logical {@code monospace}).
+     */
     static Font font(double nWidth, int size) {
-        return new Font("monospace", Font.PLAIN, Math.max(1, (int) Math.round(size * nWidth)));
+        return new Font(resolveFamily(), Font.PLAIN, Math.max(1, (int) Math.round(size * nWidth)));
+    }
+
+    /** The first installed family of the preferred chain, or the AWT logical {@code monospace}. */
+    static String resolveFamily() {
+        for (String family : PREFERRED_FAMILIES) {
+            Font probe = new Font(family, Font.PLAIN, 12);
+            // An unknown family silently falls back to Dialog; the font name then differs from the
+            // requested family, which is how the installed check is done.
+            if (family.equals(probe.getFamily()) || family.equals(probe.getFontName())
+                    || probe.getFamily().toLowerCase().startsWith(family.toLowerCase())) {
+                return family;
+            }
+        }
+        return "monospace";
     }
 
     /**

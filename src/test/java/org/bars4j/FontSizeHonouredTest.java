@@ -70,6 +70,16 @@ class FontSizeHonouredTest {
         assertTrue(svg.contains("font-size: 14px"), "unspecified font size must default to 14px");
     }
 
+    @Test
+    void rasterResolvesAPhysicalMonoFamily() {
+        // The AWT logical "monospace" maps to the synthesised Dialog fallback on some platforms,
+        // whose small-size glyphs rasterise jagged even with anti-aliasing. The chain must resolve
+        // a physical, well-hinted family when one is installed (falls back to "monospace" otherwise).
+        String resolved = org.bars4j.render.linear.SlotTextAccess.resolveFamily();
+        assertNotEquals("Dialog", new java.awt.Font(resolved, java.awt.Font.PLAIN, 12).getFamily(),
+                "the raster label font must not resolve to the Dialog synthesised fallback");
+    }
+
     /** Simple fingerprint of the label band (the strip below the bars holding the digits). */
     private static long labelBandFingerprint(java.awt.image.BufferedImage image) {
         long hash = 17;

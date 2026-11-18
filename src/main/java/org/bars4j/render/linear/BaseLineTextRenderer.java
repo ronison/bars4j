@@ -29,7 +29,7 @@ public final class BaseLineTextRenderer implements LinearTextRenderer {
         // matches the SVG label for any font size.
         int fontSize = spec != null && spec.fontSize() > 0 ? spec.fontSize() : FONT_SIZE;
         Graphics g2d = barcode.getGraphics();
-        Font f = new Font("monospace", Font.PLAIN, fontSize);
+        Font f = new Font(SlotText.resolveFamily(), Font.PLAIN, fontSize);
         g2d.setFont(f);
         // Anti-aliased glyphs: without this hint the label rasterises jagged in the exported PNG.
         // Bars are axis-aligned fills, so the hint does not affect them.
