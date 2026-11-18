@@ -25,8 +25,11 @@ public final class BaseLineTextRenderer implements LinearTextRenderer {
     public void paintText(BufferedImage barcode, String text, int nWidth, RenderSpec spec) {
         Color background = spec != null && spec.background() != null ? spec.background() : Color.WHITE;
         Color foreground = spec != null && spec.foreground() != null ? spec.foreground() : Color.BLACK;
+        // The label font honours the spec's fontSize (14 when unspecified), so the raster label
+        // matches the SVG label for any font size.
+        int fontSize = spec != null && spec.fontSize() > 0 ? spec.fontSize() : FONT_SIZE;
         Graphics g2d = barcode.getGraphics();
-        Font f = new Font("monospace", Font.PLAIN, 10 * nWidth);
+        Font f = new Font("monospace", Font.PLAIN, fontSize);
         g2d.setFont(f);
         FontMetrics fm = g2d.getFontMetrics();
         int h = fm.getHeight();

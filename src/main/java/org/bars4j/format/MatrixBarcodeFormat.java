@@ -61,7 +61,7 @@ public final class MatrixBarcodeFormat implements BarcodeFormat {
         String fragment = renderer.toSvg(symbol, renderSpec);
         int total = (symbol.widthInModules() + 2 * symbol.quietZone()) * renderSpec.moduleSize();
         return HtmlSnippet.assemble(total, total, displayWidth, displayHeight,
-                spec.displayName() + " " + text, fragment);
+                renderSpec, spec.displayName() + " " + text, fragment);
     }
 
     @Override

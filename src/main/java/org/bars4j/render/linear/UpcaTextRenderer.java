@@ -27,11 +27,14 @@ public final class UpcaTextRenderer implements LinearTextRenderer {
     public void paintText(BufferedImage barcode, String text, double nWidth, RenderSpec spec) {
         Color background = spec != null && spec.background() != null ? spec.background() : Color.WHITE;
         Color foreground = spec != null && spec.foreground() != null ? spec.foreground() : Color.BLACK;
+        // The label font honours the spec's fontSize (11 when unspecified) so the raster label
+        // matches the SVG label for any font size.
+        int fontSize = spec != null && spec.fontSize() > 0 ? spec.fontSize() : 11;
         // The label is normally 12 digits; without the check digit it has 11. Pad defensively so a
         // short label cannot crash with StringIndexOutOfBoundsException (mirrors paintTextSvg).
         String padded = text.length() >= 12 ? text : (text + "000000000000").substring(0, 12);
         Graphics g2d = barcode.getGraphics();
-        g2d.setFont(SlotText.font(nWidth, 11));
+        g2d.setFont(SlotText.font(nWidth, fontSize));
         FontMetrics fm = g2d.getFontMetrics();
 
         // calc bounds

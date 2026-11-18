@@ -269,7 +269,7 @@ public final class LinearBarcodeFormat implements BarcodeFormat {
         }
 
         return HtmlSnippet.assemble(totalWidth, totalHeight, displayWidth, displayHeight,
-                spec.displayName() + " " + resolved[1], pcode.toString());
+                internal, spec.displayName() + " " + resolved[1], pcode.toString());
     }
 
     @Override

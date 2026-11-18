@@ -214,6 +214,7 @@ mvn verify   # full verification, incl. the PerformanceIT throughput/latency gat
 mvn exec:java                                            # QRCodeDemo
 mvn exec:java -Dexec.mainClass=org.bars4j.demo.SimpleDemo # all formats
 mvn exec:java -Dexec.mainClass=org.bars4j.demo.SwingDemo  # Swing UI
+mvn exec:java -Dexec.mainClass=org.bars4j.demo.Ean13FontSizeDemo # EAN-13 label font sizes
 ```
 
 The jar is a **library** (no `Main-Class`): `java -jar target/bars4j-*.jar` does not work.

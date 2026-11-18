@@ -78,6 +78,33 @@ String html = BarcodeGenerator.of("CODE128").toHtml("Bars4J-128");
 String sized = BarcodeGenerator.of("CODE128").toHtml("Bars4J-128", 300, 100); // explicit px size
 ```
 
+### Custom label font size
+
+The `fontSize` field of the `RenderSpec` controls the human-readable label size (default 14, bounds
+1–200). It is honoured by every output path — the SVG document style, the HTML snippet style and
+the raster label — and the SVG canvas height grows with it:
+
+```java
+import java.awt.Color;
+import org.bars4j.render.RenderSpec;
+
+RenderSpec spec = new RenderSpec(
+        1,            // barWidth (ignored by linear formats; geometry comes from the format)
+        70,           // barHeight (idem)
+        2.0,          // wideRatio (idem)
+        4,            // moduleSize (matrix symbols only)
+        Color.BLACK, Color.WHITE,
+        10,           // quiet zone
+        20);          // label font size (px)
+
+String svg = BarcodeGenerator.of("EAN13").with(spec).toSvg("789100031550");
+// <style>text{font-family: 'Courier New', monospace;font-size: 20px;}</style>
+```
+
+Note that in the linear formats the spec's `barWidth`/`barHeight`/`moduleSize` are ignored (the
+registered geometry is kept); only `foreground`, `background`, `quietZone` and `fontSize` apply.
+See `org.bars4j.demo.Ean13FontSizeDemo` for a runnable comparison of font sizes 10/14/20/28.
+
 ### Node.js / TypeScript
 
 Requires **Node.js 22.18+** — it runs the TypeScript sources directly, with no build step.
